@@ -1,0 +1,43 @@
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.productCard {
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.productCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.imageContainer {
+  width: 100%;
+  /* Proporción cuadrada para la imagen */
+  aspect-ratio: 1 / 1.2; 
+  background-color: #f9f9f9;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.4s ease; /* Transición suave al cambiar de imagen */
+}
+
+.productInfo {
+  padding: 1rem;
+  text-align: center;
+}
+
+.productName {
+  margin: 0;
+  font-family: var(--secondary-font);
+  font-size: 1.1rem;
+  font-weight: normal;
+}

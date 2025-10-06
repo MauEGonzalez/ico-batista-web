@@ -1,42 +1,65 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* /src/App.css */
+
+:root {
+  --primary-font: 'Roboto', sans-serif;
+  --secondary-font: 'Playfair Display', serif;
+  --text-color: #333;
+  --background-color: #ffffff;
+  --accent-color: #000;
+  --max-width-content: 1200px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+/* Reset de Box-sizing para evitar desbordamientos inesperados */
+html {
+  box-sizing: border-box;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+*, *::before, *::after {
+  box-sizing: inherit;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+body {
+  font-family: var(--primary-font);
+  color: var(--text-color);
+  background-color: var(--background-color);
+  margin: 0;
+  line-height: 1.6;
+  width: 100%; /* Asegura que el body use todo el ancho del viewport */
+  min-height: 100vh;
+  overflow-x: hidden; /* ¡IMPORTANTE! Previene el scroll horizontal */
+  position: relative; /* Para que nada se escape */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* ============================================== */
+/* === ESTRUCTURA PRINCIPAL DE LA APP === */
+/* ============================================== */
+.appContainer {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.card {
-  padding: 2em;
+main {
+  width: 100%; /* Ocupa el 100% del espacio disponible de su padre */
+  max-width: var(--max-width-content); /* Pero no más de este valor */
+  margin: 0 auto; /* Centra el contenido principal */
+  padding: 2rem 1rem; /* Padding interno */
+  flex-grow: 1; /* Permite que el contenido principal empuje el footer hacia abajo */
 }
 
-.read-the-docs {
-  color: #888;
+/* ============================================== */
+/* === RESETEO GLOBAL PARA ENLACES === */
+/* ============================================== */
+a {
+  color: inherit; /* Hereda el color del texto de su padre */
+  text-decoration: none; /* Quita el subrayado */
+}
+
+/* ============================================== */
+/* === OTROS RESETS ÚTILES === */
+/* ============================================== */
+img, video {
+  max-width: 100%; /* Asegura que las imágenes y videos no desborden su contenedor */
+  height: auto;
+  display: block; /* Elimina espacio extra debajo de elementos inline */
 }

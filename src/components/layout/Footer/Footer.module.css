@@ -1,0 +1,132 @@
+/* /src/components/layout/Footer/Footer.module.css */
+
+.mainFooter {
+  background-color: var(--accent-color);
+  color: #fff;
+  padding: 4rem 2rem;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box; /* Incluye padding en el width */
+}
+
+.footerContent {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  max-width: var(--max-width-content);
+  margin: 0 auto 2rem auto;
+  gap: 2rem;
+}
+
+.footerSection {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footerSection h4 {
+  font-family: var(--secondary-font);
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footerSection p {
+  line-height: 1.8;
+  color: #ccc;
+}
+
+.subscribeForm {
+  display: flex;
+  margin-top: 1rem;
+}
+
+.subscribeInput {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid #555;
+  background-color: #333;
+  color: white;
+  border-radius: 3px 0 0 3px;
+  outline: none;
+}
+
+.subscribeInput::placeholder {
+  color: #aaa;
+}
+
+.subscribeButton {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background-color: white;
+  color: var(--accent-color);
+  cursor: pointer;
+  border-radius: 0 3px 3px 0;
+  transition: background-color 0.3s ease;
+  font-weight: bold;
+}
+
+.subscribeButton:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.footerLinksList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerLinksList li {
+  margin-bottom: 0.75rem;
+}
+
+.footerLinksList a, .socialIcons a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: block;
+}
+
+.footerLinksList a:hover, .socialIcons a:hover {
+  color: white;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.socialIcons a {
+  font-size: 1rem;
+}
+
+.footerBottom {
+  text-align: center;
+  border-top: 1px solid #444;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  color: #888;
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 768px) {
+  .footerContent {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .footerSection {
+    margin-bottom: 2rem;
+    min-width: unset;
+    width: 100%;
+  }
+  .subscribeForm {
+    justify-content: center;
+  }
+  .socialIcons {
+    justify-content: center;
+  }
+}

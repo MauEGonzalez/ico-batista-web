@@ -1,0 +1,19 @@
+.categoryHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  font-family: var(--secondary-font);
+}
+
+.productGrid {
+  display: grid;
+  /* Crea columnas automáticas de mínimo 280px */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.noProducts {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #888;
+  min-height: 40vh;
+}

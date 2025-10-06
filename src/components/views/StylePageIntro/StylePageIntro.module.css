@@ -1,0 +1,60 @@
+/* /src/components/views/StylePageIntro/StylePageIntro.module.css */
+
+.introContainer {
+  display: flex;
+  flex-wrap: wrap; /* Permitir que las imágenes se envuelvan */
+  gap: 2rem; /* Espacio entre las "tarjetas" */
+  justify-content: center;
+  margin: 3rem auto;
+  padding: 0; /* Aseguramos que no haya padding aquí, ya que main lo maneja */
+  width: 100%; /* Ocupa todo el ancho disponible */
+}
+
+.introImagePanel {
+  flex: 1 1 calc(33% - 2rem); /* 33% menos el espacio del gap para 3 columnas */
+  max-width: calc(33% - 2rem); /* Ancho máximo para una columna */
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  min-width: 280px; /* Ancho mínimo para que no se hagan demasiado pequeñas */
+}
+@media (max-width: 768px) {
+  .introImagePanel {
+    flex: 1 1 calc(50% - 1.5rem); /* 2 columnas en tablets */
+    max-width: calc(50% - 1.5rem);
+  }
+}
+@media (max-width: 480px) {
+  .introImagePanel {
+    flex: 1 1 90%; /* 1 columna en móviles */
+    max-width: 90%;
+  }
+}
+
+.introImagePanel img {
+  width: 100%;
+  height: 450px; /* Altura fija para que todas sean uniformes */
+  object-fit: cover;
+  display: block;
+}
+
+.categoryLink {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 0.6rem 1.8rem;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  border-radius: 3px;
+  letter-spacing: 0.8px;
+  font-weight: bold;
+}
+
+.categoryLink:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: translateX(-50%) scale(1.05);
+}

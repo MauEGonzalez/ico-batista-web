@@ -1,0 +1,5 @@
+/* /src/pages/LandingPage/LandingPage.module.css */
+.landingPage {
+  width: 100%;
+  overflow-x: hidden; /* Previene cualquier desbordamiento horizontal */
+}

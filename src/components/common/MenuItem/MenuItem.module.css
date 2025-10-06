@@ -1,0 +1,48 @@
+.menuItem {
+  border-bottom: 1px solid #eee;
+}
+
+.toggleButton, .menuLink {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: background-color 0.2s ease;
+}
+
+.menuLink:hover, .toggleButton:hover {
+  background-color: #f8f8f8;
+}
+
+.arrow {
+  font-size: 1.5rem;
+  color: #ccc;
+  transition: transform 0.3s ease;
+}
+
+.arrow.open {
+  transform: rotate(90deg);
+}
+
+.submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+/* Añade un padding a la izquierda para cada nivel de submenú */
+.submenu .menuItem {
+  padding-left: 1rem;
+}
+
+.submenu .submenu .menuItem {
+  padding-left: 2rem;
+}

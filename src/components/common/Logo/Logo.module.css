@@ -1,0 +1,7 @@
+.logoText {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  letter-spacing: 1.5px; /* Un poco más de espacio entre letras */
+  text-transform: uppercase;
+}

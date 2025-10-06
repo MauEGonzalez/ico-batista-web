@@ -1,0 +1,8 @@
+.videoContainer {
+  max-width: 400px; /* Ancho de ejemplo para video vertical */
+  margin: 0 auto;
+}
+.videoPlayer {
+  width: 100%;
+  height: auto;
+}
