@@ -1,8 +1,5 @@
 /* /src/index.css */
 
-/* ============================================== */
-/* === VARIABLES GLOBALES === */
-/* ============================================== */
 :root {
   --primary-font: 'Roboto', sans-serif;
   --secondary-font: 'Playfair Display', serif;
@@ -12,9 +9,6 @@
   --max-width-content: 1200px;
 }
 
-/* ============================================== */
-/* === RESETEOS FUNDAMENTALES (LA SOLUCIÓN) === */
-/* ============================================== */
 html {
   box-sizing: border-box;
 }
@@ -46,7 +40,7 @@ main {
   max-width: var(--max-width-content);
   margin: 0 auto;
   padding: 2rem 1rem;
-  flex-grow: 1; /* Empuja el footer hacia abajo */
+  flex-grow: 1; 
 }
 
 a {

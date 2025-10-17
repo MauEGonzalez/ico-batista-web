@@ -1,0 +1,132 @@
+.miniCartOverlay {
+  position: absolute;
+  top: 100%; /* Justo debajo del header */
+  right: 0;
+  z-index: 1500; /* Por encima del header pero debajo del SearchOverlay */
+  padding-top: 10px; /* Pequeño espacio para que no esté pegado */
+}
+
+.miniCartContainer {
+  width: 350px;
+  max-height: 400px; /* Altura máxima antes de hacer scroll */
+  background-color: white;
+  border: 1px solid #eee;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  animation: slideDownFadeIn 0.3s ease-out;
+}
+
+.emptyMessage {
+  padding: 2rem;
+  text-align: center;
+  color: #888;
+}
+
+.itemList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto; /* Scroll si hay muchos items */
+  flex-grow: 1; /* Ocupa el espacio disponible */
+}
+
+.cartItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cartItem:last-child {
+  border-bottom: none;
+}
+
+.itemImage {
+  width: 60px;
+  height: 75px;
+  object-fit: cover;
+}
+
+.itemDetails {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.itemName {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.itemPrice {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #aaa;
+  cursor: pointer;
+  padding: 5px;
+}
+.removeButton:hover {
+  color: red;
+}
+
+.summary {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.viewCartButton, .checkoutButton {
+  flex: 1;
+  padding: 0.75rem;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.viewCartButton {
+  background-color: #eee;
+  color: var(--text-color);
+  border: 1px solid #ddd;
+}
+
+.checkoutButton {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Animación de entrada */
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

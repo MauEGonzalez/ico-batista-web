@@ -1,0 +1,50 @@
+.cartWidget {
+  position: relative; /* Padre para el contador absoluto */
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.cartIcon {
+  font-size: 1.6rem; /* Ajusta el tamaño del emoji */
+  transition: transform 0.2s ease;
+}
+
+.cartWidget:hover .cartIcon {
+  transform: scale(1.1);
+}
+
+.cartCounter {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: var(--accent-color);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border: 2px solid white;
+  /* Animación sutil al aparecer */
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}

@@ -38,3 +38,15 @@
 .hamburgerMenu:hover, .searchIcon:hover {
   color: var(--accent-color);
 }
+
+/* Nuevo contenedor para las acciones de búsqueda y carrito */
+.actionsContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Pequeño espacio entre lupa y carrito */
+}
+
+/* Contenedor relativo para posicionar el MiniCart */
+.cartWidgetContainer {
+  position: relative;
+}

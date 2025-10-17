@@ -1,48 +1,81 @@
+/* /src/components/views/LandingTriptych/LandingTriptych.module.css */
+
 .triptychContainer {
   display: flex;
-  height: 100vh;
+  height: 100vh; /* Ocupa el 100% de la altura de la ventana */
+  width: 100vw;  /* Ocupa el 100% del ANCHO de la ventana */
   position: relative;
-  overflow: hidden; /* Asegura que nada se desborde */
+  /* La línea del background-color fue eliminada */
 }
+
 .triptychLogo {
   position: absolute;
   top: 2rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
-  /* Añadimos un color para que se vea sobre las imágenes */
-  color: white; 
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 }
+
 .triptychPanel {
-  flex: 1;
+  flex: 1; /* Cada panel intenta ocupar el mismo espacio */
   position: relative;
   overflow: hidden;
-  display: flex; /* Para centrar contenido si es necesario */
+  height: 100%; /* Asegura que cada panel ocupe la altura del contenedor */
+  display: flex;
   justify-content: center;
   align-items: center;
 }
-.triptychPanel img, .triptych-panel video {
+
+.triptychPanel img, .triptychPanel video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block; /* Asegura que ocupe todo el espacio */
+  object-fit: cover; /* Recorta la imagen/video para llenar el panel sin deformarse */
+  display: block;
 }
+
 .panelLink {
   position: absolute;
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   color: white;
-  background-color: rgba(0, 0, 0, 0.6); /* Un poco más opaco */
-  padding: 0.75rem 2rem; /* Más grande */
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 0.75rem 2rem;
   text-decoration: none;
-  font-size: 1.3rem; /* Más grande */
+  font-size: 1.3rem;
   transition: background-color 0.3s ease, transform 0.3s ease;
-  border-radius: 5px; /* Bordes redondeados */
+  border-radius: 5px;
   letter-spacing: 1px;
 }
+
 .panelLink:hover {
   background-color: rgba(0, 0, 0, 0.8);
-  transform: translateX(-50%) scale(1.05); /* Pequeño efecto al pasar el mouse */
+  transform: translateX(-50%) scale(1.05);
+}
+
+/* ============================================== */
+/* === MEDIA QUERY PARA CELULARES === */
+/* ============================================== */
+@media (max-width: 768px) {
+  .triptychContainer {
+    flex-direction: column; /* Apila los paneles verticalmente */
+    height: auto; /* La altura se ajustará al contenido */
+    width: 100%; /* En móviles, usamos el 100% normal */
+  }
+
+  .triptychPanel {
+    width: 100%;
+    height: 80vh; /* Cada panel ocupa el 80% de la altura de la pantalla del celular */
+  }
+
+  .triptychLogo {
+    /* Hacemos el logo un poco más pequeño en móviles */
+    font-size: 0.8em; 
+  }
+
+  .panelLink {
+    /* Hacemos los botones un poco más pequeños */
+    font-size: 1rem;
+    padding: 0.6rem 1.5rem;
+  }
 }

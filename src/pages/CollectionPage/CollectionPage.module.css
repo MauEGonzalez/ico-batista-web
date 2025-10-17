@@ -1,0 +1,73 @@
+/* /src/pages/CollectionPage/CollectionPage.module.css */
+.mainContent {
+  /* Quitamos el padding y max-width del 'main' global para esta página */
+  max-width: none;
+  padding: 0;
+}
+
+.hero {
+  height: 70vh;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heroOverlay {
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 2rem 4rem;
+  border-radius: 4px;
+}
+
+.heroTitle {
+  font-family: var(--secondary-font);
+  color: white;
+  font-size: 3.5rem;
+  text-align: center;
+  margin: 0;
+}
+
+.description {
+  max-width: var(--max-width-content); /* Centramos la descripción */
+  margin: 4rem auto;
+  padding: 0 2rem;
+  font-size: 1.2rem;
+  text-align: center;
+  line-height: 1.8;
+  color: #333;
+}
+
+.productGridContainer {
+  max-width: var(--max-width-content);
+  margin: 0 auto 4rem auto;
+  padding: 0 1rem;
+}
+
+.gridTitle {
+  font-family: var(--secondary-font);
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+  .description {
+    font-size: 1rem;
+    margin: 2rem auto;
+  }
+  .gridTitle {
+    font-size: 2rem;
+  }
+}
