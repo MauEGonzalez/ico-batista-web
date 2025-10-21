@@ -1,5 +1,16 @@
 /* /src/index.css */
 
+/* 👇👇👇 REGLA @font-face CORREGIDA CON .otf 👇👇👇 */
+@font-face {
+  font-family: 'Hisquins'; /* Este es el nombre que usaremos en nuestro CSS */
+  src: url('/fonts/Hisquins.otf') format('opentype'); /* Formato OpenType */
+  /* Asegúrate de que el archivo esté en /public/fonts/Hisquins.otf */
+  font-weight: normal;
+  font-style: normal;
+}
+/* 👆👆👆 FIN DE LA REGLA CORREGIDA 👆👆👆 */
+
+
 /* ============================================== */
 /* === VARIABLES GLOBALES === */
 /* ============================================== */
@@ -13,7 +24,7 @@
 }
 
 /* ============================================== */
-/* === RESETEOS FUNDAMENTALES (LA SOLUCIÓN) === */
+/* === RESETEOS FUNDAMENTALES === */
 /* ============================================== */
 html {
   box-sizing: border-box;

@@ -1,7 +1,12 @@
+/* /src/components/common/Logo/Logo.module.css */
+
 .logoText {
-  font-size: 1.8rem;
-  font-weight: bold;
+  /* 👇👇👇 ESTA ES LA LÍNEA QUE MODIFICAMOS 👇👇👇 */
+  font-family: 'Hisquins', var(--secondary-font), serif;
+  
+  font-size: 2.2rem; /* Le damos un poco más de tamaño para que luzca */
+  font-weight: normal; /* Las fuentes personalizadas suelen necesitar 'normal' en vez de 'bold' */
   text-decoration: none;
-  letter-spacing: 1.5px; /* Un poco más de espacio entre letras */
+  letter-spacing: 1.5px;
   text-transform: uppercase;
 }
