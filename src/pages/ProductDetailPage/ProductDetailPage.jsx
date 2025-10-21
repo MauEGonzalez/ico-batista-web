@@ -1,43 +1,88 @@
-import React from 'react';
+// /src/pages/ProductDetailPage/ProductDetailPage.jsx
+
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../../components/layout/Header/Header.jsx';
 import Footer from '../../components/layout/Footer/Footer.jsx';
 import { productsData } from '../../productsData';
 import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
+import { useCart } from '../../context/CartContext.jsx';
 import styles from './ProductDetailPage.module.css';
 
 const ProductDetailPage = () => {
   const { productId } = useParams();
-  
-  // Buscamos el producto en nuestra "base de datos" por su ID
+  const { addToCart } = useCart();
   const product = productsData.find(p => p.id === productId);
 
-  // Si no se encuentra el producto, mostramos la página 404
+  // Estado para la imagen principal y el zoom
+  const [selectedImage, setSelectedImage] = useState(product?.images[0]);
+  const [zoomPosition, setZoomPosition] = useState({ x: '50%', y: '50%' });
+
   if (!product) {
     return <NotFoundPage />;
   }
+
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
+
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPosition({ x: `${x}%`, y: `${y}%` });
+  };
 
   return (
     <div>
       <Header />
       <main className={styles.pageContainer}>
         <div className={styles.productDetail}>
-          {/* Galería de Imágenes */}
           <div className={styles.imageGallery}>
-            {product.images.map((image, index) => (
-              <img key={index} src={image} alt={`${product.name} - vista ${index + 1}`} />
-            ))}
+            {/* Contenedor de la Imagen Principal con Zoom */}
+            <div 
+              className={styles.mainImageContainer}
+              onMouseMove={handleMouseMove}
+            >
+              <img 
+                src={selectedImage} 
+                alt={`${product.name} - vista principal`}
+                className={styles.mainImage}
+                style={{ transformOrigin: `${zoomPosition.x} ${zoomPosition.y}` }}
+              />
+            </div>
+            {/* Miniaturas */}
+            <div className={styles.thumbnailContainer}>
+              {product.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`${product.name} - vista ${index + 1}`}
+                  className={`${styles.thumbnail} ${selectedImage === image ? styles.active : ''}`}
+                  onClick={() => setSelectedImage(image)}
+                />
+              ))}
+            </div>
           </div>
           
-          {/* Información del Producto */}
           <div className={styles.productInfo}>
             <h1 className={styles.productName}>{product.name}</h1>
             <p className={styles.productPrice}>${product.price.toFixed(2)}</p>
             <p className={styles.productDescription}>{product.description}</p>
             
-            {/* Aquí irían los selectores de talle, color, etc. */}
+            {/* Selectores de Talle y Color (UI-only) */}
+            <div className={styles.selectors}>
+              <div className={styles.selectorGroup}>
+                <label>Talle:</label>
+                <div className={styles.options}>
+                  <button>S</button>
+                  <button>M</button>
+                  <button>L</button>
+                </div>
+              </div>
+            </div>
             
-            <button className={styles.addButton}>Añadir al Carrito</button>
+            <button onClick={handleAddToCart} className={styles.addButton}>Añadir al Carrito</button>
             <Link to="/tienda" className={styles.backLink}>← Volver a la tienda</Link>
           </div>
         </div>

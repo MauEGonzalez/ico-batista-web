@@ -1,13 +1,13 @@
+// /src/components/layout/Footer/Footer.jsx
+
 import React from 'react';
-import { Link } from 'react-router-dom'; // Para usar Link
+import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 
 const Footer = () => {
   return (
     <footer className={styles.mainFooter}>
       <div className={styles.footerContent}>
-        
-        {/* Columna de Novedades */}
         <div className={styles.footerSection}>
           <h4>Novedades</h4>
           <p>Suscríbete para recibir las últimas colecciones y noticias.</p>
@@ -17,21 +17,20 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Columna de Enlaces Rápidos */}
         <div className={styles.footerSection}>
           <h4>Explorar</h4>
           <ul className={styles.footerLinksList}>
             <li><Link to="/sobre-ico">Sobre Ico</Link></li>
             <li><Link to="/tienda">Tienda</Link></li>
-            <li><Link to="/formal">Formal</Link></li>
-            <li><Link to="/casual">Casual</Link></li>
+            <li><Link to="/mujer/formal">Formal</Link></li>
+            <li><Link to="/mujer/casual">Casual</Link></li>
           </ul>
         </div>
 
-        {/* Columna de Soporte */}
         <div className={styles.footerSection}>
           <h4>Ayuda</h4>
           <ul className={styles.footerLinksList}>
+            {/* 👇👇👇 LINKS ACTUALIZADOS 👇👇👇 */}
             <li><Link to="/faqs">Preguntas Frecuentes</Link></li>
             <li><Link to="/contacto">Contacto</Link></li>
             <li><Link to="/terminos">Términos y Condiciones</Link></li>
@@ -39,7 +38,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Columna de Redes Sociales */}
         <div className={styles.footerSection}>
           <h4>Síguenos</h4>
           <div className={styles.socialIcons}>
@@ -48,8 +46,8 @@ const Footer = () => {
             <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">TikTok</a>
           </div>
         </div>
-
       </div>
+
       <div className={styles.footerBottom}>
         <p>© 2025 Ico Batista. Todos los derechos reservados.</p>
       </div>

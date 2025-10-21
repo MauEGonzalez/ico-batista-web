@@ -1,12 +1,46 @@
+/* /src/pages/CategoryPage/CategoryPage.module.css */
+
 .categoryHeader {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   font-family: var(--secondary-font);
+  border-bottom: 1px solid #eee;
+  padding-bottom: 2rem;
 }
+
+.categoryHeader h1 {
+  margin-bottom: 1.5rem;
+}
+
+/* 👇👇👇 NUEVOS ESTILOS PARA EL FILTRO 👇👇👇 */
+.filterContainer {
+  display: flex;
+  justify-content: flex-end; /* Lo alinea a la derecha */
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--primary-font);
+  font-size: 0.9rem;
+}
+
+.sortSelect {
+  padding: 0.5rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+/* 👆👆👆 FIN DE NUEVOS ESTILOS 👆👆👆 */
+
 
 .productGrid {
   display: grid;
-  /* Crea columnas automáticas de mínimo 280px */
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
 }
@@ -16,4 +50,12 @@
   font-size: 1.2rem;
   color: #888;
   min-height: 40vh;
+  padding-top: 2rem;
+}
+
+/* Media query para celulares */
+@media (max-width: 576px) {
+  .filterContainer {
+    justify-content: center; /* Centra el filtro en móviles */
+  }
 }

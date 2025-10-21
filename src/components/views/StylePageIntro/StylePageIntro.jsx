@@ -1,29 +1,44 @@
+// /src/components/views/StylePageIntro/StylePageIntro.jsx
+
 import React from 'react';
-import { Link } from 'react-router-dom'; // Importamos Link para los nuevos enlaces
+import { Link } from 'react-router-dom';
 import styles from './StylePageIntro.module.css';
 
-const StylePageIntro = ({ styleType }) => {
-  // Definimos las categorías según el tipo de estilo
-  const categories = {
-    formal: [
-      { name: "Fiesta", path: "/formal/fiesta", image: `/assets/images/placeholder-formal-fiesta.jpg` },
-      { name: "Coctel", path: "/formal/coctel", image: `/assets/images/placeholder-formal-coctel.jpg` },
-      { name: "Gala", path: "/formal/gala", image: `/assets/images/placeholder-formal-gala.jpg` },
-    ],
-    casual: [
-      { name: "Básicos", path: "/casual/basicos", image: `/assets/images/placeholder-casual-basicos.jpg` },
-      { name: "Conjuntos", path: "/casual/conjuntos", image: `/assets/images/placeholder-casual-conjuntos.jpg` },
-    ],
+const StylePageIntro = ({ gender, styleType }) => {
+  // Creamos una estructura de datos para todas las subcategorías
+  const subcategories = {
+    hombre: {
+      formal: [
+        { name: "Trajes", path: "/tienda/hombre/formal/trajes", image: `/assets/images/placeholder-hombre-trajes.jpg` },
+        { name: "Camisas", path: "/tienda/hombre/formal/camisas", image: `/assets/images/placeholder-hombre-camisas.jpg` },
+        { name: "Pantalones", path: "/tienda/hombre/formal/pantalones", image: `/assets/images/placeholder-hombre-pantalones.jpg` },
+      ],
+      casual: [
+        { name: "Básicos", path: "/tienda/hombre/casual/basicos", image: `/assets/images/placeholder-hombre-basicos.jpg` },
+        { name: "Conjuntos", path: "/tienda/hombre/casual/conjuntos", image: `/assets/images/placeholder-hombre-conjuntos.jpg` },
+      ]
+    },
+    mujer: {
+      formal: [
+        { name: "Fiesta", path: "/tienda/mujer/formal/fiesta", image: `/assets/images/placeholder-formal-fiesta.jpg` },
+        { name: "Coctel", path: "/tienda/mujer/formal/coctel", image: `/assets/images/placeholder-formal-coctel.jpg` },
+        { name: "Gala", path: "/tienda/mujer/formal/gala", image: `/assets/images/placeholder-formal-gala.jpg` },
+      ],
+      casual: [
+        { name: "Básicos", path: "/tienda/mujer/casual/basicos", image: `/assets/images/placeholder-casual-basicos.jpg` },
+        { name: "Conjuntos", path: "/tienda/mujer/casual/conjuntos", image: `/assets/images/placeholder-casual-conjuntos.jpg` },
+      ]
+    }
   };
 
-  const currentCategories = categories[styleType] || []; // Obtiene las categorías correctas
+  // Buscamos las subcategorías correctas usando el género y el estilo
+  const currentSubcategories = subcategories[gender]?.[styleType] || [];
 
   return (
     <div className={styles.introContainer}>
-      {currentCategories.map((category) => (
+      {currentSubcategories.map((category) => (
         <div key={category.name} className={styles.introImagePanel}>
-          <img src={category.image} alt={`Prendas ${styleType} - ${category.name}`} />
-          {/* El nombre de la categoría es ahora un Link */}
+          <img src={category.image} alt={`Prendas ${gender} ${styleType} - ${category.name}`} />
           <Link to={category.path} className={styles.categoryLink}>
             {category.name}
           </Link>

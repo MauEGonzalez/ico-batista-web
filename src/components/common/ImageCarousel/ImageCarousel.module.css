@@ -1,5 +1,97 @@
+/* /src/components/common/ImageCarousel/ImageCarousel.module.css */
+
 .carouselContainer {
-  padding: 2rem;
-  background-color: #f0f0f0;
+  width: 100%;
+  margin-top: 4rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.carouselTitle {
+  font-family: var(--secondary-font);
+  font-size: 2rem;
   text-align: center;
+  margin-bottom: 2rem;
+}
+
+.carouselWrapper {
+  position: relative; /* Contenedor padre para las flechas absolutas */
+}
+
+.carouselTrack {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0 0.5rem; /* Pequeño padding para que las tarjetas no se peguen a los bordes */
+  gap: 1.5rem;
+  scroll-snap-type: x mandatory;
+  
+  /* ¡CRUCIAL! Ocultamos la barra de scroll en todos los navegadores */
+  scrollbar-width: none; /* Para Firefox */
+  -ms-overflow-style: none;  /* Para IE/Edge */
+}
+.carouselTrack::-webkit-scrollbar {
+  display: none; /* Para Chrome, Safari, y Opera */
+}
+
+.carouselItem {
+  flex: 0 0 300px;
+  scroll-snap-align: start;
+}
+@media (max-width: 768px) {
+  .carouselItem {
+    flex-basis: 250px;
+  }
+}
+
+/* ============================================== */
+/* === ESTILOS PARA LAS FLECHAS DE NAVEGACIÓN === */
+/* ============================================== */
+.scrollButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 2rem;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.scrollButton:hover {
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.scrollButton.left {
+  left: -25px; /* La mitad del ancho del botón para que se vea la mitad */
+}
+
+.scrollButton.right {
+  right: -25px; /* La mitad del ancho del botón para que se vea la mitad */
+}
+
+/* En móviles, hacemos las flechas más pequeñas y las metemos más adentro */
+@media (max-width: 768px) {
+  .scrollButton {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  .scrollButton.left {
+    left: 5px;
+  }
+  .scrollButton.right {
+    right: 5px;
+  }
 }

@@ -1,5 +1,102 @@
+/* /src/pages/CartPage/CartPage.module.css */
 .mainContent {
   padding: 2rem;
   min-height: 60vh;
+}
+.emptyCart {
   text-align: center;
+  padding: 4rem 0;
+}
+.shopLink {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background-color: var(--accent-color);
+  color: white;
+  text-decoration: none;
+}
+.cartContainer {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+.cartItemsList {
+  flex: 2;
+}
+.cartItem {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding: 1.5rem 0;
+}
+.itemImage {
+  width: 100px;
+  height: 120px;
+  object-fit: cover;
+}
+.itemDetails {
+  flex-grow: 1;
+}
+.itemName {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+.quantityControl {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+.quantityControl button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+.removeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.removeButton:hover {
+  color: var(--accent-color);
+}
+.cartSummary {
+  flex: 1;
+  border: 1px solid #eee;
+  padding: 1.5rem;
+  position: sticky;
+  top: 120px;
+}
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.totalRow {
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+}
+.checkoutButton, .clearButton {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+.checkoutButton {
+  background-color: var(--accent-color);
+  color: white;
+  margin-bottom: 0.5rem;
+}
+.clearButton {
+  background-color: #eee;
+  color: var(--text-color);
 }

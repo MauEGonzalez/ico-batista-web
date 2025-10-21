@@ -1,52 +1,81 @@
+/* /src/pages/ProductDetailPage/ProductDetailPage.module.css */
 .pageContainer {
   max-width: var(--max-width-content);
   margin: 2rem auto;
   padding: 0 1rem;
 }
-
 .productDetail {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
 }
-
 .imageGallery {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
-
-.imageGallery img {
+.mainImageContainer {
   width: 100%;
-  height: auto;
+  aspect-ratio: 1 / 1.2;
   border: 1px solid #eee;
+  overflow: hidden; /* Clave para el efecto zoom */
+  cursor: zoom-in;
 }
-
+.mainImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease-out;
+}
+.mainImageContainer:hover .mainImage {
+  transform: scale(2); /* El nivel de zoom */
+}
+.thumbnailContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.thumbnail {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+.thumbnail.active {
+  border-color: var(--accent-color);
+}
 .productInfo {
-  position: sticky; /* Hace que la info se quede fija al hacer scroll */
-  top: 120px; /* 80px del header + 40px de espacio */
+  position: sticky;
+  top: 120px;
   align-self: start;
 }
-
 .productName {
   font-family: var(--secondary-font);
   font-size: 2.5rem;
   margin-top: 0;
   margin-bottom: 1rem;
 }
-
 .productPrice {
   font-size: 1.5rem;
-  color: var(--text-color);
   margin-bottom: 2rem;
 }
-
 .productDescription {
   line-height: 1.8;
   color: #555;
   margin-bottom: 2rem;
 }
-
+.selectors { margin-bottom: 2rem; }
+.selectorGroup { margin-bottom: 1rem; }
+.selectorGroup label { font-weight: bold; margin-right: 1rem; }
+.options button {
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+}
+.options button:focus { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
 .addButton {
   width: 100%;
   padding: 1rem;
@@ -56,15 +85,6 @@
   background-color: var(--accent-color);
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   margin-bottom: 1.5rem;
 }
-
-.addButton:hover {
-  background-color: #333;
-}
-
-.backLink {
-  display: inline-block;
-  color: #555;
-}
+.backLink { display: inline-block; color: #555; }

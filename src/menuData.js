@@ -120,4 +120,8 @@ export const menuData = [
       { title: "Desfile 2", path: "/desfiles/2" },
     ],
   },
+  {
+    title: "Carrito de Compras",
+    path: "/carrito",
+  },
 ];
