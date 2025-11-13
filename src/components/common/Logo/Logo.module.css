@@ -1,12 +1,20 @@
 /* /src/components/common/Logo/Logo.module.css */
 
 .logoText {
-  /* 👇👇👇 ESTA ES LA LÍNEA QUE MODIFICAMOS 👇👇👇 */
   font-family: 'Hisquins', var(--secondary-font), serif;
-  
-  font-size: 2.2rem; /* Le damos un poco más de tamaño para que luzca */
-  font-weight: normal; /* Las fuentes personalizadas suelen necesitar 'normal' en vez de 'bold' */
+  font-size: 2.2rem;
+  font-weight: normal;
   text-decoration: none;
   letter-spacing: 1.5px;
   text-transform: uppercase;
+  /* Evita que el texto se parta en dos líneas */
+  white-space: nowrap; 
+}
+
+/* 👇👇👇 MEDIA QUERY AÑADIDA 👇👇👇 */
+@media (max-width: 480px) {
+  .logoText {
+    font-size: 1.5rem; /* Reduce el tamaño en celulares pequeños */
+    letter-spacing: 1px;
+  }
 }

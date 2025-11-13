@@ -1,5 +1,64 @@
-.mainContent {
-  padding: 2rem;
-  min-height: 60vh;
-  text-align: center;
+/* /src/pages/ShopPage/ShopPage.module.css */
+
+.shopContainer {
+  display: flex;
+  width: 100%;
+  /* Hacemos que ocupe toda la altura de la ventana, menos el header (80px) */
+  height: calc(100vh - 80px); 
+}
+
+.portalLink {
+  flex: 1; /* Cada link ocupa el 50% */
+  text-decoration: none;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.portalPanel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.portalLink:hover .portalPanel {
+  transform: scale(1.05); /* Efecto de zoom sutil al pasar el mouse */
+}
+
+/* --- Imágenes de Fondo --- */
+/* (Asegúrate de tener estas imágenes en /public/assets/images/) */
+.hombre {
+  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/assets/images/shop-hombre.jpg'); 
+}
+.mujer {
+  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/assets/images/shop-mujer.jpg'); 
+}
+
+.portalTitle {
+  font-family: var(--secondary-font);
+  font-size: 3rem;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+}
+
+/* --- Responsive para Móviles --- */
+@media (max-width: 768px) {
+  .shopContainer {
+    flex-direction: column; /* Apila los paneles verticalmente */
+    height: auto; /* La altura se ajusta al contenido */
+  }
+
+  .portalLink {
+    height: 50vh; /* Cada panel ocupa la mitad de la altura de la pantalla */
+  }
+
+  .portalTitle {
+    font-size: 2.5rem;
+  }
 }

@@ -11,21 +11,39 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  width: 100%; /* Aseguramos el ancho completo */
-  box-sizing: border-box; /* Incluye padding en el width */
+  width: 100%;
+  box-sizing: border-box;
 }
+
 .headerSection {
-  flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
+
+/* --- ESTA ES LA SECCIÓN CORREGIDA --- */
+
+/* Sección Izquierda (Hamburguesa) */
 .headerSection:first-child {
+  flex: 1; /* Ocupa 1 parte del espacio */
   justify-content: flex-start;
 }
+
+/* Sección Central (Logo) */
+.headerSection:nth-child(2) {
+  flex: 2; /* Ocupa 2 partes (el doble que los lados) */
+  justify-content: center;
+  /* Evita que el logo se achique si el texto es muy largo */
+  min-width: 0; 
+}
+
+/* Sección Derecha (Iconos) */
 .headerSection:last-child {
+  flex: 1; /* Ocupa 1 parte del espacio */
   justify-content: flex-end;
 }
+/* --- FIN DE LA CORRECCIÓN --- */
+
+
 .hamburgerMenu, .searchIcon {
   background: none;
   border: none;
