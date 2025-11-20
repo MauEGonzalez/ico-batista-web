@@ -1,3 +1,5 @@
+/* /src/components/common/MenuItem/MenuItem.module.css */
+
 .menuItem {
   border-bottom: 1px solid #eee;
 }
@@ -15,6 +17,11 @@
   cursor: pointer;
   color: var(--text-color);
   transition: background-color 0.2s ease;
+
+  /* 👇👇👇 ESTAS LÍNEAS SON LA SOLUCIÓN 👇👇👇 */
+  font-family: inherit; /* Hereda la fuente 'Lotion' del body */
+  font-style: inherit;  /* Hereda el estilo 'italic' del body */
+  /* 👆👆👆 FIN DE LA SOLUCIÓN 👆👆👆 */
 }
 
 .menuLink:hover, .toggleButton:hover {

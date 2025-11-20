@@ -1,22 +1,29 @@
 /* /src/index.css */
 
-/* 👇👇👇 REGLA @font-face CORREGIDA CON .otf 👇👇👇 */
+/* Fuente del Logo */
 @font-face {
-  font-family: 'Hisquins'; /* Este es el nombre que usaremos en nuestro CSS */
-  src: url('/fonts/Hisquins.otf') format('opentype'); /* Formato OpenType */
-  /* Asegúrate de que el archivo esté en /public/fonts/Hisquins.otf */
+  font-family: 'Hisquins';
+  src: url('/fonts/Hisquins.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
-/* 👆👆👆 FIN DE LA REGLA CORREGIDA 👆👆👆 */
 
+/* Fuente Principal del Sitio */
+@font-face {
+  font-family: 'Lotion'; /* Nombre que le dimos */
+  src: url('/fonts/Lotion-RegularItalic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
 
 /* ============================================== */
 /* === VARIABLES GLOBALES === */
 /* ============================================== */
 :root {
-  --primary-font: 'Roboto', sans-serif;
-  --secondary-font: 'Playfair Display', serif;
+  /* 👇👇👇 AMBAS FUENTES USAN 'Lotion' 👇👇👇 */
+  --primary-font: 'Lotion', 'Roboto', sans-serif;
+  --secondary-font: 'Lotion', 'Playfair Display', serif; 
+
   --text-color: #333;
   --background-color: #ffffff;
   --accent-color: #000;
@@ -57,7 +64,7 @@ main {
   max-width: var(--max-width-content);
   margin: 0 auto;
   padding: 2rem 1rem;
-  flex-grow: 1; 
+  flex-grow: 1; /* Empuja el footer hacia abajo */
 }
 
 a {
@@ -69,4 +76,9 @@ img, video {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+/* Aseguramos que los encabezados también usen la fuente secundaria */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--secondary-font);
 }

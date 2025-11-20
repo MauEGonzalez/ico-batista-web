@@ -120,6 +120,13 @@ export const menuData = [
       { title: "Desfile 2", path: "/desfiles/2" },
     ],
   },
+  
+  // 👇👇👇 NUEVO ENLACE A "CONTACTO" AÑADIDO AQUÍ 👇👇👇
+  {
+    title: "Contacto",
+    path: "/contacto",
+  },
+  
   {
     title: "Carrito de Compras",
     path: "/carrito",

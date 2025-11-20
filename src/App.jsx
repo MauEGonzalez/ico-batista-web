@@ -18,9 +18,10 @@ import FaqsPage from './pages/FaqsPage/FaqsPage.jsx';
 import TermsPage from './pages/TermsPage/TermsPage.jsx';
 import PrivacyPage from './pages/PrivacyPage/PrivacyPage.jsx';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage.jsx';
-// 👇👇👇 IMPORTAMOS LAS NUEVAS PÁGINAS 👇👇👇
 import CollectionPage from './pages/CollectionPage/CollectionPage.jsx';
 import RunwayPage from './pages/RunwayPage/RunwayPage.jsx';
+
+// (La importación de CustomCursor ha sido eliminada)
 
 
 // Componente interno que maneja la lógica de las rutas y animaciones
@@ -57,7 +58,7 @@ const AnimatedRoutes = () => {
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/producto/:productId" element={<ProductDetailPage />} />
 
-          {/* 👇👇👇 RUTAS ACTUALIZADAS 👇👇👇 */}
+          {/* RUTAS ACTUALIZADAS */}
           <Route path="/colecciones/:id" element={<CollectionPage />} />
           <Route path="/desfiles/:id" element={<RunwayPage />} />
           
@@ -79,6 +80,8 @@ const AnimatedRoutes = () => {
 function App() {
   return (
     <BrowserRouter>
+      {/* El componente <CustomCursor /> ha sido eliminado de aquí */}
+    
       <Toaster
         position="bottom-right"
         toastOptions={{
