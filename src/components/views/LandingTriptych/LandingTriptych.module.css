@@ -3,7 +3,8 @@
 .triptychContainer {
   display: flex;
   height: 100vh; /* Ocupa el 100% de la altura de la ventana */
-  width: 100vw;  /* Ocupa el 100% del ANCHO de la ventana */
+  height: 100svh; /* En celulares, descuenta la barra del navegador */
+  width: 100%;
   position: relative;
   /* La línea del background-color fue eliminada */
 }
@@ -14,6 +15,9 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
+  margin: 0; /* Es un h1 (bueno para SEO) pero sin los márgenes por defecto */
+  font-size: 1rem;
+  font-weight: normal;
 }
 
 .triptychPanel {
@@ -24,6 +28,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.videoPanel {
+  background-color: #111; /* Fondo mientras carga el video (antes quedaba en blanco) */
 }
 
 .triptychPanel img, .triptychPanel video {

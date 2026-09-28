@@ -1,33 +1,35 @@
 /* /src/index.css */
 
-/* Fuente del Logo */
+/* ============================================== */
+/* === TIPOGRAFÍAS === */
+/* ============================================== */
+
+/* Fuente del logo (Hisquins). woff2 pesa ~30% menos que el .otf;
+   el .otf queda como respaldo para navegadores viejos. */
 @font-face {
   font-family: 'Hisquins';
-  src: url('/fonts/Hisquins.otf') format('opentype');
+  src: url('/fonts/Hisquins.woff2') format('woff2'),
+       url('/fonts/Hisquins.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap; /* Muestra el texto al instante y cambia a la fuente cuando carga */
 }
 
-/* Fuente Principal del Sitio */
-@font-face {
-  font-family: 'Lotion'; /* Nombre que le dimos */
-  src: url('/fonts/Lotion-RegularItalic.ttf') format('truetype');
-  font-weight: normal;
-  font-style: italic;
-}
+/* Roboto y Playfair Display se cargan desde Google Fonts en index.html */
 
 /* ============================================== */
 /* === VARIABLES GLOBALES === */
 /* ============================================== */
 :root {
-  /* 👇👇👇 AMBAS FUENTES USAN 'Lotion' 👇👇👇 */
-  --primary-font: 'Lotion', 'Roboto', sans-serif;
-  --secondary-font: 'Lotion', 'Playfair Display', serif; 
+  --logo-font: 'Hisquins', 'Playfair Display', serif;
+  --primary-font: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --secondary-font: 'Playfair Display', Georgia, serif;
 
   --text-color: #333;
   --background-color: #ffffff;
   --accent-color: #000;
   --max-width-content: 1200px;
+  --header-height: 80px;
 }
 
 /* ============================================== */
@@ -35,6 +37,7 @@
 /* ============================================== */
 html {
   box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
 }
 *, *::before, *::after {
   box-sizing: inherit;
@@ -44,7 +47,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
@@ -52,11 +55,14 @@ body {
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
+  overflow-x: hidden; /* Evita scroll horizontal accidental */
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 main {
@@ -78,7 +84,25 @@ img, video {
   display: block;
 }
 
-/* Aseguramos que los encabezados también usen la fuente secundaria */
+button {
+  font-family: inherit;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--secondary-font);
+}
+
+/* Foco visible solo al navegar con teclado */
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Respeta a quienes tienen desactivadas las animaciones en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

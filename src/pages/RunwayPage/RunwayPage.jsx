@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
+import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
 import styles from './RunwayPage.module.css';
 
 // Datos de ejemplo para los desfiles
@@ -23,20 +22,23 @@ const RunwayPage = () => {
   const runway = runwayInfo[id];
 
   if (!runway) {
-    return <div>Desfile no encontrado</div>;
+    return <NotFoundPage />;
   }
 
   return (
-    <div>
-      <Header />
+    <>
+      <title>{`${runway.title} | Ico Batista`}</title>
       <main className={styles.mainContent}>
         <section className={styles.videoContainer}>
-          <video 
-            src={runway.videoSrc} 
-            controls 
-            autoPlay 
-            loop 
-            muted 
+          <video
+            key={runway.videoSrc}
+            src={runway.videoSrc}
+            controls
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
             className={styles.videoPlayer}
           >
             Tu navegador no soporta el tag de video.
@@ -48,8 +50,7 @@ const RunwayPage = () => {
           <p className={styles.description}>{runway.description}</p>
         </section>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 };
 

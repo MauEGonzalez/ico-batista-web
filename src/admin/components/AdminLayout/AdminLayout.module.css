@@ -1,0 +1,106 @@
+/* /src/admin/components/AdminLayout/AdminLayout.module.css */
+
+.layout {
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #888;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 64px;
+  padding: 0 1.5rem;
+  background-color: white;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* El logo en el panel va más chico */
+.brand > div {
+  font-size: 1.3rem;
+}
+
+.badge {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.link {
+  white-space: nowrap;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.user {
+  color: #888;
+}
+
+.logout {
+  padding: 0.4rem 0.9rem;
+  background: none;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.logout:hover {
+  border-color: var(--accent-color);
+}
+
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    padding: 0 0.75rem;
+  }
+  .brand > div {
+    font-size: 1rem;
+  }
+  .user,
+  .badge {
+    display: none;
+  }
+  .link {
+    font-size: 0.8rem;
+  }
+  .actions {
+    gap: 0.75rem;
+  }
+  .content {
+    padding: 1.25rem 0.75rem 3rem;
+  }
+}

@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Variables de entorno (claves de MongoDB, Cloudinary, etc.): nunca subirlas a GitHub
+.env
+.env.*
+!.env.example
+
+# Reportes del script de importación
+import-report*.json

@@ -2,16 +2,20 @@
 
 import React, { useRef } from 'react'; // Importamos useRef
 import styles from './ImageCarousel.module.css';
-import { productsData } from '../../../productsData';
+import { useProducts } from '../../../context/productsContextValue.js';
 import ProductCard from '../ProductCard/ProductCard.jsx';
 
-const ImageCarousel = ({ styleType }) => {
+const ImageCarousel = ({ gender, styleType }) => {
   // Creamos una referencia que apuntará a nuestro contenedor de productos
   const trackRef = useRef(null);
 
-  const featuredProducts = productsData.filter(product => 
-    product.category.includes(styleType)
-  ).slice(0, 8);
+  // Filtra por género Y estilo (antes solo por estilo y mezclaba hombre con mujer)
+  const { products } = useProducts();
+  // Primero las marcadas como destacadas en el panel
+  const featuredProducts = products
+    .filter(product => product.category.startsWith(`${gender}/${styleType}/`))
+    .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)))
+    .slice(0, 8);
 
   if (featuredProducts.length === 0) {
     return null;
@@ -38,9 +42,11 @@ const ImageCarousel = ({ styleType }) => {
       <div className={styles.carouselWrapper}>
         
         {/* Botón Izquierdo */}
-        <button 
-          className={`${styles.scrollButton} ${styles.left}`} 
+        <button
+          type="button"
+          className={`${styles.scrollButton} ${styles.left}`}
           onClick={() => handleScroll('left')}
+          aria-label="Ver productos anteriores"
         >
           &#8249;
         </button>
@@ -55,9 +61,11 @@ const ImageCarousel = ({ styleType }) => {
         </div>
 
         {/* Botón Derecho */}
-        <button 
-          className={`${styles.scrollButton} ${styles.right}`} 
+        <button
+          type="button"
+          className={`${styles.scrollButton} ${styles.right}`}
           onClick={() => handleScroll('right')}
+          aria-label="Ver más productos"
         >
           &#8250;
         </button>

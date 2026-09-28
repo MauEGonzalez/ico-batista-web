@@ -1,12 +1,10 @@
 import React from 'react';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
 import styles from '../LegalPage.module.css'; // Usamos el CSS compartido
 
 const PrivacyPage = () => {
   return (
-    <div>
-      <Header />
+    <>
+      <title>Política de Privacidad | Ico Batista</title>
       <main>
         <div className={styles.legalContainer}>
           <h1 className={styles.title}>Política de Privacidad</h1>
@@ -21,8 +19,7 @@ const PrivacyPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 };
 

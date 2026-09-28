@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
 import styles from './FaqsPage.module.css';
 
 // Datos de ejemplo para las preguntas
@@ -31,8 +29,8 @@ const FaqsPage = () => {
   };
 
   return (
-    <div>
-      <Header />
+    <>
+      <title>Preguntas Frecuentes | Ico Batista</title>
       <main>
         <div className={styles.faqsContainer}>
           <h1 className={styles.title}>Preguntas Frecuentes</h1>
@@ -51,8 +49,7 @@ const FaqsPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 };
 

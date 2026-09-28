@@ -1,0 +1,218 @@
+/* /src/admin/pages/AdminProducts/AdminProducts.module.css */
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.newButton {
+  padding: 0.75rem 1.25rem;
+  color: white;
+  background-color: var(--accent-color);
+  white-space: nowrap;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.filters select,
+.search {
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.search {
+  flex: 1 1 240px;
+}
+
+.filters select {
+  flex: 0 1 260px;
+  min-width: 0;
+}
+
+.statusTabs {
+  display: flex;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.statusTabs button {
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+
+.statusTabs button span {
+  color: #aaa;
+}
+
+.statusTabs .activeTab {
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.statusTabs .activeTab span {
+  color: #ccc;
+}
+
+.message,
+.errorMessage {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #888;
+}
+
+.errorMessage {
+  color: #a11;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  border: 1px solid #eaeaea;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.thumbLink {
+  display: block;
+}
+
+.thumb,
+.noThumb {
+  width: 64px;
+  height: 80px;
+  object-fit: cover;
+  background-color: #f3f3f3;
+}
+
+.noThumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #999;
+  text-align: center;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--secondary-font);
+  font-size: 1.05rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.category {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.status {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  border: 1px solid;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.published {
+  color: #1a7f37;
+  border-color: #a6d8b4;
+  background-color: #f0faf2;
+}
+
+.draft {
+  color: #8a6d00;
+  border-color: #e5d38c;
+  background-color: #fffbea;
+}
+
+.edit {
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .header {
+    align-items: center;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .statusTabs {
+    width: 100%;
+  }
+  .statusTabs button {
+    flex: 1;
+  }
+  .filters select {
+    flex: 1 1 100%;
+  }
+  .row {
+    grid-template-columns: 56px 1fr auto;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+  .thumb,
+  .noThumb {
+    width: 56px;
+    height: 70px;
+  }
+  .edit {
+    display: none; /* En celular se toca la foto o el nombre para editar */
+  }
+}

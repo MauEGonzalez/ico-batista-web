@@ -1,8 +1,14 @@
+/* /src/components/common/AutoplayVideo/AutoplayVideo.module.css */
+
 .videoContainer {
-  max-width: 400px; /* Ancho de ejemplo para video vertical */
+  max-width: 400px; /* Video vertical */
   margin: 0 auto;
 }
+
 .videoPlayer {
   width: 100%;
+  aspect-ratio: 9 / 16; /* Reserva el espacio antes de que cargue: la página no "salta" */
   height: auto;
+  object-fit: cover;
+  background-color: #f4f4f4;
 }

@@ -55,3 +55,16 @@
 .submitButton:hover {
   background-color: #333;
 }
+.whatsappLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.8rem 1.6rem;
+  color: white;
+  background-color: var(--accent-color);
+  transition: opacity 0.2s ease;
+}
+.whatsappLink:hover {
+  opacity: 0.85;
+}

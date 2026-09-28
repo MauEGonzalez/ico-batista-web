@@ -1,71 +1,90 @@
 // /src/pages/CartPage/CartPage.jsx
 
 import React from 'react';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
-import { useCart } from '../../context/CartContext.jsx';
-import styles from './CartPage.module.css';
 import { Link } from 'react-router-dom';
+import { useCart } from '../../context/cartContextValue.js';
+import Price from '../../components/common/Price/Price.jsx';
+import { imageUrl } from '../../utils/imageUrl.js';
+import CurrencyToggle from '../../components/common/CurrencyToggle/CurrencyToggle.jsx';
+import { buildWhatsAppUrl, selectionInquiryMessage, sizeLabel } from '../../utils/whatsapp.js';
+import { CloseIcon, ChatIcon } from '../../components/common/Icons/Icons.jsx';
+import styles from './CartPage.module.css';
 
 const CartPage = () => {
-  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
-
-  // Calculamos el total multiplicando precio por cantidad
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const { cartItems, subtotal, hasUnpricedItems, removeFromCart, updateQuantity, clearCart } = useCart();
 
   return (
-    <div>
-      <Header />
-      <main className={styles.mainContent}>
-        <h1>Carrito de Compras</h1>
-        
-        {cartItems.length === 0 ? (
-          <div className={styles.emptyCart}>
-            <p>Tu carrito está vacío.</p>
-            <Link to="/tienda" className={styles.shopLink}>Ir a la tienda</Link>
-          </div>
-        ) : (
-          <div className={styles.cartContainer}>
-            <div className={styles.cartItemsList}>
-              {cartItems.map((item) => (
-                <div key={item.id} className={styles.cartItem}>
-                  <img src={item.images[0]} alt={item.name} className={styles.itemImage} />
-                  <div className={styles.itemDetails}>
-                    <h3 className={styles.itemName}>{item.name}</h3>
-                    <p className={styles.itemPrice}>${item.price.toFixed(2)}</p>
-                    <div className={styles.quantityControl}>
-                      <button onClick={() => updateQuantity(item.id, -1)}>-</button>
-                      <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, 1)}>+</button>
-                    </div>
-                  </div>
-                  <button onClick={() => removeFromCart(item.id)} className={styles.removeButton}>×</button>
-                </div>
-              ))}
-            </div>
+    <main className={styles.mainContent}>
+      <title>Mi selección | Ico Batista</title>
+      <h1>Mi selección</h1>
 
-            <div className={styles.cartSummary}>
-              <h2>Resumen del Pedido</h2>
-              <div className={styles.summaryRow}>
-                <span>Subtotal:</span>
-                <span>${total.toFixed(2)}</span>
+      {cartItems.length === 0 ? (
+        <div className={styles.emptyCart}>
+          <p>Tu selección está vacía.</p>
+          <Link to="/tienda" className={styles.shopLink}>Ir a la tienda</Link>
+        </div>
+      ) : (
+        <div className={styles.cartContainer}>
+          <div className={styles.cartItemsList}>
+            {cartItems.map((item) => (
+              <div key={item.key} className={styles.cartItem}>
+                <Link to={`/producto/${item.id}`}>
+                  <img src={imageUrl(item.image, 240)} alt={item.name} className={styles.itemImage} loading="lazy" decoding="async" />
+                </Link>
+                <div className={styles.itemDetails}>
+                  <h3 className={styles.itemName}>{item.name}</h3>
+                  {item.size && <p className={styles.itemMeta}>{sizeLabel(item.size)}</p>}
+                  <p className={styles.itemPrice}><Price value={item.price} /></p>
+                  <div className={styles.quantityControl}>
+                    <button type="button" onClick={() => updateQuantity(item.key, -1)} aria-label="Restar una unidad">−</button>
+                    <span aria-live="polite">{item.quantity}</span>
+                    <button type="button" onClick={() => updateQuantity(item.key, 1)} aria-label="Sumar una unidad">+</button>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFromCart(item.key)}
+                  className={styles.removeButton}
+                  aria-label={`Quitar ${item.name} de tu selección`}
+                >
+                  <CloseIcon width={20} height={20} />
+                </button>
               </div>
-              <div className={styles.summaryRow}>
-                <span>Envío:</span>
-                <span>A calcular</span>
-              </div>
-              <div className={`${styles.summaryRow} ${styles.totalRow}`}>
-                <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
-              <button className={styles.checkoutButton}>Finalizar Compra</button>
-              <button onClick={clearCart} className={styles.clearButton}>Vaciar Carrito</button>
-            </div>
+            ))}
           </div>
-        )}
-      </main>
-      <Footer />
-    </div>
+
+          <div className={styles.cartSummary}>
+            <div className={styles.summaryHeader}>
+              <h2>Tu consulta</h2>
+              <CurrencyToggle />
+            </div>
+            {subtotal > 0 && (
+              <div className={`${styles.summaryRow} ${styles.totalRow}`}>
+                <span>Total de referencia:</span>
+                <span><Price value={subtotal} /></span>
+              </div>
+            )}
+            {hasUnpricedItems && (
+              <p className={styles.summaryNote}>Algunas prendas no tienen precio publicado: Ico te lo pasa por WhatsApp.</p>
+            )}
+            <p className={styles.summaryNote}>
+              Te enviamos a WhatsApp con tu selección ya escrita. Ico te confirma disponibilidad,
+              medidas, forma de pago y entrega.
+            </p>
+            <a
+              href={buildWhatsAppUrl(selectionInquiryMessage(cartItems))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.checkoutButton}
+            >
+              <ChatIcon width={20} height={20} />
+              Consultar por WhatsApp
+            </a>
+            <button type="button" onClick={clearCart} className={styles.clearButton}>Vaciar selección</button>
+          </div>
+        </div>
+      )}
+    </main>
   );
 };
 

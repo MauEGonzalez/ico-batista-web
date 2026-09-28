@@ -37,6 +37,11 @@
 }
 
 .closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
   background: none;
   border: none;
   font-size: 2rem;
@@ -59,4 +64,14 @@
 @keyframes slideIn {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
+}
+.menuFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto; /* Queda abajo de todo en el menú */
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+  font-size: 0.85rem;
+  color: #888;
 }

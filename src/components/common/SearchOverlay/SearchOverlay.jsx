@@ -1,59 +1,76 @@
-import React, { useState, useEffect } from 'react';
+// /src/components/common/SearchOverlay/SearchOverlay.jsx
+
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { productsData } from '../../../productsData';
+import { useProducts } from '../../../context/productsContextValue.js';
+import { imageUrl } from '../../../utils/imageUrl.js';
+import { CloseIcon } from '../Icons/Icons.jsx';
 import styles from './SearchOverlay.module.css';
+
+// Normaliza para que "camperá", "CAMPERA" y "campera" coincidan
+const normalize = (text) =>
+  text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 const SearchOverlay = ({ isOpen, onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const { products } = useProducts();
 
-  // useEffect se ejecuta cada vez que 'searchTerm' cambia
-  useEffect(() => {
-    if (searchTerm.trim().length > 1) { // Empezamos a buscar después de 2 caracteres
-      const results = productsData.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setSearchResults(results);
-    } else {
-      setSearchResults([]); // Limpiamos los resultados si el término es muy corto
-    }
-  }, [searchTerm]);
+  // Los resultados se calculan directo del término (no hace falta un estado + useEffect)
+  const searchResults = useMemo(() => {
+    const term = normalize(searchTerm.trim());
+    if (term.length < 2) return [];
+    return products.filter(product =>
+      normalize(`${product.name} ${product.category}`).includes(term)
+    );
+  }, [searchTerm, products]);
 
-  // Si no está abierto, no renderizamos nada
   if (!isOpen) return null;
 
-  // Función para cerrar el overlay y limpiar la búsqueda
   const handleClose = () => {
     setSearchTerm('');
-    setSearchResults([]);
     onClose();
   };
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
-      <div className={styles.searchContainer} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.searchContainer}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Buscar productos"
+      >
         <div className={styles.searchHeader}>
           <input
-            type="text"
+            type="search"
             placeholder="Buscar productos..."
+            aria-label="Buscar productos"
             className={styles.searchInput}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            autoFocus // Pone el cursor en el input automáticamente
+            autoFocus
           />
-          <button onClick={handleClose} className={styles.closeButton}>×</button>
+          <button type="button" onClick={handleClose} className={styles.closeButton} aria-label="Cerrar búsqueda">
+            <CloseIcon />
+          </button>
         </div>
 
         <div className={styles.resultsContainer}>
-          {searchTerm.length > 1 && searchResults.length === 0 && (
+          {searchTerm.trim().length > 1 && searchResults.length === 0 && (
             <p className={styles.noResults}>No se encontraron resultados para "{searchTerm}"</p>
           )}
-          
+
           <ul className={styles.resultsList}>
             {searchResults.map(product => (
               <li key={product.id}>
                 <Link to={`/producto/${product.id}`} className={styles.resultItem} onClick={handleClose}>
-                  <img src={product.images[0]} alt={product.name} className={styles.resultImage} />
+                  <img
+                    src={imageUrl(product.images[0], 160)}
+                    alt={product.name}
+                    className={styles.resultImage}
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <span className={styles.resultName}>{product.name}</span>
                 </Link>
               </li>

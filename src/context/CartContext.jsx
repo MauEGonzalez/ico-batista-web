@@ -1,68 +1,87 @@
 // /src/context/CartContext.jsx
 
-import React, { createContext, useState, useContext } from 'react';
-import toast from 'react-hot-toast'; // Importamos la función toast
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import toast from 'react-hot-toast';
+import { CartContext } from './cartContextValue.js';
+import { hasPrice } from '../utils/formatPrice.js';
 
-// 1. Creamos el Contexto
-const CartContext = createContext();
+const STORAGE_KEY = 'icobatista-cart';
 
-// 2. Creamos un Hook personalizado para usar el contexto más fácilmente
-export const useCart = () => {
-  return useContext(CartContext);
+// "Mi selección": las prendas que la persona quiere consultar por WhatsApp.
+// Cada línea es un producto + talle. Así el mismo producto en S y en M son dos líneas distintas.
+const buildKey = (productId, size) => `${productId}__${size || 'unico'}`;
+
+const loadCart = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 };
 
-// 3. Creamos el Componente Proveedor que envolverá nuestra aplicación
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  // El carrito se recupera de localStorage, así no se pierde al recargar la página
+  const [cartItems, setCartItems] = useState(loadCart);
 
-  const addToCart = (productToAdd) => {
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cartItems));
+    } catch {
+      // Modo privado o almacenamiento lleno: el carrito sigue funcionando en memoria
+    }
+  }, [cartItems]);
+
+  const addToCart = useCallback((product, size) => {
+    const key = buildKey(product.id, size);
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === productToAdd.id);
-      
+      const existingItem = prevItems.find(item => item.key === key);
       if (existingItem) {
-        // Si el item ya existe, incrementamos su cantidad
         return prevItems.map(item =>
-          item.id === productToAdd.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.key === key ? { ...item, quantity: item.quantity + 1 } : item
         );
-      } else {
-        // Si es un item nuevo, lo añadimos con cantidad 1
-        return [...prevItems, { ...productToAdd, quantity: 1 }];
       }
+      // Guardamos solo lo necesario para mostrar el carrito
+      return [...prevItems, {
+        key,
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: typeof product.images?.[0] === 'string' ? product.images[0] : product.images?.[0]?.url,
+        size: size || null,
+        quantity: 1,
+      }];
     });
-    // REEMPLAZAMOS LA ALERTA POR LA NOTIFICACIÓN TOAST
-    toast.success(`${productToAdd.name} añadido al carrito!`);
-  };
+    const sizeText = size === 'A medida' ? ' (a medida)' : size ? ` (talle ${size})` : '';
+    toast.success(`${product.name}${sizeText} añadido a tu selección`);
+  }, []);
 
-  const removeFromCart = (productId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-  };
+  const removeFromCart = useCallback((key) => {
+    setCartItems(prevItems => prevItems.filter(item => item.key !== key));
+  }, []);
 
-  const updateQuantity = (productId, amount) => {
-    setCartItems(prevItems => {
-      return prevItems.map(item => {
-        if (item.id === productId) {
-          const newQuantity = item.quantity + amount;
-          return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
-        }
-        return item;
-      }).filter(Boolean); // filter(Boolean) elimina los items que se volvieron null (cantidad 0)
-    });
-  };
+  const updateQuantity = useCallback((key, amount) => {
+    setCartItems(prevItems =>
+      prevItems
+        .map(item => item.key === key ? { ...item, quantity: item.quantity + amount } : item)
+        .filter(item => item.quantity > 0)
+    );
+  }, []);
 
-  const clearCart = () => {
-    setCartItems([]);
-  };
+  const clearCart = useCallback(() => setCartItems([]), []);
 
-  // El valor que proveeremos a los componentes hijos
-  const value = {
+  const value = useMemo(() => ({
     cartItems,
+    totalItems: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    // Subtotal en pesos de las prendas con precio; las que no tienen se consultan aparte
+    subtotal: cartItems.reduce((sum, item) => sum + (hasPrice(item.price) ? item.price * item.quantity : 0), 0),
+    hasUnpricedItems: cartItems.some(item => !hasPrice(item.price)),
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
-  };
+  }), [cartItems, addToCart, removeFromCart, updateQuantity, clearCart]);
 
   return (
     <CartContext.Provider value={value}>

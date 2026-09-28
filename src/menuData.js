@@ -128,7 +128,7 @@ export const menuData = [
   },
   
   {
-    title: "Carrito de Compras",
+    title: "Mi selección",
     path: "/carrito",
   },
 ];

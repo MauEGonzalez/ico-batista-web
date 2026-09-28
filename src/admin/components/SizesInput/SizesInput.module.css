@@ -1,0 +1,53 @@
+/* /src/admin/components/SizesInput/SizesInput.module.css */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  min-width: 44px;
+  height: 38px;
+  padding: 0 0.8rem;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  background-color: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.chip.selected {
+  color: white;
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.customRow {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  max-width: 320px;
+}
+
+.customRow input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  font: inherit;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+}
+
+.customRow button {
+  padding: 0 0.9rem;
+  font-size: 0.85rem;
+  background-color: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.customRow button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

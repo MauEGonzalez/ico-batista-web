@@ -95,3 +95,23 @@
     right: 5px;
   }
 }
+
+/* En pantallas táctiles se desliza con el dedo: las flechas sobran */
+@media (hover: none) {
+  .scrollButton {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .carouselContainer {
+    margin-top: 2rem;
+    padding: 0;
+  }
+  .carouselTitle {
+    font-size: 1.5rem;
+  }
+  .carouselItem {
+    flex-basis: 65%;
+  }
+}

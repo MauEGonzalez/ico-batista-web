@@ -1,15 +1,13 @@
 // /src/pages/ShopPage/ShopPage.jsx
 
 import React from 'react';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
 import { Link } from 'react-router-dom';
 import styles from './ShopPage.module.css';
 
 const ShopPage = () => {
   return (
-    <div>
-      <Header />
+    <>
+      <title>Tienda | Ico Batista</title>
       {/* Usamos un div en lugar de <main> para tener control total del layout */}
       <div className={styles.shopContainer}>
         
@@ -28,8 +26,7 @@ const ShopPage = () => {
         </Link>
 
       </div>
-      <Footer />
-    </div>
+    </>
   );
 };
 

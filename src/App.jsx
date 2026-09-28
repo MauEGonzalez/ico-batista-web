@@ -1,108 +1,84 @@
 // /src/App.jsx
 
-import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import MainLayout from './components/layout/MainLayout/MainLayout.jsx';
+import ScrollToTop from './components/common/ScrollToTop/ScrollToTop.jsx';
 
-// Importaciones de páginas
-import LandingPage from './pages/LandingPage/LandingPage.jsx';
-import StylePage from './pages/StylePage/StylePage.jsx';
-import AboutPage from './pages/AboutPage/AboutPage.jsx';
-import ShopPage from './pages/ShopPage/ShopPage.jsx';
-import CartPage from './pages/CartPage/CartPage.jsx';
-import CategoryPage from './pages/CategoryPage/CategoryPage.jsx';
-import ProductDetailPage from './pages/ProductDetailPage/ProductDetailPage.jsx';
-import ContactPage from './pages/ContactPage/ContactPage.jsx';
-import FaqsPage from './pages/FaqsPage/FaqsPage.jsx';
-import TermsPage from './pages/TermsPage/TermsPage.jsx';
-import PrivacyPage from './pages/PrivacyPage/PrivacyPage.jsx';
-import NotFoundPage from './pages/NotFoundPage/NotFoundPage.jsx';
-import CollectionPage from './pages/CollectionPage/CollectionPage.jsx';
-import RunwayPage from './pages/RunwayPage/RunwayPage.jsx';
+// Cada página se descarga recién cuando se visita (code splitting),
+// así la primera carga del sitio es mucho más liviana.
+const LandingPage = lazy(() => import('./pages/LandingPage/LandingPage.jsx'));
+const StylePage = lazy(() => import('./pages/StylePage/StylePage.jsx'));
+const AboutPage = lazy(() => import('./pages/AboutPage/AboutPage.jsx'));
+const ShopPage = lazy(() => import('./pages/ShopPage/ShopPage.jsx'));
+const CartPage = lazy(() => import('./pages/CartPage/CartPage.jsx'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage/CategoryPage.jsx'));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage/ProductDetailPage.jsx'));
+const CollectionPage = lazy(() => import('./pages/CollectionPage/CollectionPage.jsx'));
+const RunwayPage = lazy(() => import('./pages/RunwayPage/RunwayPage.jsx'));
+const ContactPage = lazy(() => import('./pages/ContactPage/ContactPage.jsx'));
+const FaqsPage = lazy(() => import('./pages/FaqsPage/FaqsPage.jsx'));
+const TermsPage = lazy(() => import('./pages/TermsPage/TermsPage.jsx'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage/PrivacyPage.jsx'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage.jsx'));
+// Panel de administración (se descarga aparte, solo al entrar a /admin)
+const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 
-// (La importación de CustomCursor ha sido eliminada)
-
-
-// Componente interno que maneja la lógica de las rutas y animaciones
-const AnimatedRoutes = () => {
-  const location = useLocation();
-
-  const pageVariants = {
-    initial: { opacity: 0 },
-    in: { opacity: 1 },
-    out: { opacity: 0 },
-  };
-
-  const pageTransition = {
-    type: "tween",
-    ease: "anticipate",
-    duration: 0.5,
-  };
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="in"
-        exit="out"
-        variants={pageVariants}
-        transition={pageTransition}
-      >
-        <Routes location={location}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/:gender/:styleType" element={<StylePage />} />
-          <Route path="/sobre-ico" element={<AboutPage />} />
-          <Route path="/tienda" element={<ShopPage />} />
-          <Route path="/carrito" element={<CartPage />} />
-          <Route path="/producto/:productId" element={<ProductDetailPage />} />
-
-          {/* RUTAS ACTUALIZADAS */}
-          <Route path="/colecciones/:id" element={<CollectionPage />} />
-          <Route path="/desfiles/:id" element={<RunwayPage />} />
-          
-          <Route path="/tienda/:gender/:category" element={<CategoryPage />} />
-          <Route path="/tienda/:gender/:category/:subcategory" element={<CategoryPage />} />
-          <Route path="/tienda/:gender/:category/:subcategory/:item" element={<CategoryPage />} />
-          <Route path="/contacto" element={<ContactPage />} />
-          <Route path="/faqs" element={<FaqsPage />} />
-          <Route path="/terminos" element={<TermsPage />} />
-          <Route path="/privacidad" element={<PrivacyPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
-
-// Componente principal de la aplicación
 function App() {
   return (
     <BrowserRouter>
-      {/* El componente <CustomCursor /> ha sido eliminado de aquí */}
-    
+      <ScrollToTop />
       <Toaster
         position="bottom-right"
         toastOptions={{
           style: {
             background: 'var(--accent-color)',
             color: 'var(--background-color)',
-            borderRadius: '8px',
-            padding: '16px',
+            borderRadius: '4px',
+            padding: '14px 16px',
+            fontFamily: 'var(--primary-font)',
             boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
           },
           success: {
             duration: 3000,
-            iconTheme: {
-              primary: '#fff',
-              secondary: 'var(--accent-color)',
-            },
+            iconTheme: { primary: '#fff', secondary: '#000' },
           },
         }}
       />
-      
-      <AnimatedRoutes />
+
+      <Routes>
+        {/* Panel de administración: sin header ni footer de la web */}
+        <Route
+          path="/admin/*"
+          element={<Suspense fallback={null}><AdminApp /></Suspense>}
+        />
+
+        {/* Portada: sin header (tiene el logo propio sobre el tríptico) */}
+        <Route element={<MainLayout showHeader={false} />}>
+          <Route index element={<LandingPage />} />
+        </Route>
+
+        {/* Resto del sitio: con header fijo */}
+        <Route element={<MainLayout />}>
+          <Route path="/sobre-ico" element={<AboutPage />} />
+          <Route path="/tienda" element={<ShopPage />} />
+          <Route path="/tienda/:gender/:category" element={<CategoryPage />} />
+          <Route path="/tienda/:gender/:category/:subcategory" element={<CategoryPage />} />
+          <Route path="/tienda/:gender/:category/:subcategory/:item" element={<CategoryPage />} />
+          <Route path="/producto/:productId" element={<ProductDetailPage />} />
+          <Route path="/carrito" element={<CartPage />} />
+          <Route path="/colecciones/:id" element={<CollectionPage />} />
+          <Route path="/desfiles/:id" element={<RunwayPage />} />
+          <Route path="/contacto" element={<ContactPage />} />
+          <Route path="/faqs" element={<FaqsPage />} />
+          <Route path="/terminos" element={<TermsPage />} />
+          <Route path="/privacidad" element={<PrivacyPage />} />
+          {/* /:gender/:styleType valida adentro que sea hombre|mujer y formal|casual */}
+          <Route path="/:gender/:styleType" element={<StylePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }

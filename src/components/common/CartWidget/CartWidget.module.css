@@ -2,13 +2,14 @@
   position: relative; /* Padre para el contador absoluto */
   display: flex;
   align-items: center;
-  padding: 0.5rem;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   color: var(--text-color);
   text-decoration: none;
 }
 
 .cartIcon {
-  font-size: 1.6rem; /* Ajusta el tamaño del emoji */
   transition: transform 0.2s ease;
 }
 
@@ -18,17 +19,18 @@
 
 .cartCounter {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 4px;
+  right: 2px;
   background-color: var(--accent-color);
   color: white;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: bold;
   border: 2px solid white;
   /* Animación sutil al aparecer */

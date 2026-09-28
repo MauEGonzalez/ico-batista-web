@@ -26,24 +26,30 @@
   object-fit: cover;
   transition: transform 0.3s ease-out;
 }
-.mainImageContainer:hover .mainImage {
-  transform: scale(2); /* El nivel de zoom */
+@media (hover: hover) {
+  .mainImageContainer:hover .mainImage {
+    transform: scale(2); /* El nivel de zoom (solo con mouse) */
+  }
 }
 .thumbnailContainer {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
+.thumbnailButton {
+  padding: 0;
+  background: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.thumbnailButton.active {
+  border-color: var(--accent-color);
+}
 .thumbnail {
   width: 80px;
   height: 100px;
   object-fit: cover;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color 0.2s ease;
-}
-.thumbnail.active {
-  border-color: var(--accent-color);
 }
 .productInfo {
   position: sticky;
@@ -53,12 +59,20 @@
 .productName {
   font-family: var(--secondary-font);
   font-size: 2.5rem;
+  line-height: 1.2;
   margin-top: 0;
   margin-bottom: 1rem;
 }
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
 .productPrice {
   font-size: 1.5rem;
-  margin-bottom: 2rem;
+  margin: 0;
 }
 .productDescription {
   line-height: 1.8;
@@ -67,24 +81,103 @@
 }
 .selectors { margin-bottom: 2rem; }
 .selectorGroup { margin-bottom: 1rem; }
-.selectorGroup label { font-weight: bold; margin-right: 1rem; }
+.selectorLabel { display: block; font-weight: 500; margin-bottom: 0.5rem; }
+.options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .options button {
-  padding: 0.5rem 1rem;
-  margin-right: 0.5rem;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 1rem;
   border: 1px solid #ccc;
   background-color: white;
+  color: var(--text-color);
   cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
-.options button:focus { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+.options button:hover { border-color: var(--accent-color); }
+.options button.selected { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+.sizeHint {
+  margin: -0.25rem 0 0.75rem;
+  font-size: 0.85rem;
+  color: #888;
+}
+.measurements {
+  margin: -1rem 0 2rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+.measurements span {
+  font-weight: 500;
+  color: var(--text-color);
+}
+/* Botón principal: consulta directa por WhatsApp */
+.whatsappButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  background-color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  margin-bottom: 0.75rem;
+  transition: opacity 0.2s ease;
+}
+.whatsappButton:hover {
+  opacity: 0.85;
+}
+/* Botón secundario: sumar a la selección */
 .addButton {
   width: 100%;
   padding: 1rem;
   font-size: 1rem;
-  font-weight: bold;
-  color: white;
-  background-color: var(--accent-color);
-  border: none;
+  font-weight: 500;
+  color: var(--accent-color);
+  background-color: white;
+  border: 1px solid var(--accent-color);
   cursor: pointer;
-  margin-bottom: 1.5rem;
+  transition: background-color 0.2s ease;
+}
+.addButton:hover {
+  background-color: #f5f5f5;
+}
+.helpText {
+  margin: 0.75rem 0 1.5rem;
+  font-size: 0.85rem;
+  color: #888;
+  text-align: center;
 }
 .backLink { display: inline-block; color: #555; }
+
+/* ============ Celulares y tablets ============ */
+@media (max-width: 768px) {
+  .pageContainer {
+    margin: 0 auto 2rem;
+    padding: 0;
+  }
+  .productDetail {
+    grid-template-columns: 1fr; /* Foto arriba, info abajo */
+    gap: 1.5rem;
+  }
+  .mainImageContainer {
+    border: none;
+    cursor: default;
+  }
+  .thumbnailContainer {
+    padding: 0 1rem;
+    overflow-x: auto;
+  }
+  .productInfo {
+    position: static;
+    padding: 0 1rem;
+  }
+  .productName {
+    font-size: 1.75rem;
+  }
+  .productPrice {
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+}

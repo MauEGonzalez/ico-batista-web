@@ -1,121 +1,115 @@
 // /src/pages/CategoryPage/CategoryPage.jsx
 
-import React, { useState } from 'react'; // Importamos useState
+import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
+import { motion as Motion } from 'framer-motion';
 import ProductCard from '../../components/common/ProductCard/ProductCard.jsx';
 import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
-import { productsData } from '../../productsData';
+import { useProducts } from '../../context/productsContextValue.js';
 import { menuData } from '../../menuData';
-import { motion } from 'framer-motion';
+import { hasPrice } from '../../utils/formatPrice.js';
 import styles from './CategoryPage.module.css';
 
-// --- Función Auxiliar para validar la ruta (se mantiene igual) ---
-const isPathValid = (path, menuItems) => {
+// Busca en el menú el item con esa ruta (sirve para validar la URL y para sacar el título lindo)
+const findMenuItem = (path, menuItems) => {
   for (const item of menuItems) {
-    if (item.path === path) return true;
-    if (item.children && isPathValid(path, item.children)) return true;
+    if (item.path === path) return item;
+    if (item.children) {
+      const found = findMenuItem(path, item.children);
+      if (found) return found;
+    }
   }
-  return false;
+  return null;
+};
+
+const gridVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
 const CategoryPage = () => {
-  const params = useParams();
-  
-  // --- Nuevo estado para el ordenamiento ---
-  const [sortOrder, setSortOrder] = useState('default'); // Opciones: 'default', 'price-asc', 'price-desc'
+  const { gender, category, subcategory, item } = useParams();
+  const [sortOrder, setSortOrder] = useState('default'); // 'default' | 'price-asc' | 'price-desc'
+  const { products, loading, error } = useProducts();
 
-  // ... (toda la lógica de validación de ruta y filtro se mantiene igual) ...
-  const pathSegments = [
-    '/tienda', params.gender, params.category, params.subcategory, params.item
-  ].filter(Boolean);
-  
-  let fullPath = pathSegments.join('/');
-  if (params.id && location.pathname.includes('colecciones')) {
-    fullPath = `/colecciones/${params.id}`;
-  } else if (params.id && location.pathname.includes('desfiles')) {
-    fullPath = `/desfiles/${params.id}`;
-  }
+  const fullPath = ['/tienda', gender, category, subcategory, item].filter(Boolean).join('/');
+  const menuItem = findMenuItem(fullPath, menuData);
+  const filterPath = fullPath.replace(/^\/tienda\//, '');
 
-  const isValid = isPathValid(fullPath, menuData);
+  const sortedProducts = useMemo(() => {
+    // El "/" final evita que, por ejemplo, "mujer/casual/sport" incluya "mujer/casual/sportswear"
+    const filtered = products.filter(product =>
+      product.category === filterPath || product.category.startsWith(`${filterPath}/`)
+    );
+    // Las prendas sin precio ("Consultar precio") quedan siempre al final
+    const priceOf = (p) => (hasPrice(p.price) ? p.price : null);
+    const byPrice = (dir) => (a, b) => {
+      if (priceOf(a) === null) return 1;
+      if (priceOf(b) === null) return -1;
+      return dir * (a.price - b.price);
+    };
+    if (sortOrder === 'price-asc') return [...filtered].sort(byPrice(1));
+    if (sortOrder === 'price-desc') return [...filtered].sort(byPrice(-1));
+    return filtered;
+  }, [filterPath, sortOrder, products]);
 
-  if (!isValid) {
+  if (!menuItem) {
     return <NotFoundPage />;
   }
-  
-  const filterPath = fullPath.replace(/^\/tienda\//, '');
-  const filteredProducts = productsData.filter(product => 
-    product.category.startsWith(filterPath)
-  );
 
-  // --- Lógica de Ordenamiento ---
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortOrder === 'price-asc') {
-      return a.price - b.price; // Menor a mayor precio
-    }
-    if (sortOrder === 'price-desc') {
-      return b.price - a.price; // Mayor a menor precio
-    }
-    return 0; // Orden por defecto (el que viene de la 'base de datos')
-  });
-
-  const pageTitle = params.item || params.subcategory || params.category || params.id || 'Productos';
-  const formattedTitle = pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
-
-  const gridVariants = {
-    hidden: { transition: { staggerChildren: 0.1 } },
-    visible: { transition: { staggerChildren: 0.1, staggerDirection: 1 } }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
+  const genderLabel = gender === 'hombre' ? 'Hombre' : 'Mujer';
+  const title = menuItem.title;
 
   return (
-    <div>
-      <Header />
-      <main>
-        <div className={styles.categoryHeader}>
-          <h1>{formattedTitle}</h1>
-          
-          {/* 👇👇👇 NUEVO SELECTOR DE ORDENAMIENTO 👇👇👇 */}
-          <div className={styles.filterContainer}>
-            <label htmlFor="sort-select">Ordenar por:</label>
-            <select 
-              id="sort-select" 
-              className={styles.sortSelect}
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-            >
-              <option value="default">Destacados</option>
-              <option value="price-asc">Precio: Menor a Mayor</option>
-              <option value="price-desc">Precio: Mayor a Menor</option>
-            </select>
-          </div>
-        </div>
-        
-        {sortedProducts.length > 0 ? (
-          <motion.div 
-            className={styles.productGrid}
-            key={sortOrder} // Forzamos la re-animación al cambiar el orden
-            variants={gridVariants}
-            initial="hidden"
-            animate="visible"
+    <main>
+      <title>{`${title} ${genderLabel} | Ico Batista`}</title>
+
+      <div className={styles.categoryHeader}>
+        <p className={styles.eyebrow}>{genderLabel}</p>
+        <h1>{title}</h1>
+
+        <div className={styles.filterContainer}>
+          <label htmlFor="sort-select">Ordenar por:</label>
+          <select
+            id="sort-select"
+            className={styles.sortSelect}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
           >
-            {sortedProducts.map(product => (
-              <motion.div key={product.id} variants={cardVariants}>
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          <p className={styles.noProducts}>No hay productos en esta categoría por el momento.</p>
-        )}
-      </main>
-      <Footer />
-    </div>
+            <option value="default">Destacados</option>
+            <option value="price-asc">Precio: Menor a Mayor</option>
+            <option value="price-desc">Precio: Mayor a Menor</option>
+          </select>
+        </div>
+      </div>
+
+      {loading ? (
+        <p className={styles.noProducts}>Cargando prendas…</p>
+      ) : error ? (
+        <p className={styles.noProducts}>{error}</p>
+      ) : sortedProducts.length > 0 ? (
+        <Motion.div
+          className={styles.productGrid}
+          key={sortOrder} // Re-anima al cambiar el orden
+          variants={gridVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {sortedProducts.map(product => (
+            <Motion.div key={product.id} variants={cardVariants}>
+              <ProductCard product={product} />
+            </Motion.div>
+          ))}
+        </Motion.div>
+      ) : (
+        <p className={styles.noProducts}>No hay productos en esta categoría por el momento.</p>
+      )}
+    </main>
   );
 };
 

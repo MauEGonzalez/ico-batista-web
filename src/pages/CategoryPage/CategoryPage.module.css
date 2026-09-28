@@ -8,11 +8,20 @@
   padding-bottom: 2rem;
 }
 
+.eyebrow {
+  margin: 0;
+  font-family: var(--primary-font);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888;
+}
+
 .categoryHeader h1 {
+  margin-top: 0.25rem;
   margin-bottom: 1.5rem;
 }
 
-/* 👇👇👇 NUEVOS ESTILOS PARA EL FILTRO 👇👇👇 */
 .filterContainer {
   display: flex;
   justify-content: flex-end; /* Lo alinea a la derecha */
@@ -36,12 +45,11 @@
   outline: none;
   border-color: var(--accent-color);
 }
-/* 👆👆👆 FIN DE NUEVOS ESTILOS 👆👆👆 */
 
 
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: 2rem;
 }
 
@@ -57,5 +65,13 @@
 @media (max-width: 576px) {
   .filterContainer {
     justify-content: center; /* Centra el filtro en móviles */
+  }
+}
+
+/* En celulares, 2 columnas (lo estándar en tiendas de ropa) */
+@media (max-width: 600px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 0.75rem;
   }
 }

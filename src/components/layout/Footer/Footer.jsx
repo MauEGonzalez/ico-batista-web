@@ -2,19 +2,34 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { buildWhatsAppUrl } from '../../../utils/whatsapp.js';
+import { INSTAGRAM_URL } from '../../../config/contact.js';
 import styles from './Footer.module.css';
 
+const currentYear = new Date().getFullYear();
+
 const Footer = () => {
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    // TODO: conectar con el backend o un servicio de newsletter (Mailchimp, Brevo, etc.)
+  };
+
   return (
     <footer className={styles.mainFooter}>
       <div className={styles.footerContent}>
         <div className={styles.footerSection}>
           <h4>Novedades</h4>
           <p>Suscríbete para recibir las últimas colecciones y noticias.</p>
-          <div className={styles.subscribeForm}>
-            <input type="email" placeholder="Ingresa tu email" className={styles.subscribeInput} />
+          <form className={styles.subscribeForm} onSubmit={handleSubscribe}>
+            <input
+              type="email"
+              placeholder="Ingresa tu email"
+              aria-label="Tu email"
+              className={styles.subscribeInput}
+              required
+            />
             <button type="submit" className={styles.subscribeButton}>Suscribir</button>
-          </div>
+          </form>
         </div>
 
         <div className={styles.footerSection}>
@@ -22,15 +37,14 @@ const Footer = () => {
           <ul className={styles.footerLinksList}>
             <li><Link to="/sobre-ico">Sobre Ico</Link></li>
             <li><Link to="/tienda">Tienda</Link></li>
-            <li><Link to="/mujer/formal">Formal</Link></li>
-            <li><Link to="/mujer/casual">Casual</Link></li>
+            <li><Link to="/mujer/formal">Moda Mujer</Link></li>
+            <li><Link to="/hombre/formal">Moda Hombre</Link></li>
           </ul>
         </div>
 
         <div className={styles.footerSection}>
           <h4>Ayuda</h4>
           <ul className={styles.footerLinksList}>
-            {/* 👇👇👇 LINKS ACTUALIZADOS 👇👇👇 */}
             <li><Link to="/faqs">Preguntas Frecuentes</Link></li>
             <li><Link to="/contacto">Contacto</Link></li>
             <li><Link to="/terminos">Términos y Condiciones</Link></li>
@@ -41,7 +55,9 @@ const Footer = () => {
         <div className={styles.footerSection}>
           <h4>Síguenos</h4>
           <div className={styles.socialIcons}>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+            {/* TODO: completar los perfiles reales en src/config/contact.js */}
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href={buildWhatsAppUrl('Hola Ico! Quería hacerte una consulta.')} target="_blank" rel="noopener noreferrer">WhatsApp</a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
             <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">TikTok</a>
           </div>
@@ -49,7 +65,7 @@ const Footer = () => {
       </div>
 
       <div className={styles.footerBottom}>
-        <p>© 2025 Ico Batista. Todos los derechos reservados.</p>
+        <p>© {currentYear} Ico Batista. Todos los derechos reservados.</p>
       </div>
     </footer>
   );

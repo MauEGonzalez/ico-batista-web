@@ -1,14 +1,12 @@
 // /src/pages/AboutPage/AboutPage.jsx
 
 import React from 'react';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
 import styles from './AboutPage.module.css';
 
 const AboutPage = () => {
   return (
-    <div>
-      <Header />
+    <>
+      <title>Sobre Ico | Ico Batista</title>
       <main>
         <div className={styles.aboutContainer}>
           <div className={styles.hero}>
@@ -20,7 +18,7 @@ const AboutPage = () => {
           
           <section className={styles.bioSection}>
             <div className={styles.bioImageContainer}>
-              <img src="/assets/images/ico-batista-portrait.jpg" alt="Retrato de Ico Batista" />
+              <img src="/assets/images/ico-batista-portrait.jpg" alt="Retrato de Ico Batista" loading="lazy" decoding="async" />
             </div>
             <div className={styles.bioTextContainer}>
               <h2>Filosofía de Diseño</h2>
@@ -32,13 +30,12 @@ const AboutPage = () => {
           <section className={styles.videoSection}>
             <h2>El Proceso Creativo</h2>
             <div className={styles.videoWrapper}>
-              <video src="/assets/videos/atelier-process.mp4" controls autoPlay loop muted></video>
+              <video src="/assets/videos/atelier-process.mp4" controls autoPlay loop muted playsInline preload="metadata"></video>
             </div>
           </section>
         </div>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 };
 

@@ -1,9 +1,8 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
 import ProductCard from '../../components/common/ProductCard/ProductCard.jsx';
-import { productsData } from '../../productsData';
+import { useProducts } from '../../context/productsContextValue.js';
+import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
 import styles from './CollectionPage.module.css';
 
 // Datos de ejemplo para las colecciones (luego podríamos mover esto a un archivo)
@@ -25,18 +24,18 @@ const CollectionPage = () => {
   const collection = collectionsInfo[id];
   
   // Filtramos los productos que pertenecen a esta colección específica
-  const collectionProducts = productsData.filter(
+  const { products } = useProducts();
+  const collectionProducts = products.filter(
     product => product.category === `colecciones/${id}`
   );
 
   if (!collection) {
-    // Podríamos redirigir a 404, pero por ahora mostramos un mensaje
-    return <div>Colección no encontrada</div>;
+    return <NotFoundPage />;
   }
 
   return (
-    <div>
-      <Header />
+    <>
+      <title>{`${collection.title} | Ico Batista`}</title>
       <main className={styles.mainContent}>
         {/* Hero de la Colección */}
         <section className={styles.hero} style={{ backgroundImage: `url(${collection.heroImage})` }}>
@@ -60,8 +59,7 @@ const CollectionPage = () => {
           </div>
         </section>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 };
 

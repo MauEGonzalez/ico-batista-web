@@ -62,6 +62,11 @@
   margin-bottom: 0.25rem;
 }
 
+.itemMeta {
+  font-size: 0.8rem;
+  color: #777;
+}
+
 .itemPrice {
   font-size: 0.85rem;
   color: #555;
@@ -70,13 +75,13 @@
 .removeButton {
   background: none;
   border: none;
-  font-size: 1.2rem;
+  display: flex;
   color: #aaa;
   cursor: pointer;
   padding: 5px;
 }
 .removeButton:hover {
-  color: red;
+  color: var(--text-color);
 }
 
 .summary {
@@ -128,5 +133,12 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* En pantallas táctiles no hay "hover": el ícono lleva directo al carrito */
+@media (hover: none) {
+  .miniCartOverlay {
+    display: none;
   }
 }

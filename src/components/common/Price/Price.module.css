@@ -1,0 +1,10 @@
+/* /src/components/common/Price/Price.module.css */
+
+.consult {
+  font-style: italic;
+  color: #888;
+}
+
+.approx {
+  color: #999;
+}

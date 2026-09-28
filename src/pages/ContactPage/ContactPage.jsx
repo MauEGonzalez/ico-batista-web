@@ -3,8 +3,8 @@
 import React, { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 import toast from 'react-hot-toast'; // Usaremos las notificaciones que ya instalamos
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
+import { buildWhatsAppUrl } from '../../utils/whatsapp.js';
+import { ChatIcon } from '../../components/common/Icons/Icons.jsx';
 import styles from './ContactPage.module.css';
 
 const ContactPage = () => {
@@ -35,13 +35,22 @@ const ContactPage = () => {
   };
 
   return (
-    <div>
-      <Header />
+    <>
+      <title>Contacto | Ico Batista</title>
       <main>
         <div className={styles.contactContainer}>
           <div className={styles.header}>
             <h1>Contacto</h1>
-            <p>Para consultas sobre pedidos, diseños a medida o colaboraciones, por favor completa el formulario.</p>
+            <p>Para consultas sobre prendas, diseños a medida o colaboraciones, escríbenos por WhatsApp o completa el formulario.</p>
+            <a
+              href={buildWhatsAppUrl('Hola Ico! Quería hacerte una consulta.')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.whatsappLink}
+            >
+              <ChatIcon width={20} height={20} />
+              Escribir por WhatsApp
+            </a>
           </div>
           
           {/* El formulario ahora tiene el ref y el onSubmit */}
@@ -69,8 +78,7 @@ const ContactPage = () => {
           </form>
         </div>
       </main>
-      <Footer />
-    </div>
+    </>
   );
 };
 

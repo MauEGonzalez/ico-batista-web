@@ -1,4 +1,45 @@
+/* /src/pages/StylePage/StylePage.module.css */
+
 .pageSection {
   margin-bottom: 4rem;
   text-align: center;
+}
+
+.genderSwitch {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.genderLink {
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #999;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.genderLink:hover {
+  color: var(--text-color);
+}
+
+.genderLink.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+
+/* Título para buscadores y lectores de pantalla, invisible en el diseño */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }

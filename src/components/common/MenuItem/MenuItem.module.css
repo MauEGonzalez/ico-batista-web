@@ -18,10 +18,7 @@
   color: var(--text-color);
   transition: background-color 0.2s ease;
 
-  /* 👇👇👇 ESTAS LÍNEAS SON LA SOLUCIÓN 👇👇👇 */
-  font-family: inherit; /* Hereda la fuente 'Lotion' del body */
-  font-style: inherit;  /* Hereda el estilo 'italic' del body */
-  /* 👆👆👆 FIN DE LA SOLUCIÓN 👆👆👆 */
+  font-family: inherit; /* Los botones no heredan la fuente por defecto */
 }
 
 .menuLink:hover, .toggleButton:hover {

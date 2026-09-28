@@ -2,29 +2,40 @@
 
 import React from 'react';
 import { menuData } from '../../../menuData';
-// 👇👇👇 ESTA ES LA LÍNEA CORREGIDA 👇👇👇
-import MenuItem from '../MenuItem/MenuItem.jsx'; 
+import MenuItem from '../MenuItem/MenuItem.jsx';
+import { CloseIcon } from '../Icons/Icons.jsx';
+import CurrencyToggle from '../CurrencyToggle/CurrencyToggle.jsx';
 import styles from './HamburgerMenu.module.css';
 
 const HamburgerMenu = ({ isOpen, onClose }) => {
-  // Si no está abierto, no renderiza nada
   if (!isOpen) return null;
 
   return (
-    // Overlay oscuro que cubre la pantalla
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.menuContainer} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.menuContainer}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú principal"
+      >
         <div className={styles.menuHeader}>
           <span>MENÚ</span>
-          <button onClick={onClose} className={styles.closeButton}>×</button>
+          <button type="button" onClick={onClose} className={styles.closeButton} aria-label="Cerrar menú">
+            <CloseIcon />
+          </button>
         </div>
         <nav className={styles.menuNav}>
           <ul>
-            {menuData.map((item, index) => (
-              <MenuItem key={index} item={item} />
+            {menuData.map((item) => (
+              <MenuItem key={item.title} item={item} />
             ))}
           </ul>
         </nav>
+        <div className={styles.menuFooter}>
+          <span>Ver precios en</span>
+          <CurrencyToggle />
+        </div>
       </div>
     </div>
   );

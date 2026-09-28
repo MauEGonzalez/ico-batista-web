@@ -26,4 +26,12 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  // Backend y scripts: corren en Node, no en el navegador
+  {
+    files: ['server/**/*.js', 'api/**/*.js', 'scripts/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: globals.node,
+      sourceType: 'module',
+    },
+  },
 ])

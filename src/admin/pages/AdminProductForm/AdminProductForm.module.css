@@ -1,0 +1,249 @@
+/* /src/admin/pages/AdminProductForm/AdminProductForm.module.css */
+
+.loading {
+  padding: 3rem;
+  text-align: center;
+  color: #888;
+}
+
+.form {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.back {
+  width: 100%;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.back:hover {
+  color: var(--accent-color);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.9rem;
+}
+
+.viewLink {
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+.section {
+  margin-bottom: 1.25rem;
+  padding: 1.5rem;
+  background-color: white;
+  border: 1px solid #eaeaea;
+}
+
+.section h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.field small {
+  font-weight: normal;
+  color: #999;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  font: inherit;
+  font-weight: normal;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.checks label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checks input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+}
+
+.statusOptions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.statusOptions label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.6rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.statusOptions input {
+  grid-row: span 2;
+  accent-color: var(--accent-color);
+}
+
+.statusOptions small {
+  color: #888;
+}
+
+.statusOptions .statusActive {
+  border-color: var(--accent-color);
+  box-shadow: inset 0 0 0 1px var(--accent-color);
+}
+
+/* Barra inferior fija con los botones: siempre a mano, también en el celular */
+.footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 -1.5rem;
+  padding: 1rem 1.5rem;
+  background-color: rgba(250, 250, 250, 0.96);
+  border-top: 1px solid #eaeaea;
+  backdrop-filter: blur(4px);
+}
+
+.footerRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.unsaved {
+  font-size: 0.8rem;
+  color: #8a6d00;
+}
+
+.primary {
+  padding: 0.85rem 1.75rem;
+  font-size: 0.95rem;
+  color: white;
+  background-color: var(--accent-color);
+  border: none;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.secondary {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.delete {
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #a11;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.deleteConfirm {
+  padding: 0.5rem 1rem;
+  color: white;
+  background-color: #a11;
+  border: none;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 1.4rem;
+  }
+  .section {
+    padding: 1rem;
+  }
+  .grid,
+  .statusOptions {
+    grid-template-columns: 1fr;
+  }
+  .footer {
+    margin: 0 -0.75rem;
+    padding: 0.75rem;
+  }
+  .primary {
+    padding: 0.8rem 1.2rem;
+  }
+  .unsaved {
+    display: none;
+  }
+}

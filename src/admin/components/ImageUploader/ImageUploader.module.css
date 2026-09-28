@@ -1,0 +1,183 @@
+/* /src/admin/components/ImageUploader/ImageUploader.module.css */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.75rem;
+}
+
+.item {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  background-color: #f3f3f3;
+  overflow: hidden;
+  cursor: grab;
+  border: 1px solid #eaeaea;
+}
+
+.item.dragging {
+  opacity: 0.4;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.cover {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.controls {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+  padding: 0.4rem;
+}
+
+.controls button {
+  width: 32px;
+  height: 32px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  background-color: rgba(255, 255, 255, 0.92);
+  border: none;
+  cursor: pointer;
+}
+
+.controls button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.controls .remove {
+  margin-left: auto;
+  color: #a11;
+}
+
+.controls button + button {
+  margin-left: 0.25rem;
+}
+
+.uploading {
+  cursor: default;
+}
+
+.uploading .image {
+  opacity: 0.45;
+}
+
+.progress {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  height: 22px;
+  background-color: rgba(255, 255, 255, 0.9);
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progressBar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.15);
+  transition: width 0.2s ease;
+}
+
+.progress span {
+  position: relative;
+}
+
+.uploadError {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  text-align: center;
+  color: #a11;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.uploadError button {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  background: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  aspect-ratio: 4 / 5;
+  padding: 0.5rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #555;
+  background-color: white;
+  border: 1px dashed #bbb;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.dropzone small {
+  font-size: 0.7rem;
+  color: #999;
+  text-align: center;
+}
+
+.dropzone:hover,
+.dropzoneActive {
+  border-color: var(--accent-color);
+  background-color: #f7f7f7;
+}
+
+.plus {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  .controls button {
+    width: 28px;
+    height: 28px;
+  }
+}

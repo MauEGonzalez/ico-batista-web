@@ -26,7 +26,7 @@ const StylePageIntro = ({ gender, styleType }) => {
       ],
       casual: [
         { name: "Básicos", path: "/tienda/mujer/casual/basicos", image: `/assets/images/placeholder-casual-basicos.jpg` },
-        { name: "Conjuntos", path: "/tienda/mujer/casual/conjuntos", image: `/assets/images/placeholder-casual-conjuntos.jpg` },
+        { name: "Sport", path: "/tienda/mujer/casual/sport", image: `/assets/images/placeholder-casual-conjuntos.jpg` },
       ]
     }
   };
@@ -38,7 +38,11 @@ const StylePageIntro = ({ gender, styleType }) => {
     <div className={styles.introContainer}>
       {currentSubcategories.map((category) => (
         <div key={category.name} className={styles.introImagePanel}>
-          <img src={category.image} alt={`Prendas ${gender} ${styleType} - ${category.name}`} />
+          <img
+            src={category.image}
+            alt={`Prendas ${gender} ${styleType} - ${category.name}`}
+            decoding="async"
+          />
           <Link to={category.path} className={styles.categoryLink}>
             {category.name}
           </Link>

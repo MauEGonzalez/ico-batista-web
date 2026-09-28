@@ -2,28 +2,34 @@
 
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Header from '../../components/layout/Header/Header.jsx';
-import Footer from '../../components/layout/Footer/Footer.jsx';
-import { productsData } from '../../productsData';
+import { useProducts } from '../../context/productsContextValue.js';
+import { imageUrl, imageSrcSet } from '../../utils/imageUrl.js';
 import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
-import { useCart } from '../../context/CartContext.jsx';
+import { useCart } from '../../context/cartContextValue.js';
+import Price from '../../components/common/Price/Price.jsx';
+import CurrencyToggle from '../../components/common/CurrencyToggle/CurrencyToggle.jsx';
+import { hasPrice } from '../../utils/formatPrice.js';
+import { buildWhatsAppUrl, productInquiryMessage, MADE_TO_MEASURE } from '../../utils/whatsapp.js';
+import { ChatIcon } from '../../components/common/Icons/Icons.jsx';
 import styles from './ProductDetailPage.module.css';
 
-const ProductDetailPage = () => {
-  const { productId } = useParams();
-  const { addToCart } = useCart();
-  const product = productsData.find(p => p.id === productId);
+// Talles en stock por defecto si el producto no define los suyos (product.sizes)
+const DEFAULT_SIZES = ['S', 'M', 'L'];
 
-  // Estado para la imagen principal y el zoom
-  const [selectedImage, setSelectedImage] = useState(product?.images[0]);
+const ProductDetail = ({ product }) => {
+  const { addToCart } = useCart();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(null);
   const [zoomPosition, setZoomPosition] = useState({ x: '50%', y: '50%' });
 
-  if (!product) {
-    return <NotFoundPage />;
-  }
+  const stockSizes = product.sizes ?? DEFAULT_SIZES;
+  // Todas las prendas se pueden pedir a medida, salvo que el producto diga madeToMeasure: false
+  const sizes = product.madeToMeasure === false ? stockSizes : [...stockSizes, MADE_TO_MEASURE];
+  const selectedImage = product.images[selectedIndex];
+  const whatsappUrl = buildWhatsAppUrl(productInquiryMessage(product, selectedSize));
 
-  const handleAddToCart = () => {
-    addToCart(product);
+  const handleAddToSelection = () => {
+    addToCart(product, selectedSize);
   };
 
   const handleMouseMove = (e) => {
@@ -34,62 +40,118 @@ const ProductDetailPage = () => {
   };
 
   return (
-    <div>
-      <Header />
-      <main className={styles.pageContainer}>
-        <div className={styles.productDetail}>
-          <div className={styles.imageGallery}>
-            {/* Contenedor de la Imagen Principal con Zoom */}
-            <div 
-              className={styles.mainImageContainer}
-              onMouseMove={handleMouseMove}
-            >
-              <img 
-                src={selectedImage} 
-                alt={`${product.name} - vista principal`}
-                className={styles.mainImage}
-                style={{ transformOrigin: `${zoomPosition.x} ${zoomPosition.y}` }}
-              />
-            </div>
-            {/* Miniaturas */}
+    <main className={styles.pageContainer}>
+      <title>{`${product.name} | Ico Batista`}</title>
+      <meta name="description" content={product.description} />
+
+      <div className={styles.productDetail}>
+        <div className={styles.imageGallery}>
+          <div className={styles.mainImageContainer} onMouseMove={handleMouseMove}>
+            <img
+              src={imageUrl(selectedImage, 1400)}
+              srcSet={imageSrcSet(selectedImage)}
+              // Pedimos una foto grande en desktop para que el zoom se vea nítido
+              sizes="(max-width: 768px) 100vw, 1000px"
+              alt={`${product.name} - vista ${selectedIndex + 1}`}
+              className={styles.mainImage}
+              style={{ transformOrigin: `${zoomPosition.x} ${zoomPosition.y}` }}
+              fetchPriority="high"
+            />
+          </div>
+          {product.images.length > 1 && (
             <div className={styles.thumbnailContainer}>
               {product.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${product.name} - vista ${index + 1}`}
-                  className={`${styles.thumbnail} ${selectedImage === image ? styles.active : ''}`}
-                  onClick={() => setSelectedImage(image)}
-                />
+                <button
+                  type="button"
+                  key={typeof image === 'string' ? image : image.url}
+                  className={`${styles.thumbnailButton} ${selectedIndex === index ? styles.active : ''}`}
+                  onClick={() => setSelectedIndex(index)}
+                  aria-label={`Ver foto ${index + 1}`}
+                  aria-pressed={selectedIndex === index}
+                >
+                  <img src={imageUrl(image, 200)} alt="" className={styles.thumbnail} loading="lazy" decoding="async" />
+                </button>
               ))}
             </div>
+          )}
+        </div>
+
+        <div className={styles.productInfo}>
+          <h1 className={styles.productName}>{product.name}</h1>
+          <div className={styles.priceRow}>
+            <p className={styles.productPrice}><Price value={product.price} /></p>
+            {hasPrice(product.price) && <CurrencyToggle />}
           </div>
-          
-          <div className={styles.productInfo}>
-            <h1 className={styles.productName}>{product.name}</h1>
-            <p className={styles.productPrice}>${product.price.toFixed(2)}</p>
-            <p className={styles.productDescription}>{product.description}</p>
-            
-            {/* Selectores de Talle y Color (UI-only) */}
+          <p className={styles.productDescription}>{product.description}</p>
+
+          {sizes.length > 0 && (
             <div className={styles.selectors}>
               <div className={styles.selectorGroup}>
-                <label>Talle:</label>
-                <div className={styles.options}>
-                  <button>S</button>
-                  <button>M</button>
-                  <button>L</button>
+                <span className={styles.selectorLabel} id="size-label">
+                  Talle{selectedSize ? `: ${selectedSize}` : ''}
+                </span>
+                <p className={styles.sizeHint}>Talles disponibles en stock, o pídela a medida.</p>
+                <div className={styles.options} role="radiogroup" aria-labelledby="size-label">
+                  {sizes.map(size => (
+                    <button
+                      type="button"
+                      key={size}
+                      role="radio"
+                      aria-checked={selectedSize === size}
+                      className={selectedSize === size ? styles.selected : ''}
+                      onClick={() => setSelectedSize(size)}
+                    >
+                      {size}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
-            
-            <button onClick={handleAddToCart} className={styles.addButton}>Añadir al Carrito</button>
-            <Link to="/tienda" className={styles.backLink}>← Volver a la tienda</Link>
-          </div>
+          )}
+
+          {product.measurements && (
+            <p className={styles.measurements}>
+              <span>Medidas:</span> {product.measurements}
+            </p>
+          )}
+
+          {/* La compra se coordina por WhatsApp: el mensaje sale armado con la prenda y el talle */}
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.whatsappButton}
+          >
+            <ChatIcon width={20} height={20} />
+            Consultar por WhatsApp
+          </a>
+          <button type="button" onClick={handleAddToSelection} className={styles.addButton}>
+            Añadir a mi selección
+          </button>
+          <p className={styles.helpText}>
+            Puedes sumar varias prendas a tu selección y consultarlas todas juntas.
+          </p>
+          <Link to="/tienda" className={styles.backLink}>← Volver a la tienda</Link>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </main>
   );
+};
+
+const ProductDetailPage = () => {
+  const { productId } = useParams();
+  const { getProduct, loading } = useProducts();
+  const product = getProduct(productId);
+
+  if (loading) {
+    return <main className={styles.pageContainer} aria-busy="true" />;
+  }
+  if (!product) {
+    return <NotFoundPage />;
+  }
+
+  // key={product.id}: al pasar de un producto a otro se reinician foto y talle elegidos
+  return <ProductDetail key={product.id} product={product} />;
 };
 
 export default ProductDetailPage;

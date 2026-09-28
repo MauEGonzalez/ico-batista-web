@@ -41,3 +41,30 @@
   font-size: 1.1rem;
   font-weight: normal;
 }
+
+.productPrice {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Solo con mouse: en celulares el "levantarse" queda trabado después del toque */
+@media (hover: none) {
+  .productCard:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .productInfo {
+    padding: 0.6rem 0.4rem;
+  }
+  .productName {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+  .productPrice {
+    font-size: 0.85rem;
+  }
+}
