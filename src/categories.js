@@ -21,3 +21,15 @@ export const isValidCategory = (value) => VALID.has(value);
 
 export const categoryLabel = (value) =>
   CATEGORY_OPTIONS.find((option) => option.value === value)?.label ?? value;
+
+// Todas las secciones de la web que muestran prendas (incluye las intermedias, ej. "Mujer › Formal"),
+// con la URL pública donde se ven. Las usa el panel en "Orden y vista previa".
+const collectSections = (items, trail = []) =>
+  items.flatMap((item) => {
+    const labelTrail = [...trail, item.title.replace(/^Moda /, '')];
+    const match = item.path?.match(/^\/(?:tienda\/)?((?:hombre|mujer|colecciones)\/.+)$/);
+    const own = match ? [{ value: match[1], label: labelTrail.join(' › '), url: item.path }] : [];
+    return [...own, ...(item.children ? collectSections(item.children, labelTrail) : [])];
+  });
+
+export const SECTION_OPTIONS = collectSections(menuData);

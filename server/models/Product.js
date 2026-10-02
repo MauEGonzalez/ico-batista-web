@@ -36,6 +36,9 @@ const productSchema = new mongoose.Schema(
     images: { type: [imageSchema], default: [] },      // La primera es la portada
     status: { type: String, enum: ['draft', 'published'], default: 'draft' },
     featured: { type: Boolean, default: false },       // Aparece en "Productos destacados"
+    // Posición en la web (menor = aparece antes). Se define en el panel, "Orden y vista previa".
+    // Las prendas nuevas reciben un número negativo para aparecer primero hasta que se reordenen.
+    sortOrder: { type: Number, default: () => -Date.now(), index: true },
     // Carpeta de origen si vino de la importación masiva (evita importarla dos veces)
     importKey: { type: String, index: true, sparse: true },
   },
@@ -57,6 +60,7 @@ productSchema.methods.toPublicJSON = function toPublicJSON() {
     measurements: this.measurements,
     madeToMeasure: this.madeToMeasure,
     featured: this.featured,
+    sortOrder: this.sortOrder,
     images: this.images.map(({ url, width, height }) => ({ url, width, height })),
   };
 };

@@ -12,7 +12,7 @@ export const publicRouter = Router();
 
 publicRouter.get('/', async (req, res) => {
   const products = await Product.find({ status: 'published' })
-    .sort({ featured: -1, createdAt: -1 });
+    .sort({ sortOrder: 1, createdAt: -1 });
   // La CDN de Vercel guarda la respuesta 1 minuto: la web vuela y la base casi no se usa.
   res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
   res.json(products.map((product) => product.toPublicJSON()));
@@ -43,6 +43,7 @@ const toAdminListItem = (product) => ({
   price: product.price,
   status: product.status,
   featured: product.featured,
+  sortOrder: product.sortOrder,
   cover: product.images[0]?.url ?? null,
   imageCount: product.images.length,
   updatedAt: product.updatedAt,
@@ -51,6 +52,23 @@ const toAdminListItem = (product) => ({
 adminRouter.get('/', async (req, res) => {
   const products = await Product.find().sort({ updatedAt: -1 });
   res.json(products.map(toAdminListItem));
+});
+
+// Guardar el orden de las prendas en la web.
+// Body: { ids: [...] } con TODAS las prendas en el orden deseado (la primera aparece primero).
+adminRouter.post('/order', async (req, res) => {
+  const ids = Array.isArray(req.body?.ids)
+    ? [...new Set(req.body.ids.map(String))].filter((id) => /^[a-f0-9]{24}$/i.test(id)).slice(0, 5000)
+    : [];
+  if (ids.length === 0) return res.status(400).json({ message: 'No hay prendas para ordenar' });
+
+  // Se guarda de a 10 en 10 (sortOrder 0, 10, 20…) para dejar lugar a futuros ajustes
+  await Product.bulkWrite(
+    ids.map((id, index) => ({
+      updateOne: { filter: { _id: id }, update: { $set: { sortOrder: index * 10 } } },
+    }))
+  );
+  return res.json({ updated: ids.length });
 });
 
 // Cambiar el estado de varias prendas a la vez (publicar / pasar a borrador)

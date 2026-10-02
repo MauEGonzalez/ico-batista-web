@@ -7,6 +7,7 @@ import AdminLayout from './components/AdminLayout/AdminLayout.jsx';
 import AdminLogin from './pages/AdminLogin/AdminLogin.jsx';
 import AdminProducts from './pages/AdminProducts/AdminProducts.jsx';
 import AdminProductForm from './pages/AdminProductForm/AdminProductForm.jsx';
+import AdminOrder from './pages/AdminOrder/AdminOrder.jsx';
 
 const AdminApp = () => (
   <AdminAuthProvider>
@@ -18,6 +19,7 @@ const AdminApp = () => (
         <Route index element={<AdminProducts />} />
         <Route path="prendas/nueva" element={<AdminProductForm />} />
         <Route path="prendas/:id" element={<AdminProductForm />} />
+        <Route path="orden" element={<AdminOrder />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>

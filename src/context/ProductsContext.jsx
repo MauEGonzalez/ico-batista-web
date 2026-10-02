@@ -22,7 +22,9 @@ export const ProductsProvider = ({ children }) => {
     let cancelled = false;
     const load = async () => {
       try {
-        const response = await fetch('/api/products');
+        // Vista previa desde el panel (?preview=...): se saltea la caché para ver el último orden guardado
+        const isPreview = new URLSearchParams(window.location.search).has('preview');
+        const response = await fetch(isPreview ? `/api/products?preview=${Date.now()}` : '/api/products');
         const isJson = response.headers.get('content-type')?.includes('application/json');
         if (!response.ok || !isJson) throw new Error(`API ${response.status}`);
         const data = await response.json();

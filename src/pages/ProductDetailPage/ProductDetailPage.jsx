@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProducts } from '../../context/productsContextValue.js';
-import { imageUrl, imageSrcSet } from '../../utils/imageUrl.js';
+import { imageUrl, imageSrcSet, imageAspectRatio } from '../../utils/imageUrl.js';
 import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
 import { useCart } from '../../context/cartContextValue.js';
 import Price from '../../components/common/Price/Price.jsx';
@@ -46,7 +46,12 @@ const ProductDetail = ({ product }) => {
 
       <div className={styles.productDetail}>
         <div className={styles.imageGallery}>
-          <div className={styles.mainImageContainer} onMouseMove={handleMouseMove}>
+          {/* El marco toma la proporción real de la foto: se ve entera, sin recortes */}
+          <div
+            className={styles.mainImageContainer}
+            onMouseMove={handleMouseMove}
+            style={{ aspectRatio: imageAspectRatio(selectedImage) }}
+          >
             <img
               src={imageUrl(selectedImage, 1400)}
               srcSet={imageSrcSet(selectedImage)}

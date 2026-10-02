@@ -77,6 +77,36 @@
   border-color: var(--accent-color);
 }
 
+.tabs {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0 1.5rem;
+  background-color: white;
+  border-bottom: 1px solid #eaeaea;
+  overflow-x: auto;
+}
+
+.tabs a {
+  padding: 0.8rem 0 0.7rem;
+  font-size: 0.9rem;
+  color: #888;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.tabs a:hover {
+  color: var(--text-color);
+}
+
+.tabs .activeTab {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+
+.content.wide {
+  max-width: 1600px;
+}
+
 .content {
   max-width: 1100px;
   margin: 0 auto;
@@ -102,5 +132,9 @@
   }
   .content {
     padding: 1.25rem 0.75rem 3rem;
+  }
+  .tabs {
+    padding: 0 0.75rem;
+    gap: 1.25rem;
   }
 }

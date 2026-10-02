@@ -27,15 +27,23 @@ const migrate = async () => {
     await Product.updateOne({ _id: product._id }, { $set: { code: await nextProductCode() } });
   }
 
-  // 3) Se quitan las colecciones de ejemplo que ya no existen ("Coleccion 1" y "Coleccion 2")
+  // 3) Prendas sin posición: se ordenan como se venían mostrando (más nuevas primero)
+  const withoutOrder = await Product.find({ sortOrder: { $exists: false } }).sort({ createdAt: -1 }).select('_id');
+  if (withoutOrder.length > 0) {
+    await Product.bulkWrite(withoutOrder.map((p, index) => ({
+      updateOne: { filter: { _id: p._id }, update: { $set: { sortOrder: index * 10 } } },
+    })));
+  }
+
+  // 4) Se quitan las colecciones de ejemplo que ya no existen ("Coleccion 1" y "Coleccion 2")
   const OLD_COLLECTIONS = ['colecciones/1', 'colecciones/2'];
   const { modifiedCount: cleaned } = await Product.collection.updateMany(
     { categories: { $in: OLD_COLLECTIONS } },
     { $pullAll: { categories: OLD_COLLECTIONS } }
   );
 
-  if (legacy.length || withoutCode.length || cleaned) {
-    console.log(`Migración: ${legacy.length} prendas a varias categorías, ${withoutCode.length} códigos asignados, ${cleaned} colecciones viejas quitadas`);
+  if (legacy.length || withoutCode.length || withoutOrder.length || cleaned) {
+    console.log(`Migración: ${legacy.length} a varias categorías, ${withoutCode.length} códigos, ${withoutOrder.length} con orden asignado, ${cleaned} colecciones viejas quitadas`);
   }
 };
 

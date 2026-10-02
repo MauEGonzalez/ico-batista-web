@@ -29,3 +29,7 @@ export const imageDimensions = (image) =>
   typeof image === 'object' && image?.width && image?.height
     ? { width: image.width, height: image.height }
     : {};
+
+// Proporción para CSS ("1200 / 1800"). Si no se conoce (fotos viejas), 2:3, lo típico de una foto vertical.
+export const imageAspectRatio = (image) =>
+  typeof image === 'object' && image?.width && image?.height ? `${image.width} / ${image.height}` : '2 / 3';
