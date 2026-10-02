@@ -1,66 +1,63 @@
+// /src/pages/CollectionPage/CollectionPage.jsx
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import ProductCard from '../../components/common/ProductCard/ProductCard.jsx';
 import { useProducts } from '../../context/productsContextValue.js';
 import { belongsTo } from '../../utils/productCategories.js';
+import { getCollection } from '../../collections.js';
 import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
 import styles from './CollectionPage.module.css';
 
-// Datos de ejemplo para las colecciones (luego podríamos mover esto a un archivo)
-const collectionsInfo = {
-  '1': {
-    title: 'Colección "Amanecer"',
-    description: 'Una exploración de la luz y la silueta. Esta colección captura la paleta de colores del amanecer, desde los tonos fríos de la noche hasta los cálidos dorados del sol naciente, utilizando sedas fluidas y linos estructurados.',
-    heroImage: '/assets/images/collections/coleccion-1-hero.jpg'
-  },
-  '2': {
-    title: 'Colección "Nocturna"',
-    description: 'Inspirada en la arquitectura de la ciudad de noche. Esta colección se centra en texturas ricas, cortes nítidos y una paleta monocromática interrumpida por destellos de luz, combinando cuero, paño de lana y detalles metálicos.',
-    heroImage: '/assets/images/collections/coleccion-2-hero.jpg'
-  }
-};
-
 const CollectionPage = () => {
-  const { id } = useParams(); // Obtiene el '1' o '2' de la URL
-  const collection = collectionsInfo[id];
-  
-  // Filtramos los productos que pertenecen a esta colección específica
-  const { products } = useProducts();
-  const collectionProducts = products.filter(
-    product => belongsTo(product, `colecciones/${id}`)
-  );
+  const { id } = useParams(); // slug de la colección, ej. "vestigios"
+  const collection = getCollection(id);
+  const { products, loading } = useProducts();
 
   if (!collection) {
     return <NotFoundPage />;
   }
 
+  // Prendas que tienen esta colección entre sus categorías (se asigna desde el panel)
+  const collectionProducts = products.filter((product) => belongsTo(product, `colecciones/${collection.slug}`));
+
   return (
-    <>
-      <title>{`${collection.title} | Ico Batista`}</title>
-      <main className={styles.mainContent}>
-        {/* Hero de la Colección */}
+    <main className={styles.mainContent}>
+      <title>{`${collection.title} | Colecciones | Ico Batista`}</title>
+
+      {collection.heroImage ? (
         <section className={styles.hero} style={{ backgroundImage: `url(${collection.heroImage})` }}>
           <div className={styles.heroOverlay}>
+            <p className={styles.eyebrow}>Colección</p>
             <h1 className={styles.heroTitle}>{collection.title}</h1>
           </div>
         </section>
+      ) : (
+        <section className={styles.plainHeader}>
+          <p className={styles.eyebrow}>Colección</p>
+          <h1 className={styles.plainTitle}>{collection.title}</h1>
+        </section>
+      )}
 
-        {/* Descripción */}
+      {collection.description && (
         <section className={styles.description}>
           <p>{collection.description}</p>
         </section>
+      )}
 
-        {/* Grilla de Productos */}
-        <section className={styles.productGridContainer}>
-          <h2 className={styles.gridTitle}>Looks de la Colección</h2>
+      <section className={styles.productGridContainer}>
+        {loading ? (
+          <p className={styles.empty}>Cargando prendas…</p>
+        ) : collectionProducts.length > 0 ? (
           <div className={styles.productGrid}>
-            {collectionProducts.map(product => (
+            {collectionProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        </section>
-      </main>
-    </>
+        ) : (
+          <p className={styles.empty}>Muy pronto podrás ver las prendas de esta colección.</p>
+        )}
+      </section>
+    </main>
   );
 };
 

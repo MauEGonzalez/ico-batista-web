@@ -1,3 +1,5 @@
+import { COLLECTIONS } from './collections.js';
+
 export const menuData = [
   {
     title: "Moda Hombre",
@@ -111,8 +113,8 @@ export const menuData = [
   {
     title: "Colecciones",
     children: [
-      { title: "Coleccion 1", path: "/colecciones/1" },
-      { title: "Coleccion 2", path: "/colecciones/2" },
+      // Se arma solo desde src/collections.js
+      ...COLLECTIONS.map(({ slug, title }) => ({ title, path: `/colecciones/${slug}` })),
     ],
   },
   {

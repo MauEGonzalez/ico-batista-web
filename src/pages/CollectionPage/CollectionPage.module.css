@@ -30,6 +30,42 @@
   margin: 0;
 }
 
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-align: center;
+  color: inherit;
+  opacity: 0.75;
+}
+
+.heroOverlay .eyebrow {
+  color: white;
+}
+
+/* Encabezado sin foto: minimalista, solo tipografía */
+.plainHeader {
+  padding: 5rem 1rem 3rem;
+  text-align: center;
+  color: #888;
+  border-bottom: 1px solid #eee;
+}
+
+.plainTitle {
+  margin: 0;
+  font-family: var(--secondary-font);
+  font-size: 3.5rem;
+  font-weight: normal;
+  color: var(--text-color);
+}
+
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #888;
+}
+
 .description {
   max-width: var(--max-width-content); /* Centramos la descripción */
   margin: 4rem auto;
@@ -42,7 +78,7 @@
 
 .productGridContainer {
   max-width: var(--max-width-content);
-  margin: 0 auto 4rem auto;
+  margin: 3rem auto 4rem auto;
   padding: 0 1rem;
 }
 
@@ -55,8 +91,21 @@
 
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: 2rem;
+}
+
+@media (max-width: 600px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 0.75rem;
+  }
+  .plainHeader {
+    padding: 3rem 1rem 2rem;
+  }
+  .plainTitle {
+    font-size: 2.4rem;
+  }
 }
 
 @media (max-width: 768px) {

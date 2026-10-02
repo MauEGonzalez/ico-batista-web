@@ -226,7 +226,7 @@ export const productsData = [
   {
     id: "col001",
     name: "Look #1 - Colección 'Amanecer'",
-    category: "colecciones/1",
+    category: "colecciones/vestigios",
     images: ["/assets/images/products/coleccion-1-look-1.jpg"],
     description: "Top de seda y falda pantalón de la Colección 'Amanecer'.",
     price: 27200,
@@ -234,7 +234,7 @@ export const productsData = [
   {
     id: "col002",
     name: "Look #2 - Colección 'Amanecer'",
-    category: "colecciones/1",
+    category: "colecciones/vestigios",
     images: ["/assets/images/products/coleccion-1-look-2.jpg"],
     description: "Vestido estructurado de la Colección 'Amanecer'.",
     price: 38000,
@@ -242,7 +242,7 @@ export const productsData = [
   {
     id: "col003",
     name: "Look #1 - Colección 'Nocturna'",
-    category: "colecciones/2",
+    category: "colecciones/altitud",
     images: ["/assets/images/products/coleccion-2-look-1.jpg"],
     description: "Abrigo de paño y pantalón de cuero de la Colección 'Nocturna'.",
     price: 60000,
