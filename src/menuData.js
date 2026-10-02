@@ -20,6 +20,9 @@ export const menuData = [
         path: "/tienda/hombre/casual",
         children: [
           { title: "Conjuntos", path: "/tienda/hombre/casual/conjuntos" },
+          { title: "Camisas", path: "/tienda/hombre/casual/camisas" },
+          { title: "Pantalones", path: "/tienda/hombre/casual/pantalones" },
+          { title: "Chombas", path: "/tienda/hombre/casual/chombas" },
           { title: "Camperas", path: "/tienda/hombre/casual/camperas" },
           { title: "Buzos", path: "/tienda/hombre/casual/buzos" },
           {
