@@ -63,6 +63,7 @@ export const menuData = [
             children: [
               { title: "Vestidos", path: "/tienda/mujer/formal/coctel/vestidos" },
               { title: "Tops", path: "/tienda/mujer/formal/coctel/tops" },
+              { title: "Blusas", path: "/tienda/mujer/formal/coctel/blusas" },
               { title: "Faldas", path: "/tienda/mujer/formal/coctel/faldas" },
               { title: "Trajes", path: "/tienda/mujer/formal/coctel/trajes" },
               { title: "Camisas", path: "/tienda/mujer/formal/coctel/camisas" },

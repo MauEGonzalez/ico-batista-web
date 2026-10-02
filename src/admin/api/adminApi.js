@@ -27,6 +27,7 @@ export const adminApi = {
   createProduct: (data) => request('/admin/products', { method: 'POST', body: data }),
   updateProduct: (id, data) => request(`/admin/products/${id}`, { method: 'PUT', body: data }),
   deleteProduct: (id) => request(`/admin/products/${id}`, { method: 'DELETE' }),
+  bulkStatus: (ids, status) => request('/admin/products/bulk-status', { method: 'POST', body: { ids, status } }),
 
   getUploadSignature: () => request('/admin/uploads/signature', { method: 'POST' }),
 };

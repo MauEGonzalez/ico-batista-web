@@ -100,7 +100,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: 64px 1fr auto auto;
+  grid-template-columns: 20px 64px 1fr auto auto;
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 1rem;
@@ -210,7 +210,7 @@
     flex: 1 1 100%;
   }
   .row {
-    grid-template-columns: 56px 1fr auto;
+    grid-template-columns: 20px 56px 1fr auto;
     gap: 0.75rem;
     padding: 0.75rem;
   }
@@ -221,5 +221,109 @@
   }
   .edit {
     display: none; /* En celular se toca la foto o el nombre para editar */
+  }
+}
+
+
+/* ===== Selección y acciones masivas ===== */
+.rowSelected {
+  background-color: #f7f7f2;
+}
+
+.rowCheck,
+.selectAll input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.bulkBar {
+  position: sticky;
+  top: 64px; /* debajo de la barra superior del panel */
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 52px;
+  padding: 0.6rem 1rem;
+  background-color: white;
+  border: 1px solid #eaeaea;
+  border-bottom: none;
+}
+
+.bulkActive {
+  background-color: #111;
+  color: white;
+  border-color: #111;
+}
+
+.selectAll {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.bulkActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.bulkPrimary,
+.bulkSecondary {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  border: 1px solid white;
+  cursor: pointer;
+}
+
+.bulkPrimary {
+  color: #111;
+  background-color: white;
+}
+
+.bulkSecondary {
+  color: white;
+  background: none;
+}
+
+.bulkPrimary:disabled,
+.bulkSecondary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.bulkLink {
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  color: #bbb;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.bulkActive .selectAll input {
+  accent-color: white;
+}
+
+@media (max-width: 600px) {
+  .bulkBar {
+    padding: 0.6rem 0.75rem;
+  }
+  .bulkActions {
+    width: 100%;
+  }
+  .bulkPrimary,
+  .bulkSecondary {
+    flex: 1;
   }
 }

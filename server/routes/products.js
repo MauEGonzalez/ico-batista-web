@@ -53,6 +53,35 @@ adminRouter.get('/', async (req, res) => {
   res.json(products.map(toAdminListItem));
 });
 
+// Cambiar el estado de varias prendas a la vez (publicar / pasar a borrador)
+// Body: { ids: [...], status: 'published' | 'draft' }
+adminRouter.post('/bulk-status', async (req, res) => {
+  const status = req.body?.status === 'published' ? 'published' : req.body?.status === 'draft' ? 'draft' : null;
+  const ids = Array.isArray(req.body?.ids)
+    ? [...new Set(req.body.ids.map(String))].filter((id) => /^[a-f0-9]{24}$/i.test(id)).slice(0, 1000)
+    : [];
+  if (!status || ids.length === 0) {
+    return res.status(400).json({ message: 'Elegí al menos una prenda' });
+  }
+
+  let skipped = [];
+  let targetIds = ids;
+  if (status === 'published') {
+    // Sin foto o sin categoría no se puede publicar: esas se saltean y se informan
+    const products = await Product.find({ _id: { $in: ids } }).select('name code images categories');
+    const ready = products.filter((p) => p.images.length > 0 && p.categories?.length > 0);
+    skipped = products
+      .filter((p) => !ready.includes(p))
+      .map((p) => ({ id: p._id, name: p.name, code: p.code, reason: p.images.length === 0 ? 'sin fotos' : 'sin categoría' }));
+    targetIds = ready.map((p) => p._id);
+  }
+
+  const result = targetIds.length
+    ? await Product.updateMany({ _id: { $in: targetIds } }, { $set: { status } })
+    : { matchedCount: 0 };
+  return res.json({ updated: result.matchedCount, updatedIds: targetIds.map(String), skipped });
+});
+
 adminRouter.get('/:id', async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ message: 'Prenda no encontrada' });
