@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { buildWhatsAppUrl } from '../../../utils/whatsapp.js';
-import { INSTAGRAM_URL } from '../../../config/contact.js';
+import { SOCIAL_LINKS, DEVELOPER } from '../../../config/contact.js';
 import styles from './Footer.module.css';
 
 const currentYear = new Date().getFullYear();
@@ -54,18 +54,30 @@ const Footer = () => {
 
         <div className={styles.footerSection}>
           <h4>Síguenos</h4>
-          <div className={styles.socialIcons}>
-            {/* TODO: completar los perfiles reales en src/config/contact.js */}
-            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href={buildWhatsAppUrl('Hola Ico! Quería hacerte una consulta.')} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
-            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">TikTok</a>
-          </div>
+          <ul className={styles.socialList}>
+            {SOCIAL_LINKS.map(({ label, detail, url }) => (
+              <li key={url}>
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  {label}
+                  {detail && <span className={styles.socialDetail}> · {detail}</span>}
+                </a>
+              </li>
+            ))}
+            <li>
+              <a href={buildWhatsAppUrl('Hola Ico! Quería hacerte una consulta.')} target="_blank" rel="noopener noreferrer">
+                WhatsApp
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
 
       <div className={styles.footerBottom}>
         <p>© {currentYear} Ico Batista. Todos los derechos reservados.</p>
+        <p className={styles.credit}>
+          Desarrollado por{' '}
+          <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer">{DEVELOPER.name}</a>
+        </p>
       </div>
     </footer>
   );
