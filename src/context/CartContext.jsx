@@ -47,6 +47,7 @@ export const CartProvider = ({ children }) => {
         key,
         id: product.id,
         name: product.name,
+        code: product.code ?? null, // Código de prenda (IB-0001): Ico la identifica rápido en WhatsApp
         price: product.price,
         image: typeof product.images?.[0] === 'string' ? product.images[0] : product.images?.[0]?.url,
         size: size || null,

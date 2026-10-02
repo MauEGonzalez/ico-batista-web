@@ -18,7 +18,7 @@ export const productInquiryMessage = (product, size) => {
   const sizeText = describeSize(size);
   const lines = [
     'Hola Ico! Me interesa esta prenda:',
-    `• ${product.name}${sizeText ? ` (${sizeText})` : ''}`,
+    `• ${product.name}${product.code ? ` [${product.code}]` : ''}${sizeText ? ` (${sizeText})` : ''}`,
     productUrl(product.id),
     '',
     size === MADE_TO_MEASURE
@@ -34,7 +34,7 @@ export const selectionInquiryMessage = (items) => {
   items.forEach((item) => {
     const sizeText = describeSize(item.size);
     const qty = item.quantity > 1 ? ` x${item.quantity}` : '';
-    lines.push(`• ${item.name}${sizeText ? ` (${sizeText})` : ''}${qty}`);
+    lines.push(`• ${item.name}${item.code ? ` [${item.code}]` : ''}${sizeText ? ` (${sizeText})` : ''}${qty}`);
     lines.push(`  ${productUrl(item.id)}`);
   });
   lines.push('', '¿Están disponibles?');

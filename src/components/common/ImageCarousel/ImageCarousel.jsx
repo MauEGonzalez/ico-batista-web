@@ -3,6 +3,7 @@
 import React, { useRef } from 'react'; // Importamos useRef
 import styles from './ImageCarousel.module.css';
 import { useProducts } from '../../../context/productsContextValue.js';
+import { belongsTo } from '../../../utils/productCategories.js';
 import ProductCard from '../ProductCard/ProductCard.jsx';
 
 const ImageCarousel = ({ gender, styleType }) => {
@@ -13,7 +14,7 @@ const ImageCarousel = ({ gender, styleType }) => {
   const { products } = useProducts();
   // Primero las marcadas como destacadas en el panel
   const featuredProducts = products
-    .filter(product => product.category.startsWith(`${gender}/${styleType}/`))
+    .filter(product => belongsTo(product, `${gender}/${styleType}`))
     .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)))
     .slice(0, 8);
 

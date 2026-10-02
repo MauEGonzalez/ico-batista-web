@@ -63,6 +63,12 @@
   margin-top: 0;
   margin-bottom: 1rem;
 }
+.productCode {
+  margin: -0.5rem 0 1rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: #999;
+}
 .priceRow {
   display: flex;
   align-items: center;

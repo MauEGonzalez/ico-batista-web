@@ -18,6 +18,7 @@ import mongoose from 'mongoose';
 import { connectDB } from '../server/config/db.js';
 import { getCloudinary, CLOUDINARY_ROOT } from '../server/config/cloudinary.js';
 import { Product } from '../server/models/Product.js';
+import { nextProductCode } from '../server/models/Counter.js';
 import { slugify } from '../server/utils/slugify.js';
 import { isValidCategory } from '../src/categories.js';
 
@@ -200,9 +201,10 @@ const main = async () => {
         });
         return { publicId: result.public_id, url: result.secure_url, width: result.width, height: result.height };
       });
-      await Product.create({ name, slug, category, images, status: 'draft', importKey });
-      report.created.push({ name, slug, category, photos: images.length });
-      console.log(`  ✔ ${label} → "${name}" · ${images.length} fotos`);
+      const code = await nextProductCode();
+      await Product.create({ name, slug, code, categories: [category], images, status: 'draft', importKey });
+      report.created.push({ code, name, slug, category, photos: images.length });
+      console.log(`  ✔ ${label} → ${code} "${name}" · ${images.length} fotos`);
     } catch (error) {
       report.errors.push({ item: folder.relParts.join('/'), error: error.message || String(error) });
       console.log(`  ✖ ${label}: ${error.message || error}`);

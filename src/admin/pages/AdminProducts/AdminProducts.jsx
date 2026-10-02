@@ -7,6 +7,7 @@ import { adminApi } from '../../api/adminApi.js';
 import { CATEGORY_OPTIONS, categoryLabel } from '../../../categories.js';
 import { formatPrice, hasPrice } from '../../../utils/formatPrice.js';
 import { imageUrl } from '../../../utils/imageUrl.js';
+import { getCategories, belongsTo } from '../../../utils/productCategories.js';
 import styles from './AdminProducts.module.css';
 
 const normalize = (text) => text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -30,8 +31,8 @@ const AdminProducts = () => {
     const term = normalize(search.trim());
     return products.filter((product) =>
       (status === 'all' || product.status === status) &&
-      (!category || product.category.startsWith(category)) &&
-      (!term || normalize(`${product.name} ${categoryLabel(product.category)}`).includes(term))
+      (!category || belongsTo(product, category)) &&
+      (!term || normalize(`${product.name} ${product.code ?? ''} ${getCategories(product).map(categoryLabel).join(' ')}`).includes(term))
     );
   }, [products, search, status, category]);
 
@@ -72,7 +73,7 @@ const AdminProducts = () => {
       <div className={styles.filters}>
         <input
           type="search"
-          placeholder="Buscar por nombre o categoría…"
+          placeholder="Buscar por nombre, código o categoría…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={styles.search}
@@ -80,8 +81,8 @@ const AdminProducts = () => {
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Filtrar por categoría">
           <option value="">Todas las categorías</option>
-          <option value="mujer/">Mujer (todo)</option>
-          <option value="hombre/">Hombre (todo)</option>
+          <option value="mujer">Mujer (todo)</option>
+          <option value="hombre">Hombre (todo)</option>
           {CATEGORY_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
@@ -119,7 +120,10 @@ const AdminProducts = () => {
             </Link>
             <div className={styles.info}>
               <Link to={`/admin/prendas/${product._id}`} className={styles.name}>{product.name}</Link>
-              <span className={styles.category}>{categoryLabel(product.category)}</span>
+              <span className={styles.category}>
+                {product.code && <strong className={styles.code}>{product.code}</strong>}
+                {getCategories(product).map(categoryLabel).join(' · ')}
+              </span>
               <span className={styles.meta}>
                 {hasPrice(product.price) ? formatPrice(product.price) : 'Sin precio'}
                 {' · '}{product.imageCount} {product.imageCount === 1 ? 'foto' : 'fotos'}

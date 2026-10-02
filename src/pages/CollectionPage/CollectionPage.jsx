@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import ProductCard from '../../components/common/ProductCard/ProductCard.jsx';
 import { useProducts } from '../../context/productsContextValue.js';
+import { belongsTo } from '../../utils/productCategories.js';
 import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
 import styles from './CollectionPage.module.css';
 
@@ -26,7 +27,7 @@ const CollectionPage = () => {
   // Filtramos los productos que pertenecen a esta colección específica
   const { products } = useProducts();
   const collectionProducts = products.filter(
-    product => product.category === `colecciones/${id}`
+    product => belongsTo(product, `colecciones/${id}`)
   );
 
   if (!collection) {

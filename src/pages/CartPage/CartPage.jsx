@@ -33,7 +33,11 @@ const CartPage = () => {
                 </Link>
                 <div className={styles.itemDetails}>
                   <h3 className={styles.itemName}>{item.name}</h3>
-                  {item.size && <p className={styles.itemMeta}>{sizeLabel(item.size)}</p>}
+                  {(item.size || item.code) && (
+                    <p className={styles.itemMeta}>
+                      {[sizeLabel(item.size), item.code && `Cód. ${item.code}`].filter(Boolean).join(' · ')}
+                    </p>
+                  )}
                   <p className={styles.itemPrice}><Price value={item.price} /></p>
                   <div className={styles.quantityControl}>
                     <button type="button" onClick={() => updateQuantity(item.key, -1)} aria-label="Restar una unidad">−</button>

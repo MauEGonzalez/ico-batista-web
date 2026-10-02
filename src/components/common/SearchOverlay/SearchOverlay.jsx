@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../../../context/productsContextValue.js';
 import { imageUrl } from '../../../utils/imageUrl.js';
+import { getCategories } from '../../../utils/productCategories.js';
 import { CloseIcon } from '../Icons/Icons.jsx';
 import styles from './SearchOverlay.module.css';
 
@@ -20,7 +21,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     const term = normalize(searchTerm.trim());
     if (term.length < 2) return [];
     return products.filter(product =>
-      normalize(`${product.name} ${product.category}`).includes(term)
+      normalize(`${product.name} ${product.code ?? ''} ${getCategories(product).join(' ')}`).includes(term)
     );
   }, [searchTerm, products]);
 

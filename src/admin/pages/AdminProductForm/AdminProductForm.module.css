@@ -34,6 +34,19 @@
   font-size: 1.9rem;
 }
 
+.code {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.codeHint {
+  font-size: 0.8rem;
+  color: #999;
+}
+
 .viewLink {
   font-size: 0.85rem;
   text-decoration: underline;

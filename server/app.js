@@ -4,6 +4,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { connectDB } from './config/db.js';
+import { runMigrations } from './utils/migrations.js';
 import authRoutes from './routes/auth.js';
 import uploadRoutes from './routes/uploads.js';
 import { publicRouter as publicProducts, adminRouter as adminProducts } from './routes/products.js';
@@ -43,6 +44,7 @@ app.use((req, res, next) => {
 app.use('/api', async (req, res, next) => {
   try {
     await connectDB();
+    await runMigrations();
     next();
   } catch (error) {
     console.error('Error conectando a MongoDB:', error.message);

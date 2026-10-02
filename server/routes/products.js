@@ -5,6 +5,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { cleanProductInput } from '../utils/productInput.js';
 import { slugify } from '../utils/slugify.js';
 import { destroyImages } from '../utils/cloudinaryImages.js';
+import { nextProductCode } from '../models/Counter.js';
 
 // ================= Rutas públicas (la web) =================
 export const publicRouter = Router();
@@ -37,7 +38,8 @@ const toAdminListItem = (product) => ({
   _id: product._id,
   name: product.name,
   slug: product.slug,
-  category: product.category,
+  code: product.code,
+  categories: product.categories,
   price: product.price,
   status: product.status,
   featured: product.featured,
@@ -65,8 +67,12 @@ adminRouter.post('/', async (req, res) => {
   if (data.status === 'published' && data.images.length === 0) {
     return res.status(400).json({ message: NEEDS_PHOTO });
   }
+  if (data.categories.length === 0) return res.status(400).json({ message: 'Elegí al menos una categoría' });
   data.slug = await uniqueSlug(data.name);
-  const product = await Product.create(data);
+  const product = new Product(data);
+  await product.validate(); // Primero se valida: así un error no "gasta" un código
+  product.code = await nextProductCode();
+  await product.save();
   res.status(201).json(product);
 });
 

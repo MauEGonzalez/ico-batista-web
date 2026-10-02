@@ -16,6 +16,11 @@ const cleanSizes = (value) => {
   return unique.slice(0, 20);
 };
 
+const cleanCategories = (value) => {
+  const list = Array.isArray(value) ? value : [value];
+  return [...new Set(list.map((c) => cleanString(c, 100)).filter(Boolean))].slice(0, 10);
+};
+
 const isOurImage = (image) =>
   image &&
   typeof image.publicId === 'string' &&
@@ -39,7 +44,7 @@ export const cleanProductInput = (body = {}, { partial = false } = {}) => {
   const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
 
   if (!partial || has('name')) data.name = cleanString(body.name, 120);
-  if (!partial || has('category')) data.category = cleanString(body.category, 100);
+  if (!partial || has('categories')) data.categories = cleanCategories(body.categories);
   if (!partial || has('description')) data.description = cleanString(body.description, 2000);
   if (!partial || has('price')) data.price = cleanPrice(body.price);
   if (!partial || has('sizes')) data.sizes = cleanSizes(body.sizes);

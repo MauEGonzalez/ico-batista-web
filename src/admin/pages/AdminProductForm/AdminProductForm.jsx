@@ -4,14 +4,14 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { adminApi } from '../../api/adminApi.js';
-import { CATEGORY_OPTIONS } from '../../../categories.js';
 import ImageUploader from '../../components/ImageUploader/ImageUploader.jsx';
 import SizesInput from '../../components/SizesInput/SizesInput.jsx';
+import CategoryPicker from '../../components/CategoryPicker/CategoryPicker.jsx';
 import styles from './AdminProductForm.module.css';
 
 const EMPTY = {
   name: '',
-  category: '',
+  categories: [],
   price: '',
   sizes: [],
   measurements: '',
@@ -21,17 +21,9 @@ const EMPTY = {
   status: 'draft',
 };
 
-// Categorías agrupadas por la primera parte ("Hombre", "Mujer", "Colecciones"...).
-// Cada opción muestra la ruta completa para que al elegirla se vea "Hombre › Casual › Camperas".
-const CATEGORY_GROUPS = CATEGORY_OPTIONS.reduce((groups, option) => {
-  const [group] = option.label.split(' › ');
-  (groups[group] ||= []).push(option);
-  return groups;
-}, {});
-
 const toForm = (product) => ({
   name: product.name ?? '',
-  category: product.category ?? '',
+  categories: product.categories ?? (product.category ? [product.category] : []),
   price: product.price ?? '',
   sizes: product.sizes ?? [],
   measurements: product.measurements ?? '',
@@ -50,6 +42,7 @@ const AdminProductForm = () => {
   const [images, setImages] = useState([]);
   const [saved, setSaved] = useState({ form: EMPTY, images: [] }); // Último estado guardado
   const [slug, setSlug] = useState('');
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -64,6 +57,7 @@ const AdminProductForm = () => {
         setImages(product.images ?? []);
         setSaved({ form: loaded, images: product.images ?? [] });
         setSlug(product.slug);
+        setCode(product.code ?? '');
       })
       .catch((err) => {
         toast.error(err.message);
@@ -94,6 +88,10 @@ const AdminProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.categories.length === 0) {
+      toast.error('Elegí al menos una categoría');
+      return;
+    }
     if (form.status === 'published' && images.length === 0) {
       toast.error('Para publicar la prenda necesita al menos una foto');
       return;
@@ -101,19 +99,16 @@ const AdminProductForm = () => {
     setSaving(true);
     const payload = { ...form, images, price: form.price === '' ? null : Number(form.price) };
     try {
+      // Al guardar se vuelve al listado de prendas
       if (isNew) {
-        const created = await adminApi.createProduct(payload);
-        setSaved({ form, images });
-        toast.success('Prenda creada');
-        navigate(`/admin/prendas/${created._id}`, { replace: true });
+        await adminApi.createProduct(payload);
+        toast.success(form.status === 'published' ? 'Prenda creada y publicada' : 'Prenda creada como borrador');
       } else {
-        const updated = await adminApi.updateProduct(id, payload);
-        const normalized = toForm(updated);
-        setForm(normalized);
-        setImages(updated.images);
-        setSaved({ form: normalized, images: updated.images });
+        await adminApi.updateProduct(id, payload);
         toast.success('Cambios guardados');
       }
+      setSaved({ form, images }); // Evita el aviso de "cambios sin guardar" al salir
+      navigate('/admin');
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -139,6 +134,8 @@ const AdminProductForm = () => {
       <div className={styles.header}>
         <Link to="/admin" className={styles.back}>← Prendas</Link>
         <h1 className={styles.title}>{isNew ? 'Nueva prenda' : form.name || 'Editar prenda'}</h1>
+        {code && <span className={styles.code}>{code}</span>}
+        {isNew && <span className={styles.codeHint}>El código (IB-0001…) se asigna al crearla</span>}
         {!isNew && saved.form.status === 'published' && (
           <a href={`/producto/${slug}`} target="_blank" rel="noopener noreferrer" className={styles.viewLink}>
             Ver en la web ↗
@@ -159,19 +156,14 @@ const AdminProductForm = () => {
             <input type="text" value={form.name} onChange={setField('name')} required maxLength={120} placeholder="Ej. Vestido Aurora" />
           </label>
 
-          <label className={styles.field}>
-            <span>Categoría *</span>
-            <select value={form.category} onChange={setField('category')} required>
-              <option value="" disabled>Elegí una categoría</option>
-              {Object.entries(CATEGORY_GROUPS).map(([group, options]) => (
-                <optgroup key={group} label={group}>
-                  {options.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </label>
+          <div className={`${styles.field} ${styles.full}`}>
+            <label htmlFor="categories">Categorías * <small>(puede ser más de una)</small></label>
+            <CategoryPicker
+              id="categories"
+              value={form.categories}
+              onChange={(categories) => setForm((f) => ({ ...f, categories }))}
+            />
+          </div>
 
           <label className={styles.field}>
             <span>Precio en pesos uruguayos</span>

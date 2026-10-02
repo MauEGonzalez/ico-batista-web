@@ -17,10 +17,15 @@ const productSchema = new mongoose.Schema(
     name: { type: String, required: [true, 'El nombre es obligatorio'], trim: true, maxlength: 120 },
     // Se usa en la URL: /producto/vestido-aurora
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    category: {
-      type: String,
-      required: [true, 'La categoría es obligatoria'],
-      validate: { validator: isValidCategory, message: 'Categoría inválida' },
+    // Código interno de la prenda (IB-0001, IB-0002...). Se asigna solo al crearla.
+    code: { type: String, unique: true, sparse: true, uppercase: true, trim: true },
+    // Una prenda puede estar en varias categorías (ej. Hombre › Accesorios y Mujer › Accesorios)
+    categories: {
+      type: [String],
+      validate: [
+        { validator: (list) => Array.isArray(list) && list.length > 0, message: 'Elegí al menos una categoría' },
+        { validator: (list) => list.every(isValidCategory), message: 'Categoría inválida' },
+      ],
     },
     description: { type: String, trim: true, maxlength: 2000, default: '' },
     // Precio en pesos uruguayos. null = "Consultar precio"
@@ -37,14 +42,15 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-productSchema.index({ status: 1, category: 1 });
+productSchema.index({ status: 1, categories: 1 });
 
 // Formato que consume la web pública (sin campos internos)
 productSchema.methods.toPublicJSON = function toPublicJSON() {
   return {
     id: this.slug,
+    code: this.code,
     name: this.name,
-    category: this.category,
+    categories: this.categories,
     description: this.description,
     price: this.price,
     sizes: this.sizes,

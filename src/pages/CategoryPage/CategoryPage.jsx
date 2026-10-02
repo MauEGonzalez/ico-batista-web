@@ -8,6 +8,7 @@ import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
 import { useProducts } from '../../context/productsContextValue.js';
 import { menuData } from '../../menuData';
 import { hasPrice } from '../../utils/formatPrice.js';
+import { belongsTo } from '../../utils/productCategories.js';
 import styles from './CategoryPage.module.css';
 
 // Busca en el menú el item con esa ruta (sirve para validar la URL y para sacar el título lindo)
@@ -42,10 +43,7 @@ const CategoryPage = () => {
   const filterPath = fullPath.replace(/^\/tienda\//, '');
 
   const sortedProducts = useMemo(() => {
-    // El "/" final evita que, por ejemplo, "mujer/casual/sport" incluya "mujer/casual/sportswear"
-    const filtered = products.filter(product =>
-      product.category === filterPath || product.category.startsWith(`${filterPath}/`)
-    );
+    const filtered = products.filter(product => belongsTo(product, filterPath));
     // Las prendas sin precio ("Consultar precio") quedan siempre al final
     const priceOf = (p) => (hasPrice(p.price) ? p.price : null);
     const byPrice = (dir) => (a, b) => {

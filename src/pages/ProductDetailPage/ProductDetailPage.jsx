@@ -78,6 +78,7 @@ const ProductDetail = ({ product }) => {
 
         <div className={styles.productInfo}>
           <h1 className={styles.productName}>{product.name}</h1>
+          {product.code && <p className={styles.productCode}>Cód. {product.code}</p>}
           <div className={styles.priceRow}>
             <p className={styles.productPrice}><Price value={product.price} /></p>
             {hasPrice(product.price) && <CurrencyToggle />}

@@ -30,6 +30,7 @@ export const menuData = [
           },
         ],
       },
+      { title: "Accesorios", path: "/tienda/hombre/accesorios" },
     ],
   },
   {
@@ -104,6 +105,7 @@ export const menuData = [
           },
         ],
       },
+      { title: "Accesorios", path: "/tienda/mujer/accesorios" },
     ],
   },
   {
