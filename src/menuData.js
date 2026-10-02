@@ -10,7 +10,9 @@ export const menuData = [
         children: [
           { title: "Trajes", path: "/tienda/hombre/formal/trajes" },
           { title: "Camisas", path: "/tienda/hombre/formal/camisas" },
+          { title: "Blusas", path: "/tienda/hombre/formal/blusas" },
           { title: "Pantalones", path: "/tienda/hombre/formal/pantalones" },
+          { title: "Bermudas", path: "/tienda/hombre/formal/bermudas" },
           { title: "Tapados", path: "/tienda/hombre/formal/tapados" },
           { title: "Capas", path: "/tienda/hombre/formal/capas" },
         ],
