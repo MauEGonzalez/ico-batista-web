@@ -15,6 +15,13 @@ export const menuData = [
           { title: "Bermudas", path: "/tienda/hombre/formal/bermudas" },
           { title: "Tapados", path: "/tienda/hombre/formal/tapados" },
           { title: "Capas", path: "/tienda/hombre/formal/capas" },
+          {
+            title: "Coctel",
+            path: "/tienda/hombre/formal/coctel",
+            children: [
+              { title: "Camisas", path: "/tienda/hombre/formal/coctel/camisas" },
+            ],
+          },
         ],
       },
       {
@@ -25,6 +32,9 @@ export const menuData = [
           { title: "Camisas", path: "/tienda/hombre/casual/camisas" },
           { title: "Pantalones", path: "/tienda/hombre/casual/pantalones" },
           { title: "Chombas", path: "/tienda/hombre/casual/chombas" },
+          { title: "Bermudas", path: "/tienda/hombre/casual/bermudas" },
+          { title: "Chaquetas", path: "/tienda/hombre/casual/chaquetas" },
+          { title: "Chalecos", path: "/tienda/hombre/casual/chalecos" },
           { title: "Camperas", path: "/tienda/hombre/casual/camperas" },
           { title: "Buzos", path: "/tienda/hombre/casual/buzos" },
           {
@@ -33,6 +43,9 @@ export const menuData = [
             children: [
               { title: "Remeras", path: "/tienda/hombre/casual/basicos/remeras" },
               { title: "Pantalones", path: "/tienda/hombre/casual/basicos/pantalones" },
+              { title: "Bermudas", path: "/tienda/hombre/casual/basicos/bermudas" },
+              { title: "Shorts", path: "/tienda/hombre/casual/basicos/shorts" },
+              { title: "Chalecos", path: "/tienda/hombre/casual/basicos/chalecos" },
             ],
           },
         ],
@@ -60,6 +73,7 @@ export const menuData = [
               { title: "Vestidos", path: "/tienda/mujer/formal/fiesta/vestidos" },
               { title: "Monos", path: "/tienda/mujer/formal/fiesta/monos" },
               { title: "Trajes", path: "/tienda/mujer/formal/fiesta/trajes" },
+              { title: "Conjuntos", path: "/tienda/mujer/formal/fiesta/conjuntos" },
             ],
           },
           {
@@ -73,6 +87,7 @@ export const menuData = [
               { title: "Trajes", path: "/tienda/mujer/formal/coctel/trajes" },
               { title: "Camisas", path: "/tienda/mujer/formal/coctel/camisas" },
               { title: "Pantalones", path: "/tienda/mujer/formal/coctel/pantalones" },
+              { title: "Conjuntos", path: "/tienda/mujer/formal/coctel/conjuntos" },
             ],
           },
           {
@@ -110,8 +125,12 @@ export const menuData = [
               { title: "Camperas", path: "/tienda/mujer/casual/basicos/camperas" },
               { title: "Buzos", path: "/tienda/mujer/casual/basicos/buzos" },
               { title: "Faldas", path: "/tienda/mujer/casual/basicos/faldas" },
+              { title: "Bermudas", path: "/tienda/mujer/casual/basicos/bermudas" },
+              { title: "Shorts", path: "/tienda/mujer/casual/basicos/shorts" },
+              { title: "Chalecos", path: "/tienda/mujer/casual/basicos/chalecos" },
             ],
           },
+          { title: "Kimonos", path: "/tienda/mujer/casual/kimonos" },
         ],
       },
       { title: "Accesorios", path: "/tienda/mujer/accesorios" },

@@ -27,6 +27,8 @@ const ProductDetail = ({ product }) => {
   const sizes = product.madeToMeasure === false ? stockSizes : [...stockSizes, MADE_TO_MEASURE];
   const selectedImage = product.images[selectedIndex];
   const whatsappUrl = buildWhatsAppUrl(productInquiryMessage(product, selectedSize));
+  // Cuidados: una indicación por línea
+  const careLines = (product.care ?? '').split('\n').map((line) => line.trim()).filter(Boolean);
 
   const handleAddToSelection = () => {
     addToCart(product, selectedSize);
@@ -137,6 +139,15 @@ const ProductDetail = ({ product }) => {
           <p className={styles.helpText}>
             Puedes sumar varias prendas a tu selección y consultarlas todas juntas.
           </p>
+
+          {careLines.length > 0 && (
+            <details className={styles.care}>
+              <summary>Cuidados de la prenda</summary>
+              <ul>
+                {careLines.map((line) => <li key={line}>{line}</li>)}
+              </ul>
+            </details>
+          )}
           <Link to="/tienda" className={styles.backLink}>← Volver a la tienda</Link>
         </div>
       </div>

@@ -16,6 +16,7 @@ const EMPTY = {
   sizes: [],
   measurements: '',
   description: '',
+  care: '',
   madeToMeasure: true,
   featured: false,
   status: 'draft',
@@ -28,6 +29,7 @@ const toForm = (product) => ({
   sizes: product.sizes ?? [],
   measurements: product.measurements ?? '',
   description: product.description ?? '',
+  care: product.care ?? '',
   madeToMeasure: product.madeToMeasure !== false,
   featured: Boolean(product.featured),
   status: product.status ?? 'draft',
@@ -201,7 +203,18 @@ const AdminProductForm = () => {
               value={form.description}
               onChange={setField('description')}
               maxLength={2000}
-              placeholder="Tela, corte, detalles, cuidados…"
+              placeholder="Tela, corte, color, detalles…"
+            />
+          </label>
+
+          <label className={`${styles.field} ${styles.full}`}>
+            <span>Cuidados <small>(una indicación por línea)</small></span>
+            <textarea
+              rows={4}
+              value={form.care}
+              onChange={setField('care')}
+              maxLength={1000}
+              placeholder={'Lavar a mano en agua fría\nNo usar secadora\nPlanchar a temperatura baja del revés'}
             />
           </label>
         </div>

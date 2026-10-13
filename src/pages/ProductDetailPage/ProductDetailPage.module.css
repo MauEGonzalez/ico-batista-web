@@ -159,6 +159,38 @@
 }
 .backLink { display: inline-block; color: #555; }
 
+/* Cuidados: desplegable discreto debajo de los botones */
+.care {
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 1.5rem;
+}
+.care summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+.care summary::-webkit-details-marker { display: none; }
+.care summary::after {
+  content: '+';
+  display: inline-block;
+  font-size: 1.25rem;
+  font-weight: 300;
+  transition: transform 0.2s ease;
+}
+.care[open] summary::after { transform: rotate(45deg); }
+.care ul {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
 /* ============ Celulares y tablets ============ */
 @media (max-width: 768px) {
   .pageContainer {

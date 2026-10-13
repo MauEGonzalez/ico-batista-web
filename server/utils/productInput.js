@@ -46,6 +46,7 @@ export const cleanProductInput = (body = {}, { partial = false } = {}) => {
   if (!partial || has('name')) data.name = cleanString(body.name, 120);
   if (!partial || has('categories')) data.categories = cleanCategories(body.categories);
   if (!partial || has('description')) data.description = cleanString(body.description, 2000);
+  if (!partial || has('care')) data.care = cleanString(body.care, 1000);
   if (!partial || has('price')) data.price = cleanPrice(body.price);
   if (!partial || has('sizes')) data.sizes = cleanSizes(body.sizes);
   if (!partial || has('measurements')) data.measurements = cleanString(body.measurements, 300);

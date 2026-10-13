@@ -28,6 +28,8 @@ const productSchema = new mongoose.Schema(
       ],
     },
     description: { type: String, trim: true, maxlength: 2000, default: '' },
+    // Cuidados de la prenda: una indicación por línea ("Lavar a mano en agua fría")
+    care: { type: String, trim: true, maxlength: 1000, default: '' },
     // Precio en pesos uruguayos. null = "Consultar precio"
     price: { type: Number, min: [0, 'El precio no puede ser negativo'], default: null },
     sizes: { type: [String], default: [] },            // Talles en stock: ['S', 'M']
@@ -55,6 +57,7 @@ productSchema.methods.toPublicJSON = function toPublicJSON() {
     name: this.name,
     categories: this.categories,
     description: this.description,
+    care: this.care,
     price: this.price,
     sizes: this.sizes,
     measurements: this.measurements,
