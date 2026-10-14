@@ -16,15 +16,35 @@ import styles from './ProductDetailPage.module.css';
 // Talles en stock por defecto si el producto no define los suyos (product.sizes)
 const DEFAULT_SIZES = ['S', 'M', 'L'];
 
+// "Único" no es un talle: marca una pieza irrepetible (existe solo en el talle indicado y no se vuelve a confeccionar)
+const isUniqueMark = (size) => size.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase() === 'unico';
+
+const sizeHint = (uniquePiece, hasStock, canMadeToMeasure) => {
+  if (uniquePiece) {
+    return hasStock
+      ? 'Pieza única e irrepetible: está disponible solo en este talle.'
+      : 'Pieza única e irrepetible.';
+  }
+  if (!canMadeToMeasure) return 'Talles disponibles en stock.';
+  return hasStock
+    ? 'Talles disponibles en stock. También podemos confeccionarla en tu talle, a medida.'
+    : 'Se confecciona a medida.';
+};
+
 const ProductDetail = ({ product }) => {
   const { addToCart } = useCart();
+  const rawSizes = product.sizes ?? DEFAULT_SIZES;
+  const uniquePiece = rawSizes.some(isUniqueMark);
+  const stockSizes = rawSizes.filter((size) => !isUniqueMark(size));
+  // Todas las prendas se pueden pedir a medida, salvo las piezas únicas o si el producto dice madeToMeasure: false
+  const canMadeToMeasure = product.madeToMeasure !== false && !uniquePiece;
+  const sizes = canMadeToMeasure ? [...stockSizes, MADE_TO_MEASURE] : stockSizes;
+
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(null);
+  // Pieza única en un solo talle: ya viene elegido
+  const [selectedSize, setSelectedSize] = useState(uniquePiece && stockSizes.length === 1 ? stockSizes[0] : null);
   const [zoomPosition, setZoomPosition] = useState({ x: '50%', y: '50%' });
 
-  const stockSizes = product.sizes ?? DEFAULT_SIZES;
-  // Todas las prendas se pueden pedir a medida, salvo que el producto diga madeToMeasure: false
-  const sizes = product.madeToMeasure === false ? stockSizes : [...stockSizes, MADE_TO_MEASURE];
   const selectedImage = product.images[selectedIndex];
   const whatsappUrl = buildWhatsAppUrl(productInquiryMessage(product, selectedSize));
   // Cuidados: una indicación por línea
@@ -86,19 +106,23 @@ const ProductDetail = ({ product }) => {
         <div className={styles.productInfo}>
           <h1 className={styles.productName}>{product.name}</h1>
           {product.code && <p className={styles.productCode}>Cód. {product.code}</p>}
+          {uniquePiece && <p className={styles.uniqueBadge}>Pieza única</p>}
           <div className={styles.priceRow}>
             <p className={styles.productPrice}><Price value={product.price} /></p>
             {hasPrice(product.price) && <CurrencyToggle />}
           </div>
           <p className={styles.productDescription}>{product.description}</p>
 
+          {sizes.length === 0 && (
+            <p className={styles.sizeHint}>{sizeHint(uniquePiece, false, canMadeToMeasure)}</p>
+          )}
           {sizes.length > 0 && (
             <div className={styles.selectors}>
               <div className={styles.selectorGroup}>
                 <span className={styles.selectorLabel} id="size-label">
                   Talle{selectedSize ? `: ${selectedSize}` : ''}
                 </span>
-                <p className={styles.sizeHint}>Talles disponibles en stock, o pídela a medida.</p>
+                <p className={styles.sizeHint}>{sizeHint(uniquePiece, stockSizes.length > 0, canMadeToMeasure)}</p>
                 <div className={styles.options} role="radiogroup" aria-labelledby="size-label">
                   {sizes.map(size => (
                     <button

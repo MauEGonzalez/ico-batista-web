@@ -71,6 +71,15 @@
   letter-spacing: 0.1em;
   color: #999;
 }
+.uniqueBadge {
+  display: inline-block;
+  margin: -0.25rem 0 1rem;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--accent-color);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 .priceRow {
   display: flex;
   align-items: center;

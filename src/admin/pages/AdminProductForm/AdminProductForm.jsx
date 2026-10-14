@@ -181,7 +181,7 @@ const AdminProductForm = () => {
           </label>
 
           <div className={`${styles.field} ${styles.full}`}>
-            <span>Talles en stock</span>
+            <span>Talles en stock <small>(marcá “Único” si es una pieza irrepetible: no se ofrece a medida)</small></span>
             <SizesInput value={form.sizes} onChange={(sizes) => setForm((f) => ({ ...f, sizes }))} />
           </div>
 
