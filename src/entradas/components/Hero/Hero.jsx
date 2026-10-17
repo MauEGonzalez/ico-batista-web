@@ -4,7 +4,14 @@ import styles from './Hero.module.css';
 export default function Hero({ evento }) {
   return (
     <header className={styles.hero}>
-      <img className={styles.photo} src="/assets/images/eventos/story_people.jpg" alt="" />
+      <img
+        className={styles.photo}
+        src="/assets/images/eventos/story_people.webp"
+        width="1620"
+        height="1110"
+        fetchPriority="high"
+        alt=""
+      />
       <div className={styles.shade} />
       <div className={styles.content}>
         <Logo variant="light" height={72} />

@@ -18,7 +18,7 @@ export default function ProximamentePage() {
     <main className={styles.page}>
       <div className={styles.photo} aria-hidden="true" />
       <section className={styles.content}>
-        <img className={styles.logo} src="/assets/images/eventos/logo_light.png" alt="Ico Batista" />
+        <img className={styles.logo} src="/assets/images/eventos/logo_light.webp" width="217" height="300" alt="Ico Batista" />
         <p className={styles.eyebrow}>Próximamente</p>
         <h1 className={styles.title}>
           Sitio en <span>desarrollo</span>

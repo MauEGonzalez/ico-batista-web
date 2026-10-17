@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Misma app que index.html; solo cambian los datos para compartir el link de /entradas (WhatsApp, Instagram). -->
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>El lujo del tiempo · Entradas | Ico Batista</title>
+    <meta name="description" content="Presentación de temporada de Ico Batista. Domingo 29 de noviembre, Rocha, Uruguay. Comprá tu entrada online." />
+    <meta name="theme-color" content="#1b1c1f" />
+    <link rel="canonical" href="https://icobatista.com/entradas" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Vista previa al compartir (WhatsApp, Instagram, Facebook) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ico Batista" />
+    <meta property="og:title" content="El lujo del tiempo · Ico Batista" />
+    <meta property="og:description" content="Presentación de temporada. Domingo 29 de noviembre, Rocha, Uruguay. Entradas online." />
+    <meta property="og:locale" content="es_UY" />
+    <meta property="og:url" content="https://icobatista.com/entradas" />
+    <meta property="og:image" content="https://icobatista.com/og-entradas.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="El lujo del tiempo, presentación de temporada de Ico Batista" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="El lujo del tiempo · Ico Batista" />
+    <meta name="twitter:description" content="Presentación de temporada. Domingo 29 de noviembre, Rocha, Uruguay. Entradas online." />
+    <meta name="twitter:image" content="https://icobatista.com/og-entradas.jpg" />
+    <meta name="twitter:image:alt" content="El lujo del tiempo, presentación de temporada de Ico Batista" />
+
+    <!-- Foto principal de la página de entradas: se pide de entrada -->
+    <link rel="preload" as="image" href="/assets/images/eventos/story_people.webp" type="image/webp" fetchpriority="high" />
+
+    <!-- Tipografías -->
+    <link rel="preload" href="/fonts/Hisquins.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Google Fonts sin bloquear el primer pintado (display=swap muestra el texto enseguida) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=Public+Sans:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=Public+Sans:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=Public+Sans:wght@400;500;600&display=swap" /></noscript>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

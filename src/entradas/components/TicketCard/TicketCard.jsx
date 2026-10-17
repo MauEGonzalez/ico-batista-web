@@ -44,10 +44,10 @@ export default function TicketCard({ ticket, rsvpSuggested = '' }) {
   return (
     <article className={styles.ticket}>
       <div className={styles.top}>
-        <img className={styles.photo} src="/assets/images/eventos/story_people.jpg" alt="" />
+        <img className={styles.photo} src="/assets/images/eventos/story_people.webp" alt="" />
         <div className={styles.shade} />
         <div className={styles.brand}>
-          <img src="/assets/images/eventos/logo_light.png" alt="Monograma IB" />
+          <img src="/assets/images/eventos/logo_light.webp" alt="Monograma IB" />
           <span>ICO BATISTA</span>
         </div>
       </div>

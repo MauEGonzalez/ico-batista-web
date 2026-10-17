@@ -14,7 +14,11 @@ const LandingTriptych = () => {
       <div className={styles.triptychPanel}>
         {/* Imágenes de la portada: prioridad alta, son lo primero que se ve */}
         <img
-          src="/assets/images/portadas/landing-formal.jpg"
+          src="/assets/images/portadas/landing-formal.webp"
+          srcSet="/assets/images/portadas/landing-formal-800.webp 800w, /assets/images/portadas/landing-formal.webp 1401w"
+          sizes="(max-width: 768px) 100vw, 34vw"
+          width="1401"
+          height="2100"
           alt="Modelo con prenda de la línea formal"
           fetchPriority="high"
           decoding="async"
@@ -24,7 +28,7 @@ const LandingTriptych = () => {
       <div className={`${styles.triptychPanel} ${styles.videoPanel}`}>
         <video
           src="/assets/videos/intro.mp4"
-          poster="/assets/videos/intro-poster.jpg"
+          poster="/assets/videos/intro-poster.webp"
           autoPlay
           loop
           muted
@@ -35,7 +39,11 @@ const LandingTriptych = () => {
       </div>
       <div className={styles.triptychPanel}>
         <img
-          src="/assets/images/portadas/landing-casual.jpg"
+          src="/assets/images/portadas/landing-casual.webp"
+          srcSet="/assets/images/portadas/landing-casual-800.webp 800w, /assets/images/portadas/landing-casual.webp 1679w"
+          sizes="(max-width: 768px) 100vw, 34vw"
+          width="1679"
+          height="2100"
           alt="Modelo con prenda de la línea casual"
           fetchPriority="high"
           decoding="async"

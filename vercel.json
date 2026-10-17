@@ -5,6 +5,10 @@
       "destination": "/api"
     },
     {
+      "source": "/entradas",
+      "destination": "/entradas.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -24,7 +28,16 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/(og-image|og-entradas)\\.jpg",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
         }
       ]
     },
