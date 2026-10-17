@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import MainLayout from './components/layout/MainLayout/MainLayout.jsx';
 import ScrollToTop from './components/common/ScrollToTop/ScrollToTop.jsx';
 import EntradasShell from './entradas/components/EntradasShell/EntradasShell.jsx';
+import { SITIO_ABIERTO } from './launch.js';
 
 // Cada página se descarga recién cuando se visita (code splitting),
 // así la primera carga del sitio es mucho más liviana.
@@ -24,6 +25,7 @@ const FaqsPage = lazy(() => import('./pages/FaqsPage/FaqsPage.jsx'));
 const TermsPage = lazy(() => import('./pages/TermsPage/TermsPage.jsx'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage/PrivacyPage.jsx'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage.jsx'));
+const ProximamentePage = lazy(() => import('./pages/ProximamentePage/ProximamentePage.jsx'));
 // Panel de administración (se descarga aparte, solo al entrar a /admin)
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 // Entradas del desfile: micrositio con estética propia (sin header ni footer de la web)
@@ -68,30 +70,43 @@ function App() {
         {MockMpPage && <Route path="/mock-mp" element={<EntradasShell><Suspense fallback={null}><MockMpPage /></Suspense></EntradasShell>} />}
 
         {/* Portada: sin header (tiene el logo propio sobre el tríptico) */}
-        <Route element={<MainLayout showHeader={false} />}>
-          <Route index element={<LandingPage />} />
-        </Route>
+        {SITIO_ABIERTO ? (
+          <>
+          <Route element={<MainLayout showHeader={false} />}>
+            <Route index element={<LandingPage />} />
+          </Route>
 
-        {/* Resto del sitio: con header fijo */}
-        <Route element={<MainLayout />}>
-          <Route path="/sobre-ico" element={<AboutPage />} />
-          <Route path="/tienda" element={<ShopPage />} />
-          <Route path="/tienda/:gender/:category" element={<CategoryPage />} />
-          <Route path="/tienda/:gender/:category/:subcategory" element={<CategoryPage />} />
-          <Route path="/tienda/:gender/:category/:subcategory/:item" element={<CategoryPage />} />
-          <Route path="/producto/:productId" element={<ProductDetailPage />} />
-          <Route path="/carrito" element={<CartPage />} />
-          <Route path="/colecciones/:id" element={<CollectionPage />} />
-          <Route path="/desfiles" element={<RunwaysPage />} />
-          <Route path="/desfiles/:id" element={<RunwayPage />} />
-          <Route path="/contacto" element={<ContactPage />} />
-          <Route path="/faqs" element={<FaqsPage />} />
-          <Route path="/terminos" element={<TermsPage />} />
-          <Route path="/privacidad" element={<PrivacyPage />} />
-          {/* /:gender/:styleType valida adentro que sea hombre|mujer y formal|casual */}
-          <Route path="/:gender/:styleType" element={<StylePage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
+          {/* Resto del sitio: con header fijo */}
+          <Route element={<MainLayout />}>
+            <Route path="/sobre-ico" element={<AboutPage />} />
+            <Route path="/tienda" element={<ShopPage />} />
+            <Route path="/tienda/:gender/:category" element={<CategoryPage />} />
+            <Route path="/tienda/:gender/:category/:subcategory" element={<CategoryPage />} />
+            <Route path="/tienda/:gender/:category/:subcategory/:item" element={<CategoryPage />} />
+            <Route path="/producto/:productId" element={<ProductDetailPage />} />
+            <Route path="/carrito" element={<CartPage />} />
+            <Route path="/colecciones/:id" element={<CollectionPage />} />
+            <Route path="/desfiles" element={<RunwaysPage />} />
+            <Route path="/desfiles/:id" element={<RunwayPage />} />
+            <Route path="/contacto" element={<ContactPage />} />
+            <Route path="/faqs" element={<FaqsPage />} />
+            <Route path="/terminos" element={<TermsPage />} />
+            <Route path="/privacidad" element={<PrivacyPage />} />
+            {/* /:gender/:styleType valida adentro que sea hombre|mujer y formal|casual */}
+            <Route path="/:gender/:styleType" element={<StylePage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+          </>
+        ) : (
+          <>
+            {/* Antes del lanzamiento: solo legales (los usa el pago) y la pantalla "Próximamente" */}
+            <Route element={<MainLayout />}>
+              <Route path="/terminos" element={<TermsPage />} />
+              <Route path="/privacidad" element={<PrivacyPage />} />
+            </Route>
+            <Route path="*" element={<Suspense fallback={null}><ProximamentePage /></Suspense>} />
+          </>
+        )}
       </Routes>
     </BrowserRouter>
   );

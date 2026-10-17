@@ -24,9 +24,8 @@ const SUBCATEGORIES = {
   },
   mujer: {
     formal: [
-      { name: 'Cóctel', path: '/tienda/mujer/formal/coctel', image: `${IMG}/mujer-formal-coctel.jpg` }, // IB-0019 Vestido "Nocturna"
-      { name: 'Fiesta', path: '/tienda/mujer/formal/fiesta', image: `${IMG}/mujer-formal-fiesta.jpg` }, // IB-0146
-      { name: 'Gala', path: '/tienda/mujer/formal/gala', image: `${IMG}/mujer-formal-gala.jpg` }, // IB-0010 Vestido "Cénit"
+      { name: 'Cóctel', path: '/tienda/mujer/formal/coctel', image: `${IMG}/mujer-formal-coctel.jpg` }, // IB-0019 Vestido "Nocturna" (cuerpo entero)
+      { name: 'Fiesta', path: '/tienda/mujer/formal/fiesta', image: `${IMG}/mujer-formal-fiesta.jpg` }, // IB-0010 Vestido "Cénit"
     ],
     casual: [
       { name: 'Sport', path: '/tienda/mujer/casual/sport', image: `${IMG}/mujer-casual-sport.jpg` }, // IB-0159
