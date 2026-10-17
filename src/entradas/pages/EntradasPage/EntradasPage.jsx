@@ -11,7 +11,22 @@ export default function EntradasPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.config().then(setConfig).catch((e) => setError(e.message));
+    // Si el servidor recién arranca, la primera consulta puede fallar: reintenta antes de mostrar error
+    let cancelled = false;
+    async function load(attempt = 1) {
+      try {
+        const c = await api.config();
+        if (!cancelled) setConfig(c);
+      } catch (e) {
+        if (cancelled) return;
+        if (attempt < 4) setTimeout(() => load(attempt + 1), attempt * 1500);
+        else setError(e.message);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (error) return <p className={styles.state}>No pudimos cargar la página. Recargá en un momento.</p>;
