@@ -23,7 +23,9 @@
   justify-content: center;
   align-items: center;
   background-size: cover;
-  background-position: center;
+  /* Fotos de cuerpo 3/4: si el panel queda apaisado (tablet), se recorta abajo y no la cabeza */
+  background-position: center 20%;
+  background-color: #2a2a2a; /* mientras carga la foto */
   transition: transform 0.4s ease;
 }
 
@@ -32,12 +34,12 @@
 }
 
 /* --- Imágenes de Fondo --- */
-/* (Asegúrate de tener estas imágenes en /public/assets/images/) */
+/* Fotos reales del catálogo (IB-0138 y IB-0052), recortadas a ~0.9:1 en /public/assets/images/portadas/ */
 .hombre {
-  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/assets/images/shop-hombre.jpg'); 
+  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/assets/images/portadas/tienda-hombre.jpg'); 
 }
 .mujer {
-  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/assets/images/shop-mujer.jpg'); 
+  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/assets/images/portadas/tienda-mujer.jpg'); 
 }
 
 .portalTitle {
@@ -55,7 +57,9 @@
   }
 
   .portalLink {
+    flex: none; /* con flex: 1 la altura quedaba en ~130px (flex-basis 0 en columna) */
     height: 50vh; /* Cada panel ocupa la mitad de la altura de la pantalla */
+    height: calc((100svh - var(--header-height, 64px)) / 2); /* mitad de la pantalla visible, sin el header */
   }
 
   .portalTitle {

@@ -41,7 +41,7 @@ const StylePage = () => {
       <StylePageIntro gender={gender} styleType={styleType} />
 
       <section className={styles.pageSection}>
-        <AutoplayVideo src={`/assets/videos/placeholder-${styleType}-collection.mp4`} />
+        <AutoplayVideo src={`/assets/videos/${styleType}.mp4`} />
         <p>Descubre la nueva colección {STYLES[styleType].toLowerCase()}.</p>
       </section>
 

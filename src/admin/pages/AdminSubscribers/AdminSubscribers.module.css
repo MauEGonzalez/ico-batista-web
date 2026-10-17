@@ -1,0 +1,155 @@
+/* /src/admin/pages/AdminSubscribers/AdminSubscribers.module.css */
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.primary {
+  padding: 0.75rem 1.25rem;
+  font: inherit;
+  color: white;
+  background-color: var(--accent-color);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.primary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.search {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.message,
+.errorMessage {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #888;
+}
+
+.errorMessage {
+  color: #a11;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  border: 1px solid #eaeaea;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 56px;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.25rem;
+  min-width: 0;
+}
+
+.email {
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.email:hover {
+  text-decoration: underline;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.deleteLink {
+  padding: 0;
+  font-size: 0.85rem;
+  color: #a11;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.deleteConfirm {
+  padding: 0.4rem 0.8rem;
+  color: white;
+  background-color: #a11;
+  border: none;
+  cursor: pointer;
+}
+
+.secondary {
+  padding: 0.4rem 0.8rem;
+  background: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .header {
+    align-items: center;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .primary {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.85rem;
+  }
+  .row {
+    padding: 0.6rem 0.75rem;
+  }
+  .info {
+    flex-direction: column;
+    gap: 0;
+  }
+}

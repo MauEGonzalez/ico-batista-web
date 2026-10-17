@@ -30,5 +30,20 @@ export const adminApi = {
   saveOrder: (ids) => request('/admin/products/order', { method: 'POST', body: { ids } }),
   bulkStatus: (ids, status) => request('/admin/products/bulk-status', { method: 'POST', body: { ids, status } }),
 
-  getUploadSignature: () => request('/admin/uploads/signature', { method: 'POST' }),
+  // options: { kind: 'image' | 'video', target: 'products' | 'runways' } (sin options = fotos de prendas)
+  getUploadSignature: (options) => request('/admin/uploads/signature', { method: 'POST', body: options }),
+
+  listRunways: () => request('/admin/runways'),
+  getRunway: (id) => request(`/admin/runways/${id}`),
+  createRunway: (data) => request('/admin/runways', { method: 'POST', body: data }),
+  updateRunway: (id, data) => request(`/admin/runways/${id}`, { method: 'PUT', body: data }),
+  deleteRunway: (id) => request(`/admin/runways/${id}`, { method: 'DELETE' }),
+
+  listSubscribers: () => request('/admin/subscribers'),
+  deleteSubscriber: (id) => request(`/admin/subscribers/${id}`, { method: 'DELETE' }),
+
+  listMessages: () => request('/admin/messages'),
+  unreadMessages: () => request('/admin/messages/unread-count'),
+  setMessageRead: (id, read) => request(`/admin/messages/${id}`, { method: 'PATCH', body: { read } }),
+  deleteMessage: (id) => request(`/admin/messages/${id}`, { method: 'DELETE' }),
 };

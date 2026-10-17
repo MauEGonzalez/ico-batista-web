@@ -1,13 +1,18 @@
 // /src/components/common/HamburgerMenu/HamburgerMenu.jsx
 
-import React from 'react';
-import { menuData } from '../../../menuData';
+import React, { useMemo } from 'react';
+import { menuData, withRunways } from '../../../menuData';
+import { useRunways } from '../../../hooks/useRunways.js';
 import MenuItem from '../MenuItem/MenuItem.jsx';
 import { CloseIcon } from '../Icons/Icons.jsx';
 import CurrencyToggle from '../CurrencyToggle/CurrencyToggle.jsx';
 import styles from './HamburgerMenu.module.css';
 
 const HamburgerMenu = ({ isOpen, onClose }) => {
+  // Se pide al montar el header (antes de abrir el menú), así "Desfiles" ya está listo al abrirlo
+  const { runways } = useRunways();
+  const items = useMemo(() => withRunways(menuData, runways), [runways]);
+
   if (!isOpen) return null;
 
   return (
@@ -27,7 +32,7 @@ const HamburgerMenu = ({ isOpen, onClose }) => {
         </div>
         <nav className={styles.menuNav}>
           <ul>
-            {menuData.map((item) => (
+            {items.map((item) => (
               <MenuItem key={item.title} item={item} />
             ))}
           </ul>

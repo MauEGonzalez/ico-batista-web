@@ -1,0 +1,5 @@
+.page { min-height: 100vh; background: #1b1c1f; padding: 32px 16px 48px; display: flex; flex-direction: column; gap: 24px; }
+.msg { color: var(--bg); text-align: center; margin-top: 80px; }
+.actions { display: flex; justify-content: center; }
+.actions button { background: transparent; color: var(--bg); border: 1px solid var(--bg); padding: 12px 24px; letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.75rem; cursor: pointer; }
+@media print { .page { background: #fff; padding: 0; } .actions { display: none; } }

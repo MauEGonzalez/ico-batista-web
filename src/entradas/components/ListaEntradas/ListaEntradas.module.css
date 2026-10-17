@@ -1,0 +1,21 @@
+.wrap { background: #fff; border: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.h { font-size: 1.25rem; }
+.count { font-size: 0.82rem; color: var(--ink-soft); }
+.search { padding: 14px; border: 1px solid var(--line); background: var(--bg); font-size: 1rem; border-radius: 0; width: 100%; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips button { padding: 8px 12px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 0.82rem; }
+.chips .active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 240px; }
+.info strong { font-weight: 500; overflow-wrap: anywhere; }
+.meta { font-size: 0.8rem; color: var(--ink-soft); overflow-wrap: anywhere; }
+.meta code { font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.04em; }
+.actions { display: flex; gap: 8px; align-items: center; }
+.primary { padding: 12px 16px; border: 0; background: var(--ok); color: #fff; cursor: pointer; font-size: 0.85rem; }
+.ghost { padding: 12px 12px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 0.8rem; color: var(--ink-soft); }
+.used .info strong { color: var(--ok); }
+.void .info { opacity: 0.55; text-decoration: line-through; }
+.badge { font-size: 0.78rem; color: var(--bad); }
+.empty { margin: 8px 0 0; color: var(--ink-soft); font-size: 0.9rem; }

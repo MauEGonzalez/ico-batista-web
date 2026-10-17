@@ -9,13 +9,25 @@ import styles from './ImageUploader.module.css';
 const MAX_PARALLEL = 3; // Fotos subiendo a la vez
 
 // images: fotos ya subidas. setImages: setter de estado (acepta función).
-const ImageUploader = ({ images, setImages, onUploadingChange = () => {} }) => {
+// Opcionales (para reutilizarlo en desfiles): target = carpeta de Cloudinary, maxImages = tope de fotos,
+// coverBadge = marcar la primera como "Portada", hint y addLabel = textos.
+const ImageUploader = ({
+  images,
+  setImages,
+  onUploadingChange = () => {},
+  target = 'products',
+  maxImages = Infinity,
+  coverBadge = true,
+  addLabel = 'Agregar fotos',
+  hint = 'La primera foto es la portada. Arrastrá las fotos o usá las flechas para ordenarlas.',
+}) => {
   const [uploads, setUploads] = useState([]); // Fotos subiendo: { tempId, name, preview, progress, error }
   const [dragOver, setDragOver] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const inputRef = useRef(null);
 
   const activeUploads = uploads.filter((u) => !u.error).length;
+  const canAddMore = images.length + activeUploads < maxImages;
   useEffect(() => { onUploadingChange(activeUploads > 0); }, [activeUploads, onUploadingChange]);
 
   // Libera las vistas previas al desmontar
@@ -27,7 +39,10 @@ const ImageUploader = ({ images, setImages, onUploadingChange = () => {} }) => {
     setUploads((list) => list.map((u) => (u.tempId === tempId ? { ...u, ...changes } : u)));
 
   const handleFiles = async (fileList) => {
-    const files = [...fileList].filter((file) => file.type.startsWith('image/') || /\.(heic|heif)$/i.test(file.name));
+    const room = Math.max(0, maxImages - images.length - uploads.filter((u) => !u.error).length);
+    const files = [...fileList]
+      .filter((file) => file.type.startsWith('image/') || /\.(heic|heif)$/i.test(file.name))
+      .slice(0, room);
     if (files.length === 0) return;
 
     const queue = files.map((file) => ({
@@ -48,7 +63,7 @@ const ImageUploader = ({ images, setImages, onUploadingChange = () => {} }) => {
         next += 1;
         const { file, tempId } = queue[index];
         try {
-          results[index] = await uploadImage(file, (progress) => updateUpload(tempId, { progress }));
+          results[index] = await uploadImage(file, (progress) => updateUpload(tempId, { progress }), { target });
           setUploads((list) => {
             const done = list.find((u) => u.tempId === tempId);
             if (done) URL.revokeObjectURL(done.preview);
@@ -61,7 +76,7 @@ const ImageUploader = ({ images, setImages, onUploadingChange = () => {} }) => {
     };
     await Promise.all(Array.from({ length: Math.min(MAX_PARALLEL, queue.length) }, worker));
     const uploaded = results.filter(Boolean);
-    if (uploaded.length > 0) setImages((list) => [...list, ...uploaded]);
+    if (uploaded.length > 0) setImages((list) => [...list, ...uploaded].slice(0, maxImages));
   };
 
   const dismissUpload = (tempId) =>
@@ -102,7 +117,7 @@ const ImageUploader = ({ images, setImages, onUploadingChange = () => {} }) => {
             }}
           >
             <img src={imageUrl(image, 300)} alt={`Foto ${index + 1}`} className={styles.image} />
-            {index === 0 && <span className={styles.cover}>Portada</span>}
+            {coverBadge && index === 0 && <span className={styles.cover}>Portada</span>}
             <div className={styles.controls}>
               <button type="button" onClick={() => move(index, index - 1)} disabled={index === 0} aria-label="Mover a la izquierda">←</button>
               <button type="button" onClick={() => move(index, index + 1)} disabled={index === images.length - 1} aria-label="Mover a la derecha">→</button>
@@ -128,41 +143,41 @@ const ImageUploader = ({ images, setImages, onUploadingChange = () => {} }) => {
           </figure>
         ))}
 
-        <button
-          type="button"
-          className={`${styles.dropzone} ${dragOver ? styles.dropzoneActive : ''}`}
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(e) => {
-            e.preventDefault();
-            if (draggedIndex === null) setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragOver(false);
-            if (draggedIndex === null) handleFiles(e.dataTransfer.files);
-          }}
-        >
-          <span className={styles.plus}>+</span>
-          <span>Agregar fotos</span>
-          <small>Arrastralas acá o tocá para elegir</small>
-        </button>
+        {canAddMore && (
+          <button
+            type="button"
+            className={`${styles.dropzone} ${dragOver ? styles.dropzoneActive : ''}`}
+            onClick={() => inputRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              if (draggedIndex === null) setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              if (draggedIndex === null) handleFiles(e.dataTransfer.files);
+            }}
+          >
+            <span className={styles.plus}>+</span>
+            <span>{addLabel}</span>
+            <small>{maxImages === 1 ? 'Arrastrala acá o tocá para elegir' : 'Arrastralas acá o tocá para elegir'}</small>
+          </button>
+        )}
       </div>
 
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
-        multiple
+        multiple={maxImages > 1}
         hidden
         onChange={(e) => {
           handleFiles(e.target.files);
           e.target.value = ''; // Permite volver a elegir la misma foto
         }}
       />
-      <p className={styles.hint}>
-        La primera foto es la portada. Arrastrá las fotos o usá las flechas para ordenarlas.
-      </p>
+      {hint && <p className={styles.hint}>{hint}</p>}
     </div>
   );
 };

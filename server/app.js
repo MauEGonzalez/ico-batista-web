@@ -8,6 +8,10 @@ import { runMigrations } from './utils/migrations.js';
 import authRoutes from './routes/auth.js';
 import uploadRoutes from './routes/uploads.js';
 import { publicRouter as publicProducts, adminRouter as adminProducts } from './routes/products.js';
+import { publicRouter as publicRunways, adminRouter as adminRunways } from './routes/runways.js';
+import { publicRouter as publicSubscribe, adminRouter as adminSubscribers } from './routes/subscribers.js';
+import { publicRouter as publicContact, adminRouter as adminMessages } from './routes/contact.js';
+import { entradasRouter } from './entradas/mount.js';
 
 const app = express();
 
@@ -57,6 +61,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', publicProducts);
 app.use('/api/admin/products', adminProducts);
 app.use('/api/admin/uploads', uploadRoutes);
+app.use('/api/runways', publicRunways);
+app.use('/api/admin/runways', adminRunways);
+app.use('/api/subscribe', publicSubscribe);
+app.use('/api/admin/subscribers', adminSubscribers);
+app.use('/api/contact', publicContact);
+app.use('/api/admin/messages', adminMessages);
+// Entradas del desfile (compra con Mercado Pago, QR, cortesías y lista de ingreso)
+app.use('/api/entradas', entradasRouter());
 
 app.use('/api', (req, res) => res.status(404).json({ message: 'Ruta no encontrada' }));
 

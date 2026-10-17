@@ -1,42 +1,46 @@
 // /src/pages/ContactPage/ContactPage.jsx
+// Formulario de contacto: se guarda en nuestra base y Ico lo lee en el panel (pestaña "Mensajes").
 
-import React, { useRef, useState } from 'react';
-import emailjs from '@emailjs/browser';
-import toast from 'react-hot-toast'; // Usaremos las notificaciones que ya instalamos
+import React, { useState } from 'react';
 import { buildWhatsAppUrl } from '../../utils/whatsapp.js';
 import { ChatIcon } from '../../components/common/Icons/Icons.jsx';
 import styles from './ContactPage.module.css';
 
+const EMPTY = { name: '', email: '', phone: '', message: '' };
+
 const ContactPage = () => {
-  const form = useRef();
-  const [isLoading, setIsLoading] = useState(false);
+  const [form, setForm] = useState(EMPTY);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'error'
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const sendEmail = (e) => {
-    e.preventDefault(); // Previene el refresco de la página
-    setIsLoading(true); // Muestra el estado de carga en el botón
+  const setField = (field) => (e) => setForm((current) => ({ ...current, [field]: e.target.value }));
 
-    // Usamos las variables de entorno de Vite
-    const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-    emailjs.sendForm(serviceID, templateID, form.current, publicKey)
-      .then((result) => {
-          console.log(result.text);
-          toast.success('¡Mensaje enviado con éxito!');
-          e.target.reset(); // Resetea el formulario
-      }, (error) => {
-          console.log(error.text);
-          toast.error('Hubo un error al enviar el mensaje. Intenta de nuevo.');
-      })
-      .finally(() => {
-          setIsLoading(false); // Oculta el estado de carga
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (status === 'sending') return;
+    setStatus('sending');
+    setErrorMessage('');
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // "website" es un campo trampa invisible contra robots (las personas lo dejan vacío)
+        body: JSON.stringify({ ...form, website: e.target.elements.website?.value ?? '' }),
       });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || 'No pudimos enviar tu mensaje. Prueba de nuevo.');
+      setStatus('sent');
+      setForm(EMPTY);
+    } catch (err) {
+      setErrorMessage(err.message === 'Failed to fetch' ? 'Sin conexión. Revisa tu internet y prueba de nuevo.' : err.message);
+      setStatus('error');
+    }
   };
 
   return (
     <>
       <title>Contacto | Ico Batista</title>
+      <meta name="description" content="Escríbele a Ico Batista para consultas sobre prendas, diseños a medida o colaboraciones." />
       <main>
         <div className={styles.contactContainer}>
           <div className={styles.header}>
@@ -52,30 +56,49 @@ const ContactPage = () => {
               Escribir por WhatsApp
             </a>
           </div>
-          
-          {/* El formulario ahora tiene el ref y el onSubmit */}
-          <form ref={form} onSubmit={sendEmail} className={styles.contactForm}>
-            <div className={styles.formGroup}>
-              <label htmlFor="name">Nombre Completo</label>
-              <input type="text" id="name" name="name" required />
+
+          {status === 'sent' ? (
+            <div className={styles.sent} role="status">
+              <h2>¡Gracias por escribirnos!</h2>
+              <p>Recibimos tu mensaje y te responderemos a la brevedad por email.</p>
+              <button type="button" className={styles.linkButton} onClick={() => setStatus('idle')}>
+                Enviar otro mensaje
+              </button>
             </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="email">Correo Electrónico</label>
-              <input type="email" id="email" name="email" required />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="subject">Asunto</label>
-              <input type="text" id="subject" name="subject" required />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="message">Mensaje</label>
-              <textarea id="message" name="message" rows="6" required></textarea>
-            </div>
-            
-            <button type="submit" className={styles.submitButton} disabled={isLoading}>
-              {isLoading ? 'Enviando...' : 'Enviar Mensaje'}
-            </button>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} className={styles.contactForm}>
+              <div className={styles.formGroup}>
+                <label htmlFor="name">Nombre completo</label>
+                <input type="text" id="name" name="name" value={form.name} onChange={setField('name')} maxLength={100} autoComplete="name" required />
+              </div>
+              <div className={styles.row}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="email">Correo electrónico</label>
+                  <input type="email" id="email" name="email" value={form.email} onChange={setField('email')} maxLength={254} autoComplete="email" required />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone">Teléfono <span className={styles.optional}>(opcional)</span></label>
+                  <input type="tel" id="phone" name="phone" value={form.phone} onChange={setField('phone')} maxLength={40} autoComplete="tel" />
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="message">Mensaje</label>
+                <textarea id="message" name="message" rows="6" value={form.message} onChange={setField('message')} maxLength={5000} minLength={5} required />
+              </div>
+
+              {/* Campo trampa: oculto para las personas, los robots lo completan */}
+              <div className={styles.honeypot} aria-hidden="true">
+                <label htmlFor="website">No completes este campo</label>
+                <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
+              </div>
+
+              {status === 'error' && <p className={styles.error} role="alert">{errorMessage}</p>}
+
+              <button type="submit" className={styles.submitButton} disabled={status === 'sending'}>
+                {status === 'sending' ? 'Enviando…' : 'Enviar mensaje'}
+              </button>
+            </form>
+          )}
         </div>
       </main>
     </>

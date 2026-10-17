@@ -1,0 +1,2 @@
+.footer { margin-top: 72px; padding: 40px 24px 56px; text-align: center; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; align-items: center; font-size: 0.9rem; color: var(--ink-soft); }
+.brand { margin: 0; letter-spacing: 0.45em; padding-left: 0.45em; color: var(--ink); }

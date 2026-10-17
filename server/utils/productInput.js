@@ -2,7 +2,7 @@
 // Limpia y valida lo que llega del panel: solo se aceptan estos campos, con su tipo correcto.
 import { CLOUDINARY_ROOT } from '../config/cloudinary.js';
 
-const cleanString = (value, max) => String(value ?? '').trim().slice(0, max);
+export const cleanString = (value, max) => String(value ?? '').trim().slice(0, max);
 
 const cleanPrice = (value) => {
   if (value === null || value === undefined || value === '') return null;
@@ -21,21 +21,24 @@ const cleanCategories = (value) => {
   return [...new Set(list.map((c) => cleanString(c, 100)).filter(Boolean))].slice(0, 10);
 };
 
-const isOurImage = (image) =>
+export const isOurImage = (image) =>
   image &&
   typeof image.publicId === 'string' &&
   image.publicId.startsWith(`${CLOUDINARY_ROOT}/`) &&
   typeof image.url === 'string' &&
   image.url.startsWith('https://res.cloudinary.com/');
 
-const cleanImages = (value) => {
+// Deja solo los campos que guardamos de una foto ya validada
+export const cleanImage = (image) => ({
+  publicId: image.publicId,
+  url: image.url,
+  width: Number(image.width) || undefined,
+  height: Number(image.height) || undefined,
+});
+
+export const cleanImages = (value, max = 30) => {
   if (!Array.isArray(value)) return [];
-  return value.filter(isOurImage).slice(0, 30).map((image) => ({
-    publicId: image.publicId,
-    url: image.url,
-    width: Number(image.width) || undefined,
-    height: Number(image.height) || undefined,
-  }));
+  return value.filter(isOurImage).slice(0, max).map(cleanImage);
 };
 
 // partial = true en ediciones: solo se actualiza lo que vino

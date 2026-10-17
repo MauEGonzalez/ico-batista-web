@@ -13,14 +13,16 @@
     "import-media": "node --env-file=.env scripts/import-media.mjs"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.11.0",
     "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
     "framer-motion": "^12.23.24",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.24.4",
+    "nodemailer": "^10.1.2",
+    "qrcode": "^1.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hot-toast": "^2.6.0",

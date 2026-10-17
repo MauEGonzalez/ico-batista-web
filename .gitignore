@@ -30,3 +30,4 @@ dist-ssr
 
 # Reportes del script de importación
 import-report*.json
+server/entradas/.outbox/

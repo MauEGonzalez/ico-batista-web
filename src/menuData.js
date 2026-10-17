@@ -143,22 +143,36 @@ export const menuData = [
       ...COLLECTIONS.map(({ slug, title }) => ({ title, path: `/colecciones/${slug}` })),
     ],
   },
+  // "Desfiles" no está acá: se agrega solo cuando hay desfiles publicados (ver withRunways abajo)
   {
-    title: "Desfiles",
-    children: [
-      { title: "Desfile 1", path: "/desfiles/1" },
-      { title: "Desfile 2", path: "/desfiles/2" },
-    ],
+    title: "Entradas desfile",
+    path: "/entradas",
   },
-  
-  // 👇👇👇 NUEVO ENLACE A "CONTACTO" AÑADIDO AQUÍ 👇👇👇
   {
     title: "Contacto",
     path: "/contacto",
   },
-  
   {
     title: "Mi selección",
     path: "/carrito",
   },
 ];
+
+// Menú con "Desfiles" después de "Colecciones", solo si hay desfiles publicados.
+// runways: lista pública de /api/runways (los más recientes primero).
+const MAX_RUNWAYS_IN_MENU = 6;
+
+export const withRunways = (items, runways = []) => {
+  if (runways.length === 0) return items;
+  const runwaysItem = {
+    title: "Desfiles",
+    children: [
+      ...runways.slice(0, MAX_RUNWAYS_IN_MENU).map(({ slug, title }) => ({ title, path: `/desfiles/${slug}` })),
+      { title: "Ver todos los desfiles", path: "/desfiles" },
+    ],
+  };
+  const index = items.findIndex((item) => item.title === "Colecciones");
+  const copy = [...items];
+  copy.splice(index === -1 ? copy.length : index + 1, 0, runwaysItem);
+  return copy;
+};

@@ -1,0 +1,11 @@
+.wrap { background: #fff; border: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.h { font-size: 1.25rem; }
+.form { display: flex; gap: 8px; }
+.form input { flex: 1; min-width: 0; padding: 14px; border: 1px solid var(--line); background: var(--bg); font-size: 1.1rem; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 0; }
+.form button { padding: 0 22px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem; }
+.form button:disabled { opacity: 0.6; }
+.result { padding: 18px; display: flex; flex-direction: column; gap: 4px; color: #fff; }
+.result strong { font-family: var(--serif); font-weight: 400; font-size: 1.7rem; }
+.name { font-size: 1.15rem; }
+.ok { background: var(--ok); }
+.bad { background: var(--bad); }

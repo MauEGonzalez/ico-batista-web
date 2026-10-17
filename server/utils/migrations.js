@@ -42,8 +42,15 @@ const migrate = async () => {
     { $pullAll: { categories: OLD_COLLECTIONS } }
   );
 
-  if (legacy.length || withoutCode.length || withoutOrder.length || cleaned) {
-    console.log(`Migración: ${legacy.length} a varias categorías, ${withoutCode.length} códigos, ${withoutOrder.length} con orden asignado, ${cleaned} colecciones viejas quitadas`);
+  // 5) Los desfiles ahora se cargan aparte (pestaña "Desfiles"): ya no son categorías de prendas
+  const OLD_RUNWAYS = ['desfiles/1', 'desfiles/2'];
+  const { modifiedCount: runwaysCleaned } = await Product.collection.updateMany(
+    { categories: { $in: OLD_RUNWAYS } },
+    { $pullAll: { categories: OLD_RUNWAYS } }
+  );
+
+  if (legacy.length || withoutCode.length || withoutOrder.length || cleaned || runwaysCleaned) {
+    console.log(`Migración: ${legacy.length} a varias categorías, ${withoutCode.length} códigos, ${withoutOrder.length} con orden asignado, ${cleaned + runwaysCleaned} categorías viejas quitadas`);
   }
 };
 

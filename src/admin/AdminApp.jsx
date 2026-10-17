@@ -8,6 +8,11 @@ import AdminLogin from './pages/AdminLogin/AdminLogin.jsx';
 import AdminProducts from './pages/AdminProducts/AdminProducts.jsx';
 import AdminProductForm from './pages/AdminProductForm/AdminProductForm.jsx';
 import AdminOrder from './pages/AdminOrder/AdminOrder.jsx';
+import AdminRunways from './pages/AdminRunways/AdminRunways.jsx';
+import AdminRunwayForm from './pages/AdminRunwayForm/AdminRunwayForm.jsx';
+import AdminMessages from './pages/AdminMessages/AdminMessages.jsx';
+import AdminSubscribers from './pages/AdminSubscribers/AdminSubscribers.jsx';
+import AdminEntradas from './pages/AdminEntradas/AdminEntradas.jsx';
 
 const AdminApp = () => (
   <AdminAuthProvider>
@@ -20,6 +25,12 @@ const AdminApp = () => (
         <Route path="prendas/nueva" element={<AdminProductForm />} />
         <Route path="prendas/:id" element={<AdminProductForm />} />
         <Route path="orden" element={<AdminOrder />} />
+        <Route path="desfiles" element={<AdminRunways />} />
+        <Route path="desfiles/nuevo" element={<AdminRunwayForm />} />
+        <Route path="desfiles/:id" element={<AdminRunwayForm />} />
+        <Route path="mensajes" element={<AdminMessages />} />
+        <Route path="suscriptores" element={<AdminSubscribers />} />
+        <Route path="entradas" element={<AdminEntradas />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>

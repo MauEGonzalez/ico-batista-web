@@ -98,6 +98,19 @@
   color: var(--text-color);
 }
 
+.count {
+  display: inline-block;
+  min-width: 1.3rem;
+  margin-left: 0.4rem;
+  padding: 0 0.35rem;
+  font-size: 0.7rem;
+  line-height: 1.3rem;
+  text-align: center;
+  color: white;
+  background-color: var(--accent-color);
+  border-radius: 999px;
+}
+
 .tabs .activeTab {
   color: var(--accent-color);
   border-bottom-color: var(--accent-color);

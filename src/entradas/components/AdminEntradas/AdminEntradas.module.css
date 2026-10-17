@@ -1,0 +1,6 @@
+.wrap { max-width: 860px; margin: 0 auto; padding: 20px 16px 64px; display: flex; flex-direction: column; gap: 16px; }
+.top { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+.title { font-size: 1.5rem; }
+.topActions { display: flex; gap: 8px; }
+.topActions button { padding: 10px 14px; border: 1px solid var(--ink); background: transparent; cursor: pointer; font-size: 0.82rem; }
+.error { margin: 0; color: var(--bad); }

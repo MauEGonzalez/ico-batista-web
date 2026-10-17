@@ -1,58 +1,253 @@
+/* /src/pages/AboutPage/AboutPage.module.css */
+
+.page {
+  --about-muted: #6b6b6b;
+  --about-line: #e6e6e6;
+  padding-bottom: 0;
+}
+
+/* --- Encabezado --- */
+.intro {
+  text-align: center;
+  margin: 1.5rem 0 2.5rem;
+}
+.eyebrow,
+.runwayEyebrow {
+  font-family: var(--primary-font);
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--about-muted);
+  margin: 0 0 0.75rem;
+}
+.title {
+  font-family: var(--secondary-font);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 6vw, 3.75rem);
+  line-height: 1.1;
+  margin: 0;
+  color: var(--accent-color);
+}
+
+/* --- Foto principal (taller) --- */
 .hero {
-  position: relative;
-  width: 100%;
-  height: 50vh;
-  margin-bottom: 4rem;
+  margin: 0 0 clamp(4rem, 9vw, 7rem);
 }
 .heroImage {
   width: 100%;
-  height: 100%;
+  height: auto;
+  aspect-ratio: 1314 / 552;
   object-fit: cover;
+  background: #f2f0ec;
 }
-.heroOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+
+/* --- Títulos de sección --- */
+.sectionTitle {
+  font-family: var(--secondary-font);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+  line-height: 1.2;
+  margin: 0 0 1.5rem;
+  color: var(--accent-color);
+}
+
+/* --- Retrato + texto --- */
+.bio {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+  margin-bottom: clamp(4rem, 9vw, 7rem);
+}
+.portrait img {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: #1c1c1e;
+}
+.bioText p,
+.workshopText p,
+.line p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--text-color);
+  margin: 0 0 1.25rem;
+  max-width: 34rem;
+}
+.fabrics {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.fabrics li {
+  border: 1px solid var(--accent-color);
+  padding: 0.35rem 0.9rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* --- Dos líneas --- */
+.lines {
+  border-top: 1px solid var(--about-line);
+  padding-top: clamp(3rem, 6vw, 4.5rem);
+  margin-bottom: clamp(4rem, 9vw, 7rem);
+}
+.linesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 5vw, 4rem);
+}
+.line h3 {
+  font-family: var(--secondary-font);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.4rem;
+  margin: 0 0 0.75rem;
+  color: var(--accent-color);
+}
+
+/* --- El taller --- */
+.workshop {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+  margin-bottom: clamp(4rem, 9vw, 7rem);
+}
+.workshopImage img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 964 / 729;
+  object-fit: cover;
+  background: #f2f0ec;
+}
+.textLink {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.2rem;
+  color: var(--accent-color);
+  transition: opacity 0.2s ease;
+}
+.textLink:hover {
+  opacity: 0.6;
+}
+
+/* --- Colecciones --- */
+.collections {
+  text-align: center;
+  border-top: 1px solid var(--about-line);
+  padding-top: clamp(3rem, 6vw, 4.5rem);
+  margin-bottom: clamp(4rem, 9vw, 7rem);
+}
+.collectionList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
+  gap: 0.75rem 2.5rem;
 }
-.heroTitle {
+.collectionList a {
   font-family: var(--secondary-font);
-  color: white;
-  font-size: 3rem;
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  color: var(--accent-color);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+.collectionList a:hover {
+  border-color: currentColor;
+}
+
+/* --- Próximo desfile (banda clara a lo ancho; el footer ya es negro) --- */
+.runway {
+  background: #f5f1ea;
+  color: var(--accent-color);
   text-align: center;
+  padding: clamp(3.5rem, 8vw, 6rem) 1.5rem;
+  margin: 0 calc(50% - 50vw);
 }
-.bioSection {
-  display: flex;
-  gap: 3rem;
-  align-items: center;
-  margin-bottom: 4rem;
+.runwayEyebrow {
+  color: var(--about-muted);
 }
-.bioImageContainer {
-  flex: 1;
-}
-.bioTextContainer {
-  flex: 1.5;
-}
-.bioTextContainer h2 {
+.runwayTitle {
   font-family: var(--secondary-font);
-  font-size: 2rem;
-  margin-top: 0;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  margin: 0 0 1rem;
+  color: var(--accent-color);
 }
-.videoSection {
-  text-align: center;
+.runwayDetails {
+  margin: 0 0 2rem;
+  letter-spacing: 0.05em;
+  color: var(--text-color);
 }
-.videoSection h2 {
-  font-family: var(--secondary-font);
-  font-size: 2rem;
-  margin-bottom: 2rem;
+.runwayButton {
+  display: inline-block;
+  border: 1px solid var(--accent-color);
+  background: var(--accent-color);
+  padding: 0.9rem 2rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
-.videoWrapper {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
+.runwayButton:hover,
+.runwayButton:focus-visible {
+  background: transparent;
+  color: var(--accent-color);
+}
+
+/* --- Tablet y celular --- */
+@media (max-width: 860px) {
+  .bio,
+  .workshop {
+    grid-template-columns: 1fr;
+  }
+  .portrait {
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .bioText p,
+  .workshopText p {
+    max-width: none;
+  }
+  /* En celular la foto del taller va antes que el texto */
+  .workshopImage {
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .intro {
+    margin: 0.5rem 0 1.75rem;
+  }
+  .hero {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+  .heroImage {
+    aspect-ratio: 4 / 3;
+    object-position: 38% center;
+  }
+  .linesGrid {
+    grid-template-columns: 1fr;
+  }
+  .bioText p,
+  .workshopText p,
+  .line p {
+    font-size: 1rem;
+  }
 }

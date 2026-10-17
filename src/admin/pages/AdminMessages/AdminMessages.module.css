@@ -1,0 +1,214 @@
+/* /src/admin/pages/AdminMessages/AdminMessages.module.css */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.filterTabs {
+  display: flex;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.filterTabs button {
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+
+.filterTabs button span {
+  color: #aaa;
+}
+
+.filterTabs .activeTab {
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.filterTabs .activeTab span {
+  color: #ccc;
+}
+
+.message,
+.errorMessage {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #888;
+}
+
+.errorMessage {
+  color: #a11;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  padding: 1.1rem 1.25rem;
+  background-color: white;
+  border: 1px solid #eaeaea;
+}
+
+/* Sin leer: borde negro a la izquierda y fondo apenas cálido */
+.unread {
+  border-left: 3px solid var(--accent-color);
+  background-color: #fdfcf8;
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+.sender {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.9rem;
+  min-width: 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  align-self: center;
+}
+
+.name {
+  font-family: var(--secondary-font);
+  font-size: 1.1rem;
+  font-weight: normal;
+}
+
+.unread .name {
+  font-weight: bold;
+}
+
+.contact {
+  font-size: 0.85rem;
+  color: #555;
+  overflow-wrap: anywhere;
+}
+
+.contact:hover {
+  text-decoration: underline;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+.body {
+  margin: 0.75rem 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+
+.reply {
+  padding: 0.5rem 1.1rem;
+  font-size: 0.85rem;
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.secondary {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  background: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.secondary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.deleteLink {
+  padding: 0;
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #a11;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  font-size: 0.85rem;
+}
+
+.deleteConfirm {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  color: white;
+  background-color: #a11;
+  border: none;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 1.5rem;
+  }
+  .filterTabs {
+    width: 100%;
+  }
+  .filterTabs button {
+    flex: 1;
+  }
+  .card {
+    padding: 0.9rem;
+  }
+  .deleteLink,
+  .confirm {
+    margin-left: 0;
+  }
+}

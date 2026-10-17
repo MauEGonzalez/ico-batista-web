@@ -4,15 +4,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProductsContext } from './productsContextValue.js';
 
-// En desarrollo, si la API no está corriendo, se usan los productos de ejemplo (productsData.js).
-// En producción esto no se incluye.
-const loadLocalSample = async () => {
-  if (!import.meta.env.DEV) return null;
-  const { productsData } = await import('../productsData.js');
-  console.info('[Ico Batista] API no disponible: usando productos de ejemplo (solo en desarrollo)');
-  return productsData;
-};
-
 export const ProductsProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,11 +21,9 @@ export const ProductsProvider = ({ children }) => {
         const data = await response.json();
         if (!cancelled) setProducts(data);
       } catch (err) {
-        const sample = await loadLocalSample();
         if (cancelled) return;
-        if (sample) setProducts(sample);
-        else setError('No pudimos cargar las prendas. Probá recargar la página.');
-        if (!sample) console.error(err);
+        console.error(err);
+        setError('No pudimos cargar las prendas. Prueba recargar la página.');
       } finally {
         if (!cancelled) setLoading(false);
       }

@@ -30,10 +30,11 @@ export const prepareImage = async (file) => {
   return new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' });
 };
 
-// Sube a Cloudinary con XMLHttpRequest (fetch no informa el progreso de subida)
-export const uploadImage = async (file, onProgress = () => {}) => {
+// Sube a Cloudinary con XMLHttpRequest (fetch no informa el progreso de subida).
+// target: carpeta de destino ('products' o 'runways')
+export const uploadImage = async (file, onProgress = () => {}, { target = 'products' } = {}) => {
   const prepared = await prepareImage(file);
-  const { signature, timestamp, folder, apiKey, cloudName } = await adminApi.getUploadSignature();
+  const { signature, timestamp, folder, apiKey, cloudName } = await adminApi.getUploadSignature({ kind: 'image', target });
 
   const form = new FormData();
   form.append('file', prepared);

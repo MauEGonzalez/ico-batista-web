@@ -1,0 +1,53 @@
+/* /src/entradas/components/EntradasShell/EntradasShell.module.css
+   Variables y estilos base del micrositio del desfile, limitados a este envoltorio. */
+.root {
+  --bg: #efeee7;
+  --ink: #2b2d31;
+  --ink-soft: #4a4c50;
+  --accent: #7a664c;
+  --line: #b9b6aa;
+  --card: #e6e4db;
+  --dark: #1b1c1f;
+  --ok: #2f6b47;
+  --bad: #9a3b32;
+  --warn: #9a6b1f;
+  --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --sans: 'Public Sans', 'Roboto', Arial, Helvetica, sans-serif;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+.embedded {
+  min-height: 0;
+  background: transparent;
+}
+
+/* Baja especificidad a propósito: las clases de cada componente siguen mandando */
+:where(.root) main {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+:where(.root) h1,
+:where(.root) h2,
+:where(.root) h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  margin: 0;
+}
+:where(.root) a { color: inherit; }
+:where(.root) button,
+:where(.root) input,
+:where(.root) select { font: inherit; color: inherit; }
+:where(.root) :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.root :global(.eyebrow) {
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+}

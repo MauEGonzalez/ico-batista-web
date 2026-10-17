@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import MainLayout from './components/layout/MainLayout/MainLayout.jsx';
 import ScrollToTop from './components/common/ScrollToTop/ScrollToTop.jsx';
+import EntradasShell from './entradas/components/EntradasShell/EntradasShell.jsx';
 
 // Cada página se descarga recién cuando se visita (code splitting),
 // así la primera carga del sitio es mucho más liviana.
@@ -16,6 +17,7 @@ const CartPage = lazy(() => import('./pages/CartPage/CartPage.jsx'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage/CategoryPage.jsx'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage/ProductDetailPage.jsx'));
 const CollectionPage = lazy(() => import('./pages/CollectionPage/CollectionPage.jsx'));
+const RunwaysPage = lazy(() => import('./pages/RunwaysPage/RunwaysPage.jsx'));
 const RunwayPage = lazy(() => import('./pages/RunwayPage/RunwayPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage/ContactPage.jsx'));
 const FaqsPage = lazy(() => import('./pages/FaqsPage/FaqsPage.jsx'));
@@ -24,6 +26,11 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage/PrivacyPage.jsx'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage.jsx'));
 // Panel de administración (se descarga aparte, solo al entrar a /admin)
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
+// Entradas del desfile: micrositio con estética propia (sin header ni footer de la web)
+const EntradasPage = lazy(() => import('./entradas/pages/EntradasPage/EntradasPage.jsx'));
+const PagoResultadoPage = lazy(() => import('./entradas/pages/PagoResultadoPage/PagoResultadoPage.jsx'));
+const EntradaPage = lazy(() => import('./entradas/pages/EntradaPage/EntradaPage.jsx'));
+const MockMpPage = import.meta.env.DEV ? lazy(() => import('./entradas/pages/MockMpPage/MockMpPage.jsx')) : null;
 
 function App() {
   return (
@@ -54,6 +61,12 @@ function App() {
           element={<Suspense fallback={null}><AdminApp /></Suspense>}
         />
 
+        {/* Entradas del desfile */}
+        <Route path="/entradas" element={<EntradasShell><Suspense fallback={null}><EntradasPage /></Suspense></EntradasShell>} />
+        <Route path="/entradas/pago" element={<EntradasShell><Suspense fallback={null}><PagoResultadoPage /></Suspense></EntradasShell>} />
+        <Route path="/entrada/:code" element={<EntradasShell><Suspense fallback={null}><EntradaPage /></Suspense></EntradasShell>} />
+        {MockMpPage && <Route path="/mock-mp" element={<EntradasShell><Suspense fallback={null}><MockMpPage /></Suspense></EntradasShell>} />}
+
         {/* Portada: sin header (tiene el logo propio sobre el tríptico) */}
         <Route element={<MainLayout showHeader={false} />}>
           <Route index element={<LandingPage />} />
@@ -69,6 +82,7 @@ function App() {
           <Route path="/producto/:productId" element={<ProductDetailPage />} />
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/colecciones/:id" element={<CollectionPage />} />
+          <Route path="/desfiles" element={<RunwaysPage />} />
           <Route path="/desfiles/:id" element={<RunwayPage />} />
           <Route path="/contacto" element={<ContactPage />} />
           <Route path="/faqs" element={<FaqsPage />} />

@@ -16,8 +16,10 @@ server/
   app.js                Express: middlewares y rutas
   dev.js                Servidor local (npm run dev:api)
   config/               Conexión a MongoDB y Cloudinary
-  models/               Product, User
-  routes/               auth, products (público + admin), uploads
+  models/               Product, Runway, Subscriber, ContactMessage, User
+  routes/               auth, products, runways (desfiles), subscribers (novedades),
+                        contact (mensajes), uploads — cada uno con rutas públicas y de panel
+  utils/notify.js       Aviso de mensajes nuevos (hoy solo console.log: acá se conecta un proveedor de mail)
   middleware/auth.js    Sesión con JWT en cookie httpOnly
 scripts/
   create-admin.mjs      Crea usuarios del panel

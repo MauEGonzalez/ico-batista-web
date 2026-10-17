@@ -1,0 +1,6 @@
+.wrap { background: #fff8e8; border: 1px solid #e6c377; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.h { font-size: 1.25rem; }
+.list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.list li { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+.list small { color: var(--ink-soft); overflow-wrap: anywhere; }
+.list button { padding: 10px 14px; border: 1px solid var(--ink); background: transparent; cursor: pointer; }

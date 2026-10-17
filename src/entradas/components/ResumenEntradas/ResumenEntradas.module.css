@@ -1,0 +1,8 @@
+.wrap { display: flex; flex-direction: column; gap: 10px; }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.stat { background: #fff; border: 1px solid var(--line); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+.value { font-family: var(--serif); font-weight: 400; font-size: 1.7rem; line-height: 1.1; }
+.sub { margin: 0; font-size: 0.82rem; color: var(--ink-soft); }
+.alert { margin: 0; padding: 10px 12px; background: #fdf0d5; border: 1px solid #e6c377; color: #6b4a0c; font-size: 0.88rem; }
+@media (min-width: 720px) { .grid { grid-template-columns: repeat(4, 1fr); } }
