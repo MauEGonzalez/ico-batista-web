@@ -1,19 +1,54 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api, fmtUYU } from '../../api/entradas.js';
+import PagoTarjeta from '../PagoTarjeta/PagoTarjeta.jsx';
 import styles from './CompraForm.module.css';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export default function CompraForm({ config }) {
   const { venta, maxPorCompra, puerta } = config;
   const [form, setForm] = useState({ nombre: '', email: '', telefono: '', cantidad: 1, web: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [paso, setPaso] = useState('datos'); // datos | tarjeta
+  const navigate = useNavigate();
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const max = venta.quedan == null ? maxPorCompra : Math.min(maxPorCompra, venta.quedan);
   const total = venta.precioUYU * form.cantidad;
 
-  async function submit(e) {
-    e.preventDefault();
+  function checkDatos() {
+    if (form.nombre.trim().length < 3) return 'Ingresá tu nombre y apellido.';
+    if (!EMAIL_RE.test(form.email.trim())) return 'El email no es válido.';
+    return '';
+  }
+
+  function irATarjeta() {
+    const msg = checkDatos();
+    setError(msg);
+    if (!msg) setPaso('tarjeta');
+  }
+
+  // Lo llama el formulario de tarjeta de Mercado Pago. Si rechazamos la promesa, deja reintentar.
+  async function pagarConTarjeta(tarjeta) {
+    setError('');
+    try {
+      const r = await api.pagarTarjeta({ ...form, cantidad: Number(form.cantidad), tarjeta });
+      if (r.status === 'rejected') {
+        setError(r.mensaje);
+        throw new Error('rechazado');
+      }
+      navigate(`/entradas/pago?orden=${r.orden}&r=${r.status === 'approved' ? 'ok' : 'pending'}`);
+    } catch (err) {
+      if (err.message !== 'rechazado') setError(err.message);
+      throw err;
+    }
+  }
+
+  async function submit() {
+    const msg = checkDatos();
+    if (msg) return setError(msg);
     setError('');
     setLoading(true);
     try {
@@ -52,7 +87,7 @@ export default function CompraForm({ config }) {
   }
 
   return (
-    <form className={styles.card} onSubmit={submit} noValidate>
+    <div className={styles.card}>
       <p className="eyebrow">{venta.tandaNombre}</p>
       <div className={styles.priceRow}>
         <span className={styles.price}>{fmtUYU(venta.precioUYU)}</span>
@@ -64,6 +99,7 @@ export default function CompraForm({ config }) {
         </p>
       )}
 
+      <fieldset className={styles.fields} disabled={paso === 'tarjeta'}>
       <label className={styles.field}>
         <span>Nombre y apellido</span>
         <input value={form.nombre} onChange={set('nombre')} autoComplete="name" required minLength={3} maxLength={80} />
@@ -90,6 +126,8 @@ export default function CompraForm({ config }) {
         </div>
       </div>
 
+      </fieldset>
+
       {/* campo trampa para bots */}
       <input className={styles.trap} tabIndex={-1} autoComplete="off" aria-hidden="true" value={form.web} onChange={set('web')} name="web" />
 
@@ -104,13 +142,38 @@ export default function CompraForm({ config }) {
         </p>
       )}
 
-      <button className={styles.pay} disabled={loading}>
-        {loading ? 'Redirigiendo a Mercado Pago…' : 'Pagar con Mercado Pago'}
-      </button>
-      <p className={styles.note}>
-        Pagás de forma segura en Mercado Pago (tarjetas, débito, saldo en cuenta y más). Apenas se acredita el pago te llega la entrada con
-        su QR por email. En puerta: USD {puerta.precioUSD}.
-      </p>
-    </form>
+      {paso === 'tarjeta' ? (
+        <>
+          <div className={styles.cardHead}>
+            <span>Pago con tarjeta de crédito o débito</span>
+            <button type="button" className={styles.link} onClick={() => setPaso('datos')}>
+              Cambiar datos
+            </button>
+          </div>
+          <PagoTarjeta tarjeta={config.tarjeta} amount={total} email={form.email.trim()} onPay={pagarConTarjeta} />
+          <p className={styles.note}>
+            Los datos de tu tarjeta los procesa Mercado Pago de forma segura; nosotros no los vemos ni los guardamos. Funciona con
+            tarjetas de cualquier país.
+          </p>
+        </>
+      ) : (
+        <>
+          {config.tarjeta && (
+            <button type="button" className={styles.pay} onClick={irATarjeta}>
+              Pagar con tarjeta
+            </button>
+          )}
+          <button type="button" onClick={submit} className={config.tarjeta ? styles.payAlt : styles.pay} disabled={loading}>
+            {loading ? 'Redirigiendo a Mercado Pago…' : 'Pagar con Mercado Pago'}
+          </button>
+          <p className={styles.note}>
+            {config.tarjeta
+              ? 'Con tarjeta pagás acá mismo, con tarjetas de Uruguay o de cualquier país. Con Mercado Pago podés usar tu cuenta uruguaya, Abitab o Redpagos.'
+              : 'Pagás de forma segura en Mercado Pago (tarjetas, débito, saldo en cuenta y más).'}{' '}
+            Apenas se acredita el pago te llega la entrada con su QR por email. En puerta: USD {puerta.precioUSD}.
+          </p>
+        </>
+      )}
+    </div>
   );
 }

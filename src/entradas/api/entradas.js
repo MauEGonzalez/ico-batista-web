@@ -28,6 +28,7 @@ export function createEntradasApi({ base = API_BASE, getHeaders = () => ({}) } =
     base,
     config: () => request('/config'),
     checkout: (payload) => request('/checkout', { method: 'POST', body: payload }),
+    pagarTarjeta: (payload) => request('/pagar-tarjeta', { method: 'POST', body: payload }),
     orden: (id) => request(`/orden/${id}`),
     syncOrden: (id) => request(`/orden/${id}/sync`, { method: 'POST' }),
     ticket: (code) => request(`/ticket/${code}`),

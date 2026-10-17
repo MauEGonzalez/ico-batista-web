@@ -35,6 +35,7 @@ export function createMp(config) {
   return {
     createPreference: (pref, idempotencyKey) =>
       api('/checkout/preferences', { method: 'POST', body: pref, idempotencyKey }),
+    createPayment: (body, idempotencyKey) => api('/v1/payments', { method: 'POST', body, idempotencyKey }),
     async getPayment(id) {
       try {
         return await api(`/v1/payments/${encodeURIComponent(id)}`);
@@ -121,6 +122,24 @@ export function createMockMp(config) {
     },
     async searchPayments(ref) {
       return [...payments.values()].filter((p) => p.external_reference === ref);
+    },
+    /** Pago con tarjeta simulado: token "mock-rechazar…" → rechazado, "mock-pendiente…" → en revisión. */
+    async createPayment(body) {
+      const id = String(++seq * 7);
+      const t = String(body.token);
+      const status = t.startsWith('mock-rechazar') ? 'rejected' : t.startsWith('mock-pendiente') ? 'in_process' : 'approved';
+      const payment = {
+        id: Number(id),
+        status,
+        status_detail: status === 'approved' ? 'accredited' : status === 'rejected' ? 'cc_rejected_high_risk' : 'pending_review_manual',
+        external_reference: body.external_reference,
+        transaction_amount: body.transaction_amount,
+        currency_id: 'UYU',
+        date_approved: status === 'approved' ? new Date().toISOString() : null,
+        _body: body,
+      };
+      payments.set(id, payment);
+      return payment;
     },
     /** Crea un pago simulado para una preferencia. */
     addPayment({ prefId, status = 'approved', amount, currency, externalReference, statusDetail }) {

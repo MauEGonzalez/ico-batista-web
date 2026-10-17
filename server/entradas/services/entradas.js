@@ -66,6 +66,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       },
       maxPorCompra: config.maxPorCompra,
       mock: config.isMock,
+      tarjeta: config.isMock ? { mock: true } : config.isLive && config.mp.publicKey ? { publicKey: config.mp.publicKey } : null,
       venta: tanda
         ? {
             abierta: true,
@@ -96,7 +97,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     return { nombre, email, telefono, cantidad };
   }
 
-  async function createCheckout(input) {
+  async function reserveOrder(input) {
     if (config.isOff) throw new HttpError(503, 'La venta de entradas todavía no está abierta.', 'venta_cerrada');
     const buyer = validateBuyer(input);
     const tanda = await currentTanda();
@@ -125,20 +126,27 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       currency: 'UYU',
       expiresAt,
     });
+    return { buyer, tanda, unit, order, publicId, t, expiresAt };
+  }
+
+  function itemFor(tanda, unit, cantidad) {
+    return {
+      id: tanda.id,
+      title: `Entrada — ${config.event.nombre} (${tanda.nombre})`,
+      description: `${config.event.marca} · ${config.event.fechaTexto}`,
+      quantity: cantidad,
+      unit_price: unit,
+      currency_id: 'UYU',
+      category_id: 'tickets',
+    };
+  }
+
+  async function createCheckout(input) {
+    const { buyer, tanda, unit, order, publicId, t, expiresAt } = await reserveOrder(input);
 
     const back = (r) => `${config.publicUrl}/entradas/pago?orden=${publicId}&r=${r}`;
     const pref = {
-      items: [
-        {
-          id: tanda.id,
-          title: `Entrada — ${config.event.nombre} (${tanda.nombre})`,
-          description: `${config.event.marca} · ${config.event.fechaTexto}`,
-          quantity: buyer.cantidad,
-          unit_price: unit,
-          currency_id: 'UYU',
-          category_id: 'tickets',
-        },
-      ],
+      items: [itemFor(tanda, unit, buyer.cantidad)],
       payer: payerData(buyer),
       external_reference: publicId,
       notification_url: `${config.apiUrl}/api/entradas/webhook?source_news=webhooks`,
@@ -176,6 +184,96 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     const digits = String(buyer.telefono || '').replace(/\D/g, '');
     if (digits.length >= 6) payer.phone = { number: digits };
     return payer;
+  }
+
+
+  /* ------------------------- pago con tarjeta (Card Payment Brick) ------------------------- */
+
+  const RECHAZOS = {
+    cc_rejected_bad_filled_card_number: 'Revisá el número de la tarjeta.',
+    cc_rejected_bad_filled_date: 'Revisá la fecha de vencimiento.',
+    cc_rejected_bad_filled_security_code: 'Revisá el código de seguridad.',
+    cc_rejected_bad_filled_other: 'Revisá los datos de la tarjeta.',
+    cc_rejected_insufficient_amount: 'La tarjeta no tiene saldo suficiente.',
+    cc_rejected_call_for_authorize: 'Tu banco pide que autorices este pago. Llamalo y volvé a intentar.',
+    cc_rejected_card_disabled: 'La tarjeta no está habilitada. Activala con tu banco o probá con otra.',
+    cc_rejected_duplicated_payment: 'Ya hiciste un pago por este mismo monto. Si necesitás otra entrada, probá con otra tarjeta.',
+    cc_rejected_max_attempts: 'Llegaste al límite de intentos. Probá con otra tarjeta.',
+    cc_rejected_high_risk: 'El pago fue rechazado por seguridad. Probá con otra tarjeta o pagá con Mercado Pago.',
+    cc_rejected_blacklist: 'No pudimos procesar este pago. Probá con otra tarjeta.',
+    cc_rejected_card_type_not_allowed: 'Ese tipo de tarjeta no está aceptado. Probá con otra.',
+  };
+  const mensajeRechazo = (detail) => RECHAZOS[detail] || 'El banco rechazó el pago. Probá con otra tarjeta.';
+
+  function validateCard(card) {
+    const token = String(card?.token || '').trim();
+    const pm = String(card?.payment_method_id || '').trim();
+    const installments = Number(card?.installments || 1);
+    if (!token || token.length > 200 || !pm || pm.length > 40 || !Number.isInteger(installments) || installments < 1 || installments > 36) {
+      throw new HttpError(400, 'Faltan datos de la tarjeta.', 'tarjeta');
+    }
+    const out = { token, payment_method_id: pm, installments };
+    if (card.issuer_id) out.issuer_id = String(card.issuer_id).slice(0, 20);
+    const email = String(card?.payer?.email || '').trim().toLowerCase();
+    if (EMAIL_RE.test(email)) out.email = email;
+    const id = card?.payer?.identification;
+    if (id?.type && id?.number) {
+      out.identification = { type: String(id.type).slice(0, 10), number: String(id.number).replace(/[^\dA-Za-z]/g, '').slice(0, 20) };
+    }
+    return out;
+  }
+
+  async function createCardPayment(input) {
+    if (!config.isLive && !config.isMock) throw new HttpError(503, 'La venta de entradas todavía no está abierta.', 'venta_cerrada');
+    const card = validateCard(input?.tarjeta);
+    const { buyer, tanda, unit, order, publicId } = await reserveOrder(input);
+    const payer = payerData(buyer);
+    const body = {
+      transaction_amount: order.totalUYU,
+      token: card.token,
+      description: `Entradas — ${config.event.nombre} (${tanda.nombre})`,
+      installments: card.installments,
+      payment_method_id: card.payment_method_id,
+      ...(card.issuer_id ? { issuer_id: card.issuer_id } : {}),
+      payer: {
+        email: card.email || buyer.email,
+        first_name: payer.name,
+        ...(payer.surname ? { last_name: payer.surname } : {}),
+        ...(card.identification ? { identification: card.identification } : {}),
+      },
+      external_reference: publicId,
+      notification_url: `${config.apiUrl}/api/entradas/webhook?source_news=webhooks`,
+      statement_descriptor: 'ICO BATISTA',
+      additional_info: {
+        items: [itemFor(tanda, unit, buyer.cantidad)],
+        payer: {
+          first_name: payer.name,
+          ...(payer.surname ? { last_name: payer.surname } : {}),
+          ...(payer.phone ? { phone: payer.phone } : {}),
+        },
+      },
+    };
+
+    let payment;
+    try {
+      payment = await mp.createPayment(body, publicId);
+    } catch (e) {
+      await Orden.updateOne({ _id: order._id, status: 'pending' }, { $set: { status: 'cancelled', notas: `Pago con tarjeta falló: ${e.message}`.slice(0, 500) } });
+      log.error?.('[entradas] createPayment falló', e.message);
+      const status = e.mpStatus && e.mpStatus < 500 ? 402 : 502;
+      throw new HttpError(status, status === 402 ? 'No pudimos procesar la tarjeta. Revisá los datos o probá con otra.' : 'No pudimos procesar el pago. Probá de nuevo en un momento.', 'pago_tarjeta');
+    }
+
+    await processPayment(payment);
+    if (payment.status === 'rejected' || payment.status === 'cancelled') {
+      // libera el cupo reservado; si después llegara un pago aprobado, processPayment lo reclama igual
+      await Orden.updateOne(
+        { _id: order._id, status: 'pending' },
+        { $set: { status: 'cancelled', mpStatus: payment.status, mpPaymentId: String(payment.id) } }
+      );
+      return { orden: publicId, status: 'rejected', mensaje: mensajeRechazo(payment.status_detail) };
+    }
+    return { orden: publicId, status: payment.status === 'approved' ? 'approved' : 'pending' };
   }
 
   /* ------------------------------ pagos ------------------------------ */
@@ -700,6 +798,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     publicConfig,
     currentTanda,
     createCheckout,
+    createCardPayment,
     handleNotification,
     processPayment,
     fulfill,

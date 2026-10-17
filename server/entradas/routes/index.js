@@ -41,6 +41,12 @@ export function createRouter({ config, service, requireAdmin, mp }) {
     res.json(await service.createCheckout(req.body));
   });
 
+  // Pago con tarjeta dentro de la web (Card Payment Brick): el token lo genera MP en el navegador
+  r.post('/pagar-tarjeta', limiter(60_000, 8), async (req, res) => {
+    if (req.body?.web) return res.status(400).json({ error: 'Solicitud inválida' }); // honeypot
+    res.json(await service.createCardPayment(req.body));
+  });
+
   // Webhook de Mercado Pago: 200 si se procesó o se ignora; 500 si falló (MP reintenta)
   r.post('/webhook', async (req, res) => {
     try {

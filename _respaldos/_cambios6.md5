@@ -1,0 +1,10 @@
+609d32d050ffb3694af758aa1795c706  server/entradas/config.js
+7c778f650593669c923ce8faf55815e8  server/entradas/services/entradas.js
+7b9cc43de6f9f1439984b9b00c1ca1ff  server/entradas/services/mp.js
+ecc31c7028fad4ee130de6ab3bde06b2  server/entradas/routes/index.js
+d712b204baf8c049aff0fbd4381ffac3  server/entradas/test/flow.test.js
+5c941f8b1b4c2580ee724f441abf8dc1  src/entradas/api/entradas.js
+de1445c8452274f322e0e6c5e88e0fb7  src/entradas/components/CompraForm/CompraForm.jsx
+67f773174e40a5cda748219f0374ddde  src/entradas/components/CompraForm/CompraForm.module.css
+cfa39845650448e51c291633f9aeab7c  src/entradas/components/PagoTarjeta/PagoTarjeta.jsx
+dbf6f8a76953724a603efd7a7b34c040  src/entradas/components/PagoTarjeta/PagoTarjeta.module.css

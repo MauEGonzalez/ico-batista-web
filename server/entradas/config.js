@@ -40,6 +40,8 @@ export function loadConfig(env = process.env, overrides = {}) {
     mp: {
       accessToken: env.MP_ACCESS_TOKEN || '',
       webhookSecret: env.MP_WEBHOOK_SECRET || '',
+      // Public Key de la cuenta de MP de Ico (es pública: la recibe el navegador). MP_PUBLIC_KEY la pisa.
+      publicKey: env.MP_PUBLIC_KEY || 'APP_USR-8ac8c96a-3036-472f-9cc0-4766866332a0',
     },
     usdUyuRate: num(env.USD_UYU_RATE, null),
     mail: {

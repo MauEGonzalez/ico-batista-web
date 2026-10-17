@@ -349,3 +349,63 @@ test('cortesía: el invitado confirma o rechaza la asistencia y queda en el pane
   assert.ok(b.url);
   assert.ok((ent.mailer.sent.at(-1)?.html || '').includes('asistencia=si'));
 });
+
+/* ------------------------- pago con tarjeta en la web ------------------------- */
+const tarjeta = (token = 'mock-ok', extra = {}) => ({
+  token,
+  payment_method_id: 'visa',
+  installments: 1,
+  issuer_id: '310',
+  payer: { email: 'ana@example.com', identification: { type: 'CI', number: '1.234.567-8' } },
+  ...extra,
+});
+
+test('tarjeta: pago aprobado emite las entradas en el acto y manda datos completos a MP', async () => {
+  const cfg = await (await get('/config')).json();
+  assert.deepEqual(cfg.tarjeta, { mock: true });
+  const r = await post('/pagar-tarjeta', {
+    nombre: 'Ana María Pérez',
+    email: 'ana@example.com',
+    telefono: '+598 99 123 456',
+    cantidad: 2,
+    tarjeta: tarjeta(),
+  });
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(j.status, 'approved');
+  const o = await (await get(`/orden/${j.orden}`)).json();
+  assert.equal(o.status, 'paid');
+  assert.equal(o.entradas.length, 2);
+  const [p] = [...ent.mp.payments.values()];
+  assert.equal(p._body.transaction_amount, 5200);
+  assert.equal(p._body.payer.first_name, 'Ana');
+  assert.equal(p._body.payer.last_name, 'María Pérez');
+  assert.deepEqual(p._body.payer.identification, { type: 'CI', number: '12345678' });
+  assert.equal(p._body.additional_info.items[0].category_id, 'tickets');
+  assert.equal(p._body.additional_info.payer.phone.number, '59899123456');
+  assert.equal(p._body.external_reference, j.orden);
+  // el webhook posterior del mismo pago no duplica nada
+  await webhook(p.id);
+  assert.equal(await ent.models.Entrada.countDocuments({}), 2);
+});
+
+test('tarjeta: rechazo devuelve un mensaje claro y libera el cupo', async () => {
+  const r = await post('/pagar-tarjeta', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 3, tarjeta: tarjeta('mock-rechazar') });
+  const j = await r.json();
+  assert.equal(j.status, 'rejected');
+  assert.match(j.mensaje, /seguridad/);
+  const ord = await ent.models.Orden.findOne({ publicId: j.orden });
+  assert.equal(ord.status, 'cancelled');
+  assert.equal(await ent.models.Entrada.countDocuments({}), 0);
+  const cfg = await (await get('/config')).json();
+  assert.equal(cfg.venta.quedan, 80); // el cupo no quedó retenido
+});
+
+test('tarjeta: pago en revisión queda pendiente; datos faltantes → 400 sin crear orden', async () => {
+  const j = await (await post('/pagar-tarjeta', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 1, tarjeta: tarjeta('mock-pendiente') })).json();
+  assert.equal(j.status, 'pending');
+  assert.equal((await ent.models.Orden.findOne({ publicId: j.orden })).status, 'pending');
+  const bad = await post('/pagar-tarjeta', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 1, tarjeta: { token: '' } });
+  assert.equal(bad.status, 400);
+  assert.equal(await ent.models.Orden.countDocuments({}), 1);
+});
