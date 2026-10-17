@@ -382,6 +382,7 @@ test('tarjeta: pago aprobado emite las entradas en el acto y manda datos complet
   assert.equal(p._body.payer.last_name, 'María Pérez');
   assert.deepEqual(p._body.payer.identification, { type: 'CI', number: '12345678' });
   assert.equal(p._body.additional_info.items[0].category_id, 'tickets');
+  assert.equal('currency_id' in p._body.additional_info.items[0], false); // MP lo rechaza en /v1/payments
   assert.equal(p._body.additional_info.payer.phone.number, '59899123456');
   assert.equal(p._body.external_reference, j.orden);
   // el webhook posterior del mismo pago no duplica nada

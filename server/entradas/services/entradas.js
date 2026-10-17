@@ -245,7 +245,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       notification_url: `${config.apiUrl}/api/entradas/webhook?source_news=webhooks`,
       statement_descriptor: 'ICO BATISTA',
       additional_info: {
-        items: [itemFor(tanda, unit, buyer.cantidad)],
+        // en /v1/payments los items NO llevan currency_id (MP responde 400)
+        items: [(({ currency_id, ...it }) => it)(itemFor(tanda, unit, buyer.cantidad))],
         payer: {
           first_name: payer.name,
           ...(payer.surname ? { last_name: payer.surname } : {}),
