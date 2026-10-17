@@ -60,7 +60,7 @@ const CategoryPage = () => {
     return <NotFoundPage />;
   }
 
-  const genderLabel = gender === 'hombre' ? 'Hombre' : 'Mujer';
+  const genderLabel = gender === 'hombre' ? 'Caballero' : 'Dama';
   const title = menuItem.title;
 
   return (

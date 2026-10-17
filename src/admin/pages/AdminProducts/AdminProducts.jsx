@@ -137,8 +137,8 @@ const AdminProducts = () => {
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Filtrar por categoría">
           <option value="">Todas las categorías</option>
-          <option value="mujer">Mujer (todo)</option>
-          <option value="hombre">Hombre (todo)</option>
+          <option value="mujer">Dama (todo)</option>
+          <option value="hombre">Caballero (todo)</option>
           {CATEGORY_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}

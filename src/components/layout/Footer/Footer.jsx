@@ -73,8 +73,8 @@ const Footer = () => {
           <ul className={styles.footerLinksList}>
             <li><Link to="/sobre-ico">Sobre Ico</Link></li>
             <li><Link to="/tienda">Tienda</Link></li>
-            <li><Link to="/mujer/formal">Moda Mujer</Link></li>
-            <li><Link to="/hombre/formal">Moda Hombre</Link></li>
+            <li><Link to="/mujer/formal">Moda Dama</Link></li>
+            <li><Link to="/hombre/formal">Moda Caballero</Link></li>
           </ul>
         </div>
 

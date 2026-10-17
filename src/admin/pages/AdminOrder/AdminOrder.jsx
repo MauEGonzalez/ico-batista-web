@@ -244,7 +244,7 @@ const AdminOrder = () => {
             </>
           ) : (
             <p className={styles.previewEmpty}>
-              Elegí una sección arriba (por ejemplo “Mujer › Formal › Fiesta”) para ver cómo se ve en la web.
+              Elegí una sección arriba (por ejemplo “Dama › Formal › Fiesta”) para ver cómo se ve en la web.
             </p>
           )}
         </aside>

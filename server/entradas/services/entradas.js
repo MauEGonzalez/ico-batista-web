@@ -415,6 +415,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       seq: t.seq,
       status: t.status,
       tipo: t.tipo,
+      rsvp: t.tipo === 'cortesia' ? t.rsvp || 'pending' : undefined,
       evento: {
         nombre: config.event.nombre,
         subtitulo: config.event.subtitulo,
@@ -425,6 +426,18 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
         dressCode: config.event.dressCode,
       },
     };
+  }
+
+  /* Confirmación de asistencia de una invitación de cortesía (el invitado responde desde su invitación) */
+  async function rsvp(codeInput, respuesta) {
+    const code = normalizeCode(codeInput);
+    if (!['yes', 'no'].includes(respuesta)) throw new HttpError(400, 'Respuesta inválida', 'respuesta');
+    const t = code && (await Entrada.findOne({ code }));
+    if (!t) throw new HttpError(404, 'Invitación no encontrada', 'no_existe');
+    if (t.tipo !== 'cortesia') throw new HttpError(400, 'Solo las invitaciones de cortesía se confirman', 'no_cortesia');
+    if (t.status === 'void') throw new HttpError(409, 'Esta invitación fue anulada', 'anulada');
+    await Entrada.updateOne({ _id: t._id }, { $set: { rsvp: respuesta, rsvpAt: now() } });
+    return { code: t.code, rsvp: respuesta };
   }
 
   async function getTicketQr(codeInput) {
@@ -446,6 +459,11 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       Orden.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
       Orden.countDocuments({ status: 'pending', expiresAt: { $gt: now() } }),
     ]);
+    const rsvpRows = await Entrada.aggregate([
+      { $match: { tipo: 'cortesia', status: { $ne: 'void' } } },
+      { $group: { _id: { $ifNull: ['$rsvp', 'pending'] }, n: { $sum: 1 } } },
+    ]);
+    const r = Object.fromEntries(rsvpRows.map((x) => [x._id, x.n]));
     const e = Object.fromEntries(porEstado.map((r) => [r._id, r.n]));
     const o = Object.fromEntries(ordenes.map((r) => [r._id, r.n]));
     const ventas = porTanda.filter((r) => r._id.tipo === 'venta');
@@ -461,12 +479,18 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       pagosPendientes: pendientes,
       ordenesParaRevisar: o.review || 0,
       emailsFallidos: await Orden.countDocuments({ status: 'paid', emailStatus: 'failed' }),
+      invitados: { confirmados: r.yes || 0, noAsisten: r.no || 0, sinRespuesta: r.pending || 0 },
     };
   }
 
   async function lista({ q, estado, tanda, page = 1, limit = 100 } = {}) {
     const filter = {};
     if (['valid', 'used', 'void'].includes(estado)) filter.status = estado;
+    if (['yes', 'no', 'pending'].includes(estado)) {
+      filter.tipo = 'cortesia';
+      filter.status = { $ne: 'void' };
+      filter.rsvp = estado === 'pending' ? { $in: ['pending', null] } : estado;
+    }
     if (tanda) filter.tandaId = String(tanda);
     const term = String(q || '').trim().slice(0, 80);
     if (term) {
@@ -498,6 +522,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
         tipo: t.tipo,
         status: t.status,
         checkedInAt: t.checkedInAt,
+        rsvp: t.tipo === 'cortesia' ? t.rsvp || 'pending' : null,
+        rsvpAt: t.rsvpAt || null,
         orden: t.orderPublicId,
         creada: t.createdAt,
       })),
@@ -599,9 +625,9 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
   async function exportCsv() {
     const rows = await Entrada.find({}).sort({ nombre: 1, seq: 1 }).lean();
     const q = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
-    const head = ['codigo', 'nombre', 'email', 'telefono', 'tanda', 'tipo', 'estado', 'ingreso', 'orden'];
+    const head = ['codigo', 'nombre', 'email', 'telefono', 'tanda', 'tipo', 'estado', 'asistencia', 'ingreso', 'orden'];
     const lines = rows.map((t) =>
-      [t.code, t.nombre, t.email, t.telefono, t.tandaId, t.tipo, t.status, t.checkedInAt?.toISOString() || '', t.orderPublicId]
+      [t.code, t.nombre, t.email, t.telefono, t.tandaId, t.tipo, t.status, t.tipo === 'cortesia' ? ({ yes: 'confirmada', no: 'no asiste' }[t.rsvp] || 'sin respuesta') : '', t.checkedInAt?.toISOString() || '', t.orderPublicId]
         .map(q)
         .join(',')
     );
@@ -668,6 +694,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     syncOrder,
     getTicketPublic,
     getTicketQr,
+    rsvp,
     resumen,
     lista,
     checkIn,

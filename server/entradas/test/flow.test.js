@@ -80,7 +80,7 @@ test('config pública: primera tanda, precio en pesos', async () => {
   const j = await (await get('/config')).json();
   assert.equal(j.venta.abierta, true);
   assert.equal(j.venta.tandaId, 't1');
-  assert.equal(j.venta.precioUYU, 2400);
+  assert.equal(j.venta.precioUYU, 2600);
 });
 
 test('validaciones del checkout', async () => {
@@ -94,10 +94,10 @@ test('validaciones del checkout', async () => {
 test('flujo completo: compra → pago aprobado → webhook → entradas + email + aviso a Ico', async () => {
   const c = await buy();
   assert.equal(c.status, 200);
-  assert.equal(c.total, 4800);
+  assert.equal(c.total, 5200);
   const pref = ent.mp.prefs.get(prefIdOf(c.url));
   assert.equal(pref.external_reference, c.orden);
-  assert.equal(pref.items[0].unit_price, 2400);
+  assert.equal(pref.items[0].unit_price, 2600);
   assert.match(pref.notification_url, /\/api\/entradas\/webhook\?source_news=webhooks$/);
   assert.equal(pref.auto_return, 'approved');
 
@@ -238,13 +238,13 @@ test('tandas: cupo agotado pasa a la segunda tanda; vencida la fecha también', 
   });
   const j = await (await get('/config')).json();
   assert.equal(j.venta.tandaId, 't2');
-  assert.equal(j.venta.precioUYU, 2800);
+  assert.equal(j.venta.precioUYU, 3000);
   // fecha posterior al cierre de t1
   await ent.models.Orden.deleteMany({});
-  clock = new Date('2026-11-05T10:00:00-03:00');
+  clock = new Date('2026-11-06T10:00:00-03:00');
   assert.equal((await (await get('/config')).json()).venta.tandaId, 't2');
   // venta cerrada el día del evento
-  clock = new Date('2026-11-29T13:00:00-03:00');
+  clock = new Date('2026-11-26T10:00:00-03:00');
   assert.equal((await (await get('/config')).json()).venta.abierta, false);
   assert.equal((await buy()).status, 409);
 });
@@ -283,7 +283,7 @@ test('panel: requiere token; lista, búsqueda, ingreso, doble escaneo, deshacer,
   assert.equal(res.ingresaron, 1);
   assert.equal(res.faltanIngresar, 1);
   assert.equal(res.vendidas, 2);
-  assert.equal(res.recaudadoUYU, 4800);
+  assert.equal(res.recaudadoUYU, 5200);
 
   assert.equal((await post('/admin/ingreso/deshacer', { code }, H)).status, 200);
   assert.equal((await post('/admin/ingreso', { code }, H)).status, 200);
@@ -330,4 +330,22 @@ test('simulador: /_mock/pagar dispara el webhook y entrega', async () => {
   assert.match(r.redirect, /\/entradas\/pago\?orden=/);
   await new Promise((res) => setTimeout(res, 300));
   assert.equal((await (await get(`/orden/${c.orden}`)).json()).status, 'paid');
+});
+
+test('cortesía: el invitado confirma o rechaza la asistencia y queda en el panel', async () => {
+  const r = await (await post('/admin/cortesia', { nombre: 'Laura Gómez', email: 'laura@example.com', cantidad: 1 }, H)).json();
+  const code = r.entradas[0].code;
+  assert.equal((await (await get(`/ticket/${code}`)).json()).rsvp, 'pending');
+  assert.equal((await post(`/ticket/${code}/rsvp`, { respuesta: 'quizas' })).status, 400);
+  assert.equal((await (await post(`/ticket/${code}/rsvp`, { respuesta: 'yes' })).json()).rsvp, 'yes');
+  assert.equal((await (await get(`/ticket/${code}`)).json()).rsvp, 'yes');
+  const res = await (await get('/admin/resumen', H)).json();
+  assert.deepEqual(res.invitados, { confirmados: 1, noAsisten: 0, sinRespuesta: 0 });
+  const lista = await (await get('/admin/lista?estado=yes', H)).json();
+  assert.equal(lista.total, 1);
+  assert.equal(lista.items[0].rsvp, 'yes');
+  // una entrada vendida no se "confirma"
+  const b = await buy();
+  assert.ok(b.url);
+  assert.ok((ent.mailer.sent.at(-1)?.html || '').includes('asistencia=si'));
 });

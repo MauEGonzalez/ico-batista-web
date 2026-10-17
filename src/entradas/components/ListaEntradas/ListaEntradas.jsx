@@ -5,7 +5,12 @@ const FILTROS = [
   ['valid', 'Faltan ingresar'],
   ['used', 'Ya ingresaron'],
   ['void', 'Anuladas'],
+  ['yes', 'Invitados confirmados'],
+  ['pending', 'Invitados sin responder'],
+  ['no', 'Invitados que no asisten'],
 ];
+
+const RSVP = { yes: 'Confirmó asistencia', no: 'No asiste', pending: 'Sin respuesta' };
 
 export default function ListaEntradas({ data, q, estado, onQ, onEstado, onIngreso, onDeshacer, onAnular, loading }) {
   return (
@@ -39,6 +44,9 @@ export default function ListaEntradas({ data, q, estado, onQ, onEstado, onIngres
                 <code>{t.code}</code> · {t.tipo === 'cortesia' ? 'Cortesía' : t.tandaId.toUpperCase()}
                 {t.email ? ` · ${t.email}` : ''}
               </span>
+              {t.tipo === 'cortesia' && t.status !== 'void' && (
+                <span className={`${styles.meta} ${styles[`rsvp_${t.rsvp}`] || ''}`}>{RSVP[t.rsvp] || RSVP.pending}</span>
+              )}
               {t.status === 'used' && t.checkedInAt && (
                 <span className={styles.meta}>
                   Ingresó {new Date(t.checkedInAt).toLocaleString('es-UY', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}

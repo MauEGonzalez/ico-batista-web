@@ -32,7 +32,8 @@ export function invitationEmail({ config, order, tickets }) {
             <div style="font-family:${serif};font-size:22px;color:${INK};margin:8px 0 12px">${esc(t.nombre)}</div>
             <div style="font-family:${sans};font-size:11px;letter-spacing:3px;color:${ACCENT}">CÓDIGO</div>
             <div style="font-family:${serif};font-size:19px;color:${INK};margin:4px 0 12px;letter-spacing:1px">${esc(t.code)}</div>
-            <a href="${esc(ticketUrl(config, t.code))}" style="font-family:${sans};font-size:13px;color:${INK}">Ver invitación online</a>
+            <a href="${esc(ticketUrl(config, t.code))}?asistencia=si" style="display:inline-block;font-family:${sans};font-size:13px;letter-spacing:1px;color:#fff;background:${INK};padding:10px 16px;text-decoration:none;margin:2px 6px 6px 0">Confirmar asistencia</a>
+            <a href="${esc(ticketUrl(config, t.code))}?asistencia=no" style="display:inline-block;font-family:${sans};font-size:13px;color:${INK};padding:10px 4px;margin:2px 0 6px 0">No podré asistir</a>
           </td>
           <td width="160" style="padding:14px;text-align:center;vertical-align:middle">
             <img src="cid:qr-${esc(t.code)}" width="140" height="140" alt="QR ${esc(t.code)}" style="display:block;margin:0 auto">
@@ -51,7 +52,7 @@ export function invitationEmail({ config, order, tickets }) {
   </td></tr>
   <tr><td style="font-family:${sans};font-size:15px;line-height:1.6;color:${INK};padding-bottom:20px">
     ${esc(order.comprador.nombre)}, Ico te invita a vivir <b>${esc(ev.nombre)}</b>.
-    Presentá el código QR en el acceso, desde el celular o impreso. ${tickets.length === 1 ? 'La invitación es personal y válida para un ingreso.' : 'Cada invitación es válida para un ingreso.'}
+    Te pedimos que confirmes tu asistencia con el botón de abajo. El día del evento, presentá el código QR en el acceso, desde el celular o impreso. ${tickets.length === 1 ? 'La invitación es personal y válida para un ingreso.' : 'Cada invitación es válida para un ingreso.'}
   </td></tr>
   ${blocks}
   <tr><td style="border-top:1px solid ${LINE};padding-top:18px;font-family:${sans};font-size:14px;line-height:1.7;color:${INK}">
@@ -65,7 +66,7 @@ export function invitationEmail({ config, order, tickets }) {
     `${order.comprador.nombre}, Ico te invita a ${ev.nombre}.`,
     `${ev.fechaTexto}, ${ev.horario}. ${ev.lugar}, ${ev.ciudad}.`,
     '',
-    ...tickets.map((t) => `Invitación ${t.seq}/${tickets.length}: ${t.code}  ${ticketUrl(config, t.code)}`),
+    ...tickets.map((t) => `Invitación ${t.seq}/${tickets.length}: ${t.code}  Confirmá tu asistencia: ${ticketUrl(config, t.code)}?asistencia=si`),
   ].join('\n');
 
   return {

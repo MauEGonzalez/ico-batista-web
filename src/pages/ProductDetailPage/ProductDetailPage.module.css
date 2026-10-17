@@ -117,6 +117,12 @@
   font-size: 0.85rem;
   color: #888;
 }
+.lookNote {
+  margin: -0.5rem 0 1.5rem;
+  font-size: 0.9rem;
+  color: #555;
+  font-style: italic;
+}
 .measurements {
   margin: -1rem 0 2rem;
   font-size: 0.95rem;

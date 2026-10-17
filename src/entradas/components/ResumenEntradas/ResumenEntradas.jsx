@@ -24,7 +24,15 @@ export default function ResumenEntradas({ resumen }) {
         ))}
       </div>
       <p className={styles.sub}>
-        {resumen.cortesias > 0 && <>Cortesías: {resumen.cortesias} · </>}
+        {resumen.cortesias > 0 && (
+          <>
+            Cortesías: {resumen.cortesias}
+            {resumen.invitados && (
+              <> (confirmadas {resumen.invitados.confirmados} · no asisten {resumen.invitados.noAsisten} · sin respuesta {resumen.invitados.sinRespuesta})</>
+            )}
+            {' · '}
+          </>
+        )}
         {resumen.pagosPendientes > 0 && <>Pagos en curso: {resumen.pagosPendientes} · </>}
         Anuladas: {resumen.anuladas}
       </p>

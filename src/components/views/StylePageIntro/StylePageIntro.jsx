@@ -12,29 +12,25 @@ const IMG = '/assets/images/portadas';
 const SUBCATEGORIES = {
   hombre: {
     formal: [
-      { name: 'Trajes', path: '/tienda/hombre/formal/trajes', image: `${IMG}/hombre-formal-trajes.jpg` }, // IB-0021
-      { name: 'Camisas', path: '/tienda/hombre/formal/camisas', image: `${IMG}/hombre-formal-camisas.jpg` }, // IB-0032
+      { name: 'Trajes', path: '/tienda/hombre/formal/trajes', image: `${IMG}/hombre-formal-trajes.jpg` }, // IB-0138 Traje "Velada"
+      { name: 'Camisas', path: '/tienda/hombre/formal/camisas', image: `${IMG}/hombre-formal-camisas.jpg` }, // IB-0018 Camisa "Relieve"
       { name: 'Pantalones', path: '/tienda/hombre/formal/pantalones', image: `${IMG}/hombre-formal-pantalones.jpg` }, // IB-0033
     ],
     casual: [
       { name: 'Camisas', path: '/tienda/hombre/casual/camisas', image: `${IMG}/hombre-casual-camisas.jpg` }, // IB-0094
       { name: 'Pantalones', path: '/tienda/hombre/casual/pantalones', image: `${IMG}/hombre-casual-pantalones.jpg` }, // IB-0089
+      { name: 'Conjuntos', path: '/tienda/hombre/casual/conjuntos', image: `${IMG}/hombre-casual-conjuntos.jpg` }, // IB-0181
     ],
   },
   mujer: {
     formal: [
-      { name: 'Cóctel', path: '/tienda/mujer/formal/coctel', image: `${IMG}/mujer-formal-coctel.jpg` }, // IB-0055
+      { name: 'Cóctel', path: '/tienda/mujer/formal/coctel', image: `${IMG}/mujer-formal-coctel.jpg` }, // IB-0019 Vestido "Nocturna"
       { name: 'Fiesta', path: '/tienda/mujer/formal/fiesta', image: `${IMG}/mujer-formal-fiesta.jpg` }, // IB-0146
+      { name: 'Gala', path: '/tienda/mujer/formal/gala', image: `${IMG}/mujer-formal-gala.jpg` }, // IB-0010 Vestido "Cénit"
     ],
     casual: [
-      // Única subcategoría con prendas: va como banner ancho (3 conjuntos: IB-0067, IB-0078, IB-0074)
-      // y en celular una sola foto vertical (IB-0069).
-      {
-        name: 'Básicos',
-        path: '/tienda/mujer/casual/basicos',
-        image: `${IMG}/mujer-casual-basicos.jpg`,
-        imageMobile: `${IMG}/mujer-casual-basicos-movil.jpg`,
-      },
+      { name: 'Sport', path: '/tienda/mujer/casual/sport', image: `${IMG}/mujer-casual-sport.jpg` }, // IB-0159
+      { name: 'Básicos', path: '/tienda/mujer/casual/basicos', image: `${IMG}/mujer-casual-basicos-movil.jpg` }, // IB-0069
     ],
   },
 };
@@ -52,7 +48,7 @@ const StylePageIntro = ({ gender, styleType }) => {
             {category.imageMobile && <source media="(max-width: 600px)" srcSet={category.imageMobile} />}
             <img
               src={category.image}
-              alt={`${category.name} — ${gender === 'hombre' ? 'Hombre' : 'Mujer'} ${styleType}`}
+              alt={`${category.name} — ${gender === 'hombre' ? 'Caballero' : 'Dama'} ${styleType}`}
               decoding="async"
             />
           </picture>

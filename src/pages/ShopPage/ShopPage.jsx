@@ -14,14 +14,14 @@ const ShopPage = () => {
         {/* Panel de Hombre */}
         <Link to="/hombre/formal" className={styles.portalLink}>
           <div className={`${styles.portalPanel} ${styles.hombre}`}>
-            <h2 className={styles.portalTitle}>Moda Hombre</h2>
+            <h2 className={styles.portalTitle}>Moda Caballero</h2>
           </div>
         </Link>
         
         {/* Panel de Mujer */}
         <Link to="/mujer/formal" className={styles.portalLink}>
           <div className={`${styles.portalPanel} ${styles.mujer}`}>
-            <h2 className={styles.portalTitle}>Moda Mujer</h2>
+            <h2 className={styles.portalTitle}>Moda Dama</h2>
           </div>
         </Link>
 

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../api/entradas.js';
 import TicketCard from '../../components/TicketCard/TicketCard.jsx';
 import styles from './EntradaPage.module.css';
 
 export default function EntradaPage() {
   const { code } = useParams();
+  const [params] = useSearchParams();
+  const asistencia = params.get('asistencia'); // viene del email: si | no
   const [ticket, setTicket] = useState(null);
   const [error, setError] = useState('');
 
@@ -19,7 +21,7 @@ export default function EntradaPage() {
       {!ticket && !error && <p className={styles.msg}>Cargando entrada…</p>}
       {ticket && (
         <>
-          <TicketCard ticket={ticket} />
+          <TicketCard ticket={ticket} rsvpSuggested={asistencia === 'no' ? 'no' : asistencia === 'si' ? 'yes' : ''} />
           <div className={styles.actions}>
             <button onClick={() => window.print()}>Imprimir / guardar PDF</button>
           </div>

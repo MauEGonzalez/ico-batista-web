@@ -3,14 +3,14 @@
     "id": "t1",
     "nombre": "Primera tanda",
     "precioUSD": 65,
-    "hasta": "2026-11-01T23:59:59-03:00",
+    "hasta": "2026-11-05T23:59:59-03:00",
     "cupo": 80
   },
   {
     "id": "t2",
     "nombre": "Segunda tanda",
     "precioUSD": 75,
-    "hasta": "2026-11-28T23:59:59-03:00",
+    "hasta": "2026-11-25T23:59:59-03:00",
     "cupo": null
   }
 ]

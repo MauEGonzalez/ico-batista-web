@@ -1,0 +1,17 @@
+d6e49a9fce542359e1b8b1f327dcaef0  server/entradas/models/index.js
+c8de636049994bb194f0664c6c9f542e  server/entradas/services/entradas.js
+494fe9fc181f203247263e2bdecf5034  server/entradas/services/emailTemplates.js
+46d796a5dcfd946f128fb07dfbba7d96  server/entradas/routes/index.js
+f0f7855d8a97da4a938728da2bdb93cd  server/entradas/tandas.json
+c1414dec045ee10319e3789788489b0f  server/entradas/event.json
+22e2939edf79bf1ffa15cdccc94179e4  server/entradas/test/flow.test.js
+2533c51dc95ec457c57892d890bf8e70  src/entradas/api/entradas.js
+2ef90bfe205cc7db8de9cf4cf9c39235  src/entradas/components/RsvpBox/RsvpBox.jsx
+55679486eceb34abf52aa7025ee03a33  src/entradas/components/RsvpBox/RsvpBox.module.css
+5b8d700fcb83670de792da9223d91b50  src/entradas/components/TicketCard/TicketCard.jsx
+27c0203b07ec0605339d3925ecc6285a  src/entradas/components/ListaEntradas/ListaEntradas.jsx
+41347143a35468400e6ce61654c9f8a9  src/entradas/components/ListaEntradas/ListaEntradas.module.css
+c6dd2979d2bd97117eb0ea00d47b34f0  src/entradas/components/ResumenEntradas/ResumenEntradas.jsx
+38ff3c0f74ab311eaa8137bb4d7514b9  src/entradas/pages/EntradaPage/EntradaPage.jsx
+3ad3007bfe8c38449f6a81fd1587afb4  src/pages/ProductDetailPage/ProductDetailPage.jsx
+1849f1a7b47ecd8d47f5ff7d592b1d0e  src/pages/ProductDetailPage/ProductDetailPage.module.css

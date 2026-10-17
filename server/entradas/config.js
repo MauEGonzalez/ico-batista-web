@@ -66,6 +66,12 @@ export function loadConfig(env = process.env, overrides = {}) {
     event: readJson(env.EVENT_FILE, defaultEvent),
     tandas: readJson(env.TANDAS_FILE, defaultTandas),
   };
+  // Precio de prueba (solo para la compra real de prueba): ENTRADAS_PRECIO_PRUEBA_UYU=40 en Vercel.
+  // Pisa el precio de todas las tandas. Borrar la variable y redeployar para volver a los precios reales.
+  const testPrice = Number(env.ENTRADAS_PRECIO_PRUEBA_UYU);
+  if (testPrice > 0) {
+    cfg.tandas = cfg.tandas.map((t) => ({ ...t, precioUYU: Math.round(testPrice), precioUSD: null }));
+  }
   Object.assign(cfg, overrides);
   validateConfig(cfg);
   return cfg;

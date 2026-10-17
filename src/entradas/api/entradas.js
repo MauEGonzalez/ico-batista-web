@@ -31,6 +31,7 @@ export function createEntradasApi({ base = API_BASE, getHeaders = () => ({}) } =
     orden: (id) => request(`/orden/${id}`),
     syncOrden: (id) => request(`/orden/${id}/sync`, { method: 'POST' }),
     ticket: (code) => request(`/ticket/${code}`),
+    rsvp: (code, respuesta) => request(`/ticket/${code}/rsvp`, { method: 'POST', body: { respuesta } }),
     qrUrl: (code) => `${base}/ticket/${code}/qr.png`,
     admin: {
       me: () => request('/admin/me', { auth: true }),

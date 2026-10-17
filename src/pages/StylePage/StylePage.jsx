@@ -8,7 +8,7 @@ import ImageCarousel from '../../components/common/ImageCarousel/ImageCarousel.j
 import NotFoundPage from '../NotFoundPage/NotFoundPage.jsx';
 import styles from './StylePage.module.css';
 
-const GENDERS = { mujer: 'Mujer', hombre: 'Hombre' };
+const GENDERS = { mujer: 'Dama', hombre: 'Caballero' };
 const STYLES = { formal: 'Formal', casual: 'Casual' };
 
 const StylePage = () => {

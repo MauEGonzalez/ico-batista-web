@@ -19,3 +19,8 @@
 .void .info { opacity: 0.55; text-decoration: line-through; }
 .badge { font-size: 0.78rem; color: var(--bad); }
 .empty { margin: 8px 0 0; color: var(--ink-soft); font-size: 0.9rem; }
+
+/* Confirmación de asistencia de las cortesías */
+.rsvp_yes { color: var(--ok); font-weight: 500; }
+.rsvp_no { color: var(--bad); }
+.rsvp_pending { color: var(--warn); }

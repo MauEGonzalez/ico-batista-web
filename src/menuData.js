@@ -2,7 +2,7 @@ import { COLLECTIONS } from './collections.js';
 
 export const menuData = [
   {
-    title: "Moda Hombre",
+    title: "Moda Caballero",
     children: [
       {
         title: "Formal",
@@ -20,6 +20,8 @@ export const menuData = [
             path: "/tienda/hombre/formal/coctel",
             children: [
               { title: "Camisas", path: "/tienda/hombre/formal/coctel/camisas" },
+              { title: "Chaquetas", path: "/tienda/hombre/formal/coctel/chaquetas" },
+              { title: "Pantalones", path: "/tienda/hombre/formal/coctel/pantalones" },
             ],
           },
         ],
@@ -46,6 +48,7 @@ export const menuData = [
               { title: "Bermudas", path: "/tienda/hombre/casual/basicos/bermudas" },
               { title: "Shorts", path: "/tienda/hombre/casual/basicos/shorts" },
               { title: "Chalecos", path: "/tienda/hombre/casual/basicos/chalecos" },
+              { title: "Faldas", path: "/tienda/hombre/casual/basicos/faldas" },
             ],
           },
         ],
@@ -54,7 +57,7 @@ export const menuData = [
     ],
   },
   {
-    title: "Moda Mujer",
+    title: "Moda Dama",
     children: [
       {
         title: "Formal",
@@ -88,6 +91,7 @@ export const menuData = [
               { title: "Camisas", path: "/tienda/mujer/formal/coctel/camisas" },
               { title: "Pantalones", path: "/tienda/mujer/formal/coctel/pantalones" },
               { title: "Conjuntos", path: "/tienda/mujer/formal/coctel/conjuntos" },
+              { title: "Monos", path: "/tienda/mujer/formal/coctel/monos" },
             ],
           },
           {

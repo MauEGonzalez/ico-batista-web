@@ -65,6 +65,10 @@ export function createRouter({ config, service, requireAdmin, mp }) {
     res.set('Cache-Control', 'no-store');
     res.json(await service.getTicketPublic(req.params.code));
   });
+  r.post('/ticket/:code/rsvp', limiter(60_000, 20), async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json(await service.rsvp(req.params.code, req.body?.respuesta));
+  });
   r.get('/ticket/:code/qr.png', limiter(60_000, 60), async (req, res) => {
     const png = await service.getTicketQr(req.params.code);
     res.set('Content-Type', 'image/png');

@@ -59,6 +59,9 @@ export function createModels(mongoose) {
       status: { type: String, enum: ['valid', 'used', 'void'], default: 'valid', index: true },
       checkedInAt: { type: Date, default: null },
       checkedInBy: { type: String, default: '' },
+      // Confirmación de asistencia (solo invitaciones de cortesía): pending | yes | no
+      rsvp: { type: String, enum: ['pending', 'yes', 'no'], default: 'pending' },
+      rsvpAt: { type: Date, default: null },
     },
     { timestamps: true }
   );

@@ -48,6 +48,8 @@ const ProductDetail = ({ product }) => {
   const selectedImage = product.images[selectedIndex];
   const whatsappUrl = buildWhatsAppUrl(productInquiryMessage(product, selectedSize));
   // Cuidados: una indicación por línea
+  // Look de varias piezas (Camisa "X" - Pantalón "Y", Conjunto "Z"): cada pieza se puede comprar sola
+  const isLook = / - /.test(product.name) || /^Conjunto\b/i.test(product.name);
   const careLines = (product.care ?? '').split('\n').map((line) => line.trim()).filter(Boolean);
 
   const handleAddToSelection = () => {
@@ -139,6 +141,12 @@ const ProductDetail = ({ product }) => {
                 </div>
               </div>
             </div>
+          )}
+
+          {isLook && (
+            <p className={styles.lookNote}>
+              Las piezas de este look también se venden por separado. Consúltanos por WhatsApp.
+            </p>
           )}
 
           {product.measurements && (

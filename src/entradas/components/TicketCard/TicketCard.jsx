@@ -1,8 +1,9 @@
 import { api } from '../../api/entradas.js';
+import RsvpBox from '../RsvpBox/RsvpBox.jsx';
 import styles from './TicketCard.module.css';
 
 /** Entrada digital (réplica del diseño de la entrada impresa). */
-export default function TicketCard({ ticket }) {
+export default function TicketCard({ ticket, rsvpSuggested = '' }) {
   const ev = ticket.evento;
   const inactive = ticket.status !== 'valid';
   const stamp = inactive && <div className={styles.stamp}>{ticket.status === 'used' ? 'YA INGRESÓ' : 'ANULADA'}</div>;
@@ -32,6 +33,9 @@ export default function TicketCard({ ticket }) {
             <img src={api.qrUrl(ticket.code)} alt={`Código QR ${ticket.code}`} width="190" height="190" />
             {stamp}
           </div>
+          {ticket.status !== 'void' && (
+            <RsvpBox code={ticket.code} initial={ticket.rsvp || 'pending'} suggested={rsvpSuggested} />
+          )}
         </div>
       </article>
     );
