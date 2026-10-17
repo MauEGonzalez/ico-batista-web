@@ -2,9 +2,8 @@
 // Página "Sobre Ico": taller, retrato, líneas, colecciones y próximo desfile.
 
 /*
-  IMPORTANTE: este texto lo tiene que revisar Ico antes de publicar.
-  Se escribió solo con lo que sabemos (sin estudios, fechas ni premios).
-  Si Ico quiere sumar su historia, va en la sección del retrato.
+  Texto basado en la presentación que escribió Ico (octubre 2026).
+  Cambios de historia o de las líneas: editar acá.
 */
 
 import React from 'react';
@@ -21,15 +20,17 @@ const IMAGES = {
 const LINES = [
   {
     name: 'By Ico Batista',
-    text: 'La línea formal: prendas para eventos y ocasiones especiales.',
+    text: 'La línea de fiesta: prendas para eventos y ocasiones especiales.',
+    instagram: 'byicobatista',
   },
   {
     name: 'Ico Batista Urbano',
-    text: 'La línea urbana: prendas para todos los días, con la misma atención al corte y a la tela.',
+    text: 'La línea urbana: prendas para el día a día, con la misma atención al corte y a la tela.',
+    instagram: 'icobatistaurbano',
   },
 ];
 
-const FABRICS = ['Tweed', 'Terciopelo', 'Gasa', 'Satén', 'Lino'];
+const PILLARS = ['Elegancia', 'Actitud', 'Fuerza', 'Libertad'];
 
 
 const AboutPage = () => {
@@ -38,11 +39,11 @@ const AboutPage = () => {
       <title>Sobre Ico | Ico Batista</title>
       <meta
         name="description"
-        content="Ico Batista, diseñador uruguayo. Prendas a medida y piezas únicas en stock, hechas en su taller."
+        content="Ico Batista, marca de diseño de autor de Gonzalo Batista, diseñador de Rocha, Uruguay. Prendas a medida y piezas únicas que combinan lo vintage con las nuevas tendencias."
       />
       <main className={styles.page}>
         <header className={styles.intro}>
-          <p className={styles.eyebrow}>Ico Batista · Diseñador uruguayo</p>
+          <p className={styles.eyebrow}>Diseño de autor · Rocha, Uruguay</p>
           <h1 className={styles.title}>Sobre Ico</h1>
         </header>
 
@@ -69,18 +70,24 @@ const AboutPage = () => {
             />
           </div>
           <div className={styles.bioText}>
-            <h2 id="about-bio" className={styles.sectionTitle}>Prendas con nombre propio</h2>
+            <h2 id="about-bio" className={styles.sectionTitle}>Diseño de autor desde Rocha</h2>
             <p>
-              Ico Batista diseña y confecciona ropa para hombre y mujer. Trabaja de dos maneras:
-              prendas a medida, que se piensan junto a cada persona, y piezas en stock, muchas de
-              ellas únicas, hechas en un solo talle y que no se vuelven a confeccionar.
+              Ico Batista es una marca de diseño de autor que se presentó en septiembre de 2023.
+              Detrás está Gonzalo «Ico» Batista, diseñador nacido en el departamento de Rocha, donde
+              vive y trabaja hoy, en el campo y rodeado de naturaleza. Se formó en la escuela de
+              Javier De La Llana, destacado diseñador uruguayo radicado en Buenos Aires.
             </p>
             <p>
-              Cada prenda empieza por la tela. Tweed, terciopelo, gasa, satén y lino son parte de
-              su vocabulario, y de su elección depende la caída, el peso y el carácter de la pieza.
+              Su sello es combinar lo vintage con las nuevas tendencias sin resignar comodidad. Cada
+              diseño es único, como cada persona, y muchas prendas se hacen a medida para resaltar la
+              figura de quien las lleva. Para Ico cada pieza es una obra, y como el arte, no tiene género.
             </p>
-            <ul className={styles.fabrics} aria-label="Telas con las que trabaja">
-              {FABRICS.map((fabric) => <li key={fabric}>{fabric}</li>)}
+            <p>
+              Trabaja con responsabilidad y sensibilidad, y busca que cada prenda transmita el amor con
+              el que fue creada.
+            </p>
+            <ul className={styles.fabrics} aria-label="Pilares de la marca">
+              {PILLARS.map((pillar) => <li key={pillar}>{pillar}</li>)}
             </ul>
           </div>
         </section>
@@ -92,6 +99,14 @@ const AboutPage = () => {
               <article key={line.name} className={styles.line}>
                 <h3>{line.name}</h3>
                 <p>{line.text}</p>
+                <a
+                  href={`https://www.instagram.com/${line.instagram}/`}
+                  className={styles.textLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @{line.instagram}
+                </a>
               </article>
             ))}
           </div>
@@ -101,9 +116,9 @@ const AboutPage = () => {
           <div className={styles.workshopText}>
             <h2 id="about-workshop" className={styles.sectionTitle}>El taller</h2>
             <p>
-              Entre percheros con prendas de tweed, máquinas de coser y una pared de piedra, las
-              ideas se convierten en moldes, pruebas y terminaciones. Ahí se toman las medidas, se
-              ajustan los detalles y se termina cada pieza.
+              El taller está en el campo, en Rocha. Entre percheros, máquinas de coser y una pared de
+              piedra, las ideas se convierten en moldes, pruebas y terminaciones. Ahí se toman las
+              medidas, se ajustan los detalles y se termina cada pieza.
             </p>
             <p>
               Si te interesa una prenda a medida, escríbele a Ico por WhatsApp: juntos acuerdan
