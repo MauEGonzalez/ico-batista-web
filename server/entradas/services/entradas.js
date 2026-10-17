@@ -136,9 +136,10 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
           quantity: buyer.cantidad,
           unit_price: unit,
           currency_id: 'UYU',
+          category_id: 'tickets',
         },
       ],
-      payer: { name: buyer.nombre, email: buyer.email },
+      payer: payerData(buyer),
       external_reference: publicId,
       notification_url: `${config.apiUrl}/api/entradas/webhook?source_news=webhooks`,
       back_urls: { success: back('ok'), failure: back('fail'), pending: back('pending') },
@@ -162,6 +163,19 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     order.mpPreferenceId = created.id;
     await order.save();
     return { orden: publicId, url: created.init_point, total: order.totalUYU };
+  }
+
+  /* Datos del comprador para MercadoPago: cuantos más datos reales, menos
+     rechazos "por seguridad" del antifraude. */
+  function payerData(buyer) {
+    const partes = String(buyer.nombre || '').trim().split(/\s+/);
+    const name = partes.shift() || '';
+    const surname = partes.join(' ');
+    const payer = { name, email: buyer.email };
+    if (surname) payer.surname = surname;
+    const digits = String(buyer.telefono || '').replace(/\D/g, '');
+    if (digits.length >= 6) payer.phone = { number: digits };
+    return payer;
   }
 
   /* ------------------------------ pagos ------------------------------ */
