@@ -572,6 +572,10 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       Orden.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
       Orden.countDocuments({ status: 'pending', expiresAt: { $gt: now() } }),
     ]);
+    const medios = await Orden.aggregate([
+      { $match: { status: 'paid', tipo: 'venta' } },
+      { $group: { _id: { $ifNull: ['$medioPago', 'mercadopago'] }, entradas: { $sum: '$cantidad' }, total: { $sum: '$totalUYU' } } },
+    ]);
     const rsvpRows = await Entrada.aggregate([
       { $match: { tipo: 'cortesia', status: { $ne: 'void' } } },
       { $group: { _id: { $ifNull: ['$rsvp', 'pending'] }, n: { $sum: 1 } } },
@@ -589,6 +593,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       vendidas: ventas.reduce((s, r) => s + r.entradas, 0),
       recaudadoUYU: ventas.reduce((s, r) => s + r.total, 0),
       porTanda: ventas.map((r) => ({ tandaId: r._id.id, entradas: r.entradas, totalUYU: r.total })),
+      porMedio: Object.fromEntries(medios.map((m) => [m._id, { entradas: m.entradas, totalUYU: m.total }])),
       pagosPendientes: pendientes,
       ordenesParaRevisar: o.review || 0,
       emailsFallidos: await Orden.countDocuments({ status: 'paid', emailStatus: 'failed' }),
@@ -707,6 +712,53 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     return { orden: order.publicId, entradas: tickets.map((t) => ({ code: t.code, seq: t.seq })) };
   }
 
+  /**
+   * Venta directa desde el panel (Ico cobró en efectivo o por transferencia).
+   * Cuenta como venta: descuenta cupo de la tanda vigente, suma a lo recaudado y
+   * el comprador recibe la misma entrada con QR que en una compra online.
+   */
+  async function createVentaManual(input) {
+    const nombre = String(input?.nombre || '').trim().replace(/\s+/g, ' ');
+    const email = String(input?.email || '').trim().toLowerCase();
+    const telefono = String(input?.telefono || '').trim().slice(0, 30);
+    const cantidad = Number(input?.cantidad || 1);
+    const medio = String(input?.medio || '');
+    if (nombre.length < 3) throw new HttpError(400, 'Falta el nombre y apellido', 'nombre');
+    if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Falta un email válido para enviarle la entrada', 'email');
+    if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > 50) throw new HttpError(400, 'Cantidad inválida', 'cantidad');
+    if (!['efectivo', 'transferencia'].includes(medio)) throw new HttpError(400, 'Elegí efectivo o transferencia', 'medio');
+
+    const tanda = await currentTanda();
+    if (tanda && cantidad > tanda.remaining) {
+      throw new HttpError(409, `En la ${tanda.nombre} quedan ${tanda.remaining} entradas.`, 'sin_stock');
+    }
+    const unit = tanda ? uyuPrice(tanda, config) : 0;
+    let total = unit * cantidad;
+    if (input?.totalUYU !== undefined && input?.totalUYU !== '' && input?.totalUYU !== null) {
+      total = Math.round(Number(input.totalUYU));
+      if (!Number.isFinite(total) || total < 0 || total > 10_000_000) throw new HttpError(400, 'Monto inválido', 'monto');
+    }
+    const t = now();
+    const order = await Orden.create({
+      publicId: newPublicId(),
+      tipo: 'venta',
+      status: 'paid',
+      medioPago: medio,
+      comprador: { nombre, email, telefono },
+      cantidad,
+      tandaId: tanda ? tanda.id : 'directa',
+      tandaNombre: tanda ? tanda.nombre : 'Venta directa',
+      precioUnitUYU: cantidad ? Math.round(total / cantidad) : 0,
+      totalUYU: total,
+      paidAt: t,
+      notifiedAt: t, // la cargó Ico: no hace falta avisarle
+      notas: String(input?.notas || '').slice(0, 200),
+    });
+    const tickets = await ensureTickets(order);
+    const enviado = await sendTicketsEmail(order);
+    return { orden: order.publicId, enviado, entradas: tickets.map((x) => ({ code: x.code, seq: x.seq })) };
+  }
+
   async function resend(publicId) {
     const order = await Orden.findOne({ publicId: String(publicId) });
     if (!order || order.status !== 'paid') throw new HttpError(404, 'Compra no encontrada o no pagada', 'no_existe');
@@ -727,6 +779,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       comprador: o.comprador,
       cantidad: o.cantidad,
       totalUYU: o.totalUYU,
+      medioPago: o.medioPago || 'mercadopago',
       mpPaymentId: o.mpPaymentId,
       emailStatus: o.emailStatus,
       emailError: o.emailError,
@@ -737,10 +790,13 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
 
   async function exportCsv() {
     const rows = await Entrada.find({}).sort({ nombre: 1, seq: 1 }).lean();
+    const medios = new Map(
+      (await Orden.find({}, { medioPago: 1, tipo: 1 }).lean()).map((o) => [String(o._id), o.tipo === 'cortesia' ? 'cortesía' : o.medioPago || 'mercadopago'])
+    );
     const q = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
-    const head = ['codigo', 'nombre', 'email', 'telefono', 'tanda', 'tipo', 'estado', 'asistencia', 'ingreso', 'orden'];
+    const head = ['codigo', 'nombre', 'email', 'telefono', 'tanda', 'tipo', 'cobro', 'estado', 'asistencia', 'ingreso', 'orden'];
     const lines = rows.map((t) =>
-      [t.code, t.nombre, t.email, t.telefono, t.tandaId, t.tipo, t.status, t.tipo === 'cortesia' ? ({ yes: 'confirmada', no: 'no asiste' }[t.rsvp] || 'sin respuesta') : '', t.checkedInAt?.toISOString() || '', t.orderPublicId]
+      [t.code, t.nombre, t.email, t.telefono, t.tandaId, t.tipo, medios.get(String(t.orderId)) || '', t.status, t.tipo === 'cortesia' ? ({ yes: 'confirmada', no: 'no asiste' }[t.rsvp] || 'sin respuesta') : '', t.checkedInAt?.toISOString() || '', t.orderPublicId]
         .map(q)
         .join(',')
     );
@@ -815,6 +871,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     undoCheckIn,
     voidTicket,
     createCortesia,
+    createVentaManual,
     resend,
     ordenes,
     exportCsv,

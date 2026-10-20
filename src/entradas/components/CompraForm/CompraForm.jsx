@@ -90,8 +90,14 @@ export default function CompraForm({ config }) {
     <div className={styles.card}>
       <p className="eyebrow">{venta.tandaNombre}</p>
       <div className={styles.priceRow}>
-        <span className={styles.price}>{fmtUYU(venta.precioUYU)}</span>
-        {venta.precioUSD && <span className={styles.usd}>USD {venta.precioUSD} · por persona</span>}
+        {venta.precioUSD ? (
+          <>
+            <span className={styles.price}>USD {venta.precioUSD}</span>
+            <span className={styles.usd}>{fmtUYU(venta.precioUYU)}</span>
+          </>
+        ) : (
+          <span className={styles.price}>{fmtUYU(venta.precioUYU)}</span>
+        )}
       </div>
       {venta.quedan != null && venta.quedan <= 30 && (
         <p className={styles.scarce}>
@@ -133,7 +139,14 @@ export default function CompraForm({ config }) {
 
       <div className={styles.total}>
         <span>Total</span>
-        <strong>{fmtUYU(total)}</strong>
+        {venta.precioUSD ? (
+          <span className={styles.totalValue}>
+            <strong>USD {venta.precioUSD * form.cantidad}</strong>
+            <small>{fmtUYU(total)} · se cobra en pesos uruguayos</small>
+          </span>
+        ) : (
+          <strong>{fmtUYU(total)}</strong>
+        )}
       </div>
 
       {error && (

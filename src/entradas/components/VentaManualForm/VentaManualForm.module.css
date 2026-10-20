@@ -1,0 +1,13 @@
+.wrap { background: #fff; border: 1px solid var(--line); padding: 12px 16px; }
+.toggle { background: none; border: 0; cursor: pointer; font-size: 0.95rem; padding: 6px 0; }
+.form { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.form input:not([type='radio']) { padding: 12px; border: 1px solid var(--line); background: var(--bg); border-radius: 0; }
+.form button { padding: 12px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
+.form button:disabled { opacity: 0.6; }
+.form p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+.help { font-size: 0.85rem; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.9rem; }
+.row input { width: 140px; }
+.medios { border: 1px solid var(--line); padding: 8px 12px; margin: 0; display: flex; gap: 18px; font-size: 0.9rem; }
+.medios legend { padding: 0 4px; color: var(--ink-soft); font-size: 0.82rem; }
+.medios label { display: flex; align-items: center; gap: 6px; cursor: pointer; }

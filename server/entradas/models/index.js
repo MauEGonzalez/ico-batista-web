@@ -28,6 +28,8 @@ export function createModels(mongoose) {
       precioUnitUYU: { type: Number, required: true },
       totalUYU: { type: Number, required: true },
       currency: { type: String, default: 'UYU' },
+      // cómo se cobró: online por Mercado Pago, o venta directa cargada desde el panel
+      medioPago: { type: String, enum: ['mercadopago', 'efectivo', 'transferencia'], default: 'mercadopago' },
       mpPreferenceId: { type: String, default: '' },
       mpPaymentId: { type: String, default: '' },
       mpStatus: { type: String, default: '' },

@@ -3,6 +3,7 @@ import ResumenEntradas from '../ResumenEntradas/ResumenEntradas.jsx';
 import IngresoRapido from '../IngresoRapido/IngresoRapido.jsx';
 import ListaEntradas from '../ListaEntradas/ListaEntradas.jsx';
 import CortesiaForm from '../CortesiaForm/CortesiaForm.jsx';
+import VentaManualForm from '../VentaManualForm/VentaManualForm.jsx';
 import OrdenesRevisar from '../OrdenesRevisar/OrdenesRevisar.jsx';
 import styles from './AdminEntradas.module.css';
 
@@ -113,6 +114,7 @@ export default function AdminEntradas({ api, onAuthError }) {
           if (window.confirm('¿Anular esta entrada? Ya no va a servir para ingresar.')) await api.admin.anular(c);
         })}
       />
+      <VentaManualForm api={api} onDone={refresh} />
       <CortesiaForm api={api} onDone={refresh} />
     </div>
   );

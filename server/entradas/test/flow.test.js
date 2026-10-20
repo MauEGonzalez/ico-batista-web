@@ -410,3 +410,39 @@ test('tarjeta: pago en revisión queda pendiente; datos faltantes → 400 sin cr
   assert.equal(bad.status, 400);
   assert.equal(await ent.models.Orden.countDocuments({}), 1);
 });
+
+/* ------------------------- venta directa (efectivo / transferencia) ------------------------- */
+test('venta manual: cuenta como venta, descuenta cupo, manda la entrada y separa el medio de cobro', async () => {
+  const sinToken = await post('/admin/venta-manual', { nombre: 'Juan Pérez', email: 'juan@example.com', cantidad: 2, medio: 'efectivo' });
+  assert.equal(sinToken.status, 401);
+  const bad = await post('/admin/venta-manual', { nombre: 'Juan Pérez', email: 'juan@example.com', cantidad: 2, medio: 'cheque' }, H);
+  assert.equal(bad.status, 400);
+  const sinEmail = await post('/admin/venta-manual', { nombre: 'Juan Pérez', cantidad: 1, medio: 'efectivo' }, H);
+  assert.equal(sinEmail.status, 400);
+
+  const r = await post('/admin/venta-manual', { nombre: 'Juan Pérez', email: 'juan@example.com', cantidad: 2, medio: 'efectivo' }, H);
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(j.enviado, true);
+  assert.equal(j.entradas.length, 2);
+  assert.equal(ent.mailer.sent.length, 1);
+  assert.equal(ent.mailer.sent[0].to, 'juan@example.com');
+
+  const r2 = await (await post('/admin/venta-manual', { nombre: 'Ana Gómez', email: 'ana@example.com', cantidad: 1, medio: 'transferencia', totalUYU: 2500, notas: 'pagó USD 65' }, H)).json();
+  assert.equal(r2.entradas.length, 1);
+
+  const cfg = await (await get('/config')).json();
+  assert.equal(cfg.venta.quedan, 77); // 80 - 3
+  const res = await (await get('/admin/resumen', H)).json();
+  assert.equal(res.vendidas, 3);
+  assert.equal(res.recaudadoUYU, 5200 + 2500);
+  assert.deepEqual(res.porMedio.efectivo, { entradas: 2, totalUYU: 5200 });
+  assert.deepEqual(res.porMedio.transferencia, { entradas: 1, totalUYU: 2500 });
+  const csv = await (await get('/admin/export.csv', H)).text();
+  assert.match(csv, /cobro/);
+  assert.match(csv, /"efectivo"/);
+  assert.match(csv, /"transferencia"/);
+  // la entrada sirve para ingresar como cualquier otra
+  const ok = await (await post('/admin/ingreso', { code: j.entradas[0].code }, H)).json();
+  assert.equal(ok.ok, true);
+});
