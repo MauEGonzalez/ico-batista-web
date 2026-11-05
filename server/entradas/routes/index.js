@@ -93,6 +93,8 @@ export function createRouter({ config, service, requireAdmin, mp }) {
   admin.post('/ingreso/deshacer', async (req, res) => res.json(await service.undoCheckIn(req.body?.code)));
   admin.post('/anular', async (req, res) => res.json(await service.voidTicket(req.body?.code)));
   admin.post('/cortesia', async (req, res) => res.json(await service.createCortesia(req.body)));
+  admin.get('/tandas', async (_req, res) => res.json(await service.tandasAdmin()));
+  admin.put('/tandas', async (req, res) => res.json(await service.saveTandas(req.body, req.user?.email || '')));
   admin.post('/venta-manual', async (req, res) => res.json(await service.createVentaManual(req.body)));
   admin.post('/ordenes/:id/reenviar', async (req, res) => res.json(await service.resend(req.params.id)));
   admin.get('/export.csv', async (_req, res) => {

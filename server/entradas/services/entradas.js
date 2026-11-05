@@ -15,7 +15,37 @@ const isoUY = (d) => new Date(d.getTime() - 3 * 60 * MIN).toISOString().replace(
  * Todo lo que pasa después de un pago es idempotente (se puede repetir sin duplicar nada).
  */
 export function createService({ config, models, mp, mailer, notifier, log = console, now = () => new Date() }) {
-  const { Orden, Entrada } = models;
+  const { Orden, Entrada, Ajuste } = models;
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+  /* ------------------------------ tandas editables ------------------------------ */
+  // Las tandas salen de tandas.json, salvo que Ico las haya cambiado desde el panel
+  // (quedan guardadas en la base y tienen prioridad). Caché corto para no consultar en cada visita.
+  let tandasCache = null;
+  let tandasCacheAt = 0;
+  const TANDAS_TTL = config.tandasCacheMs ?? 20 * 1000;
+
+  function withTestPrice(list) {
+    return config.testPrecioUYU ? list.map((t) => ({ ...t, precioUYU: config.testPrecioUYU, precioUSD: null })) : list;
+  }
+
+  async function loadTandas() {
+    if (tandasCache && Date.now() - tandasCacheAt < TANDAS_TTL) return tandasCache;
+    let list = config.tandas;
+    let fromPanel = false;
+    if (Ajuste) {
+      const doc = await Ajuste.findOne({ key: 'tandas' }).lean();
+      if (Array.isArray(doc?.tandas) && doc.tandas.length) {
+        list = withTestPrice(doc.tandas);
+        fromPanel = true;
+      }
+    }
+    const sorted = [...list].sort((a, b) => Date.parse(a.hasta) - Date.parse(b.hasta));
+    tandasCache = { list: sorted, fromPanel };
+    tandasCacheAt = Date.now();
+    return tandasCache;
+  }
+
 
   /* ------------------------------ tandas / stock ------------------------------ */
 
@@ -39,8 +69,10 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
 
   async function currentTanda() {
     const t = now();
-    if (t > new Date(config.event.ventaHasta)) return null;
-    const sorted = [...config.tandas].sort((a, b) => Date.parse(a.hasta) - Date.parse(b.hasta));
+    const { list: sorted, fromPanel } = await loadTandas();
+    // Con tandas del panel, la venta online termina cuando termina la última tanda
+    const ventaHasta = fromPanel ? sorted[sorted.length - 1].hasta : config.event.ventaHasta;
+    if (t > new Date(ventaHasta)) return null;
     for (const tanda of sorted) {
       if (t > new Date(tanda.hasta)) continue;
       const used = tanda.cupo == null ? 0 : await usedInTanda(tanda.id);
@@ -477,7 +509,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     await sendTicketsEmail(order);
     await notifySale(order);
     // Sobreventa (pago llegó después de vencida la reserva)
-    const tanda = config.tandas.find((x) => x.id === order.tandaId);
+    const tanda = (await loadTandas()).list.find((x) => x.id === order.tandaId);
     if (tanda?.cupo != null && order.tipo === 'venta') {
       const used = await usedInTanda(tanda.id);
       if (used > tanda.cupo && !order.flags.includes('sobreventa')) {
@@ -726,7 +758,18 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     if (nombre.length < 3) throw new HttpError(400, 'Falta el nombre y apellido', 'nombre');
     if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Falta un email válido para enviarle la entrada', 'email');
     if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > 50) throw new HttpError(400, 'Cantidad inválida', 'cantidad');
-    if (!['efectivo', 'transferencia'].includes(medio)) throw new HttpError(400, 'Elegí efectivo o transferencia', 'medio');
+    if (!['efectivo', 'transferencia', 'talonario'].includes(medio)) throw new HttpError(400, 'Elegí efectivo, transferencia o talonario', 'medio');
+    let talonarioNum = null;
+    const local = String(input?.local || '').trim().slice(0, 80);
+    if (medio === 'talonario') {
+      talonarioNum = Number(String(input?.talonarioNum ?? '').replace(/\D/g, ''));
+      if (!Number.isInteger(talonarioNum) || talonarioNum < 1 || talonarioNum > 99999) {
+        throw new HttpError(400, 'Falta el número de la entrada del talonario', 'talonario');
+      }
+      if (cantidad !== 1) throw new HttpError(400, 'Cada entrada del talonario se carga por separado (cantidad 1)', 'cantidad');
+      const dup = await Orden.findOne({ talonarioNum, status: { $in: ['paid', 'review'] } }, { comprador: 1 }).lean();
+      if (dup) throw new HttpError(409, `La entrada Nº ${talonarioNum} del talonario ya se cargó (a nombre de ${dup.comprador.nombre}).`, 'talonario_repetido');
+    }
 
     const tanda = await currentTanda();
     if (tanda && cantidad > tanda.remaining) {
@@ -744,6 +787,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       tipo: 'venta',
       status: 'paid',
       medioPago: medio,
+      talonarioNum,
+      local,
       comprador: { nombre, email, telefono },
       cantidad,
       tandaId: tanda ? tanda.id : 'directa',
@@ -757,6 +802,86 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     const tickets = await ensureTickets(order);
     const enviado = await sendTicketsEmail(order);
     return { orden: order.publicId, enviado, entradas: tickets.map((x) => ({ code: x.code, seq: x.seq })) };
+  }
+
+  /** Tandas para el panel: fecha de cierre, precio, cupo y cuántas se vendieron en cada una. */
+  async function tandasAdmin() {
+    const { list, fromPanel } = await loadTandas();
+    const vendidas = await Orden.aggregate([
+      { $match: { tipo: 'venta', status: { $in: ['paid', 'review'] } } },
+      { $group: { _id: '$tandaId', n: { $sum: '$cantidad' } } },
+    ]);
+    const v = Object.fromEntries(vendidas.map((x) => [x._id, x.n]));
+    const t = now();
+    const actual = await currentTanda();
+    return {
+      origen: fromPanel ? 'panel' : 'archivo',
+      usdUyuRate: config.usdUyuRate,
+      precioPrueba: config.testPrecioUYU || null,
+      tandas: list.map((x) => ({
+        id: x.id,
+        nombre: x.nombre,
+        hasta: x.hasta,
+        hastaFecha: new Date(Date.parse(x.hasta) - 3 * 60 * MIN).toISOString().slice(0, 10),
+        precioUSD: x.precioUSD ?? null,
+        precioUYU: uyuPrice(x, config),
+        cupo: x.cupo ?? null,
+        vendidas: v[x.id] || 0,
+        estado: actual?.id === x.id ? 'vigente' : t > new Date(x.hasta) ? 'terminada' : 'proxima',
+      })),
+    };
+  }
+
+  /**
+   * Guarda las tandas editadas en el panel. Cada tanda cierra a las 23:59 (hora de Uruguay)
+   * del día elegido; las fechas tienen que ir en orden y el cupo no puede quedar por debajo de lo vendido.
+   */
+  async function saveTandas(input, by = '') {
+    const base = (await loadTandas()).list;
+    const rows = Array.isArray(input?.tandas) ? input.tandas : null;
+    if (!rows || rows.length !== base.length) throw new HttpError(400, 'Faltan tandas', 'tandas');
+    const v = Object.fromEntries(
+      (
+        await Orden.aggregate([
+          { $match: { tipo: 'venta', status: { $in: ['paid', 'review'] } } },
+          { $group: { _id: '$tandaId', n: { $sum: '$cantidad' } } },
+        ])
+      ).map((x) => [x._id, x.n])
+    );
+    const out = [];
+    let prev = 0;
+    for (const prevTanda of base) {
+      const r = rows.find((x) => x?.id === prevTanda.id);
+      if (!r) throw new HttpError(400, `Falta la ${prevTanda.nombre}`, 'tandas');
+      const nombre = String(r.nombre ?? prevTanda.nombre).trim().slice(0, 40) || prevTanda.nombre;
+      const fecha = String(r.hastaFecha || '');
+      if (!DATE_RE.test(fecha)) throw new HttpError(400, `Fecha inválida en la ${nombre}`, 'fecha');
+      const hasta = `${fecha}T23:59:59-03:00`;
+      const ms = Date.parse(hasta);
+      if (Number.isNaN(ms)) throw new HttpError(400, `Fecha inválida en la ${nombre}`, 'fecha');
+      if (ms <= prev) throw new HttpError(400, `La ${nombre} tiene que terminar después de la anterior`, 'orden');
+      if (Date.parse(config.event.fecha + 'T23:59:59-03:00') < ms) {
+        throw new HttpError(400, `La ${nombre} no puede terminar después del evento`, 'fecha');
+      }
+      prev = ms;
+      const precioUSD = Number(r.precioUSD);
+      if (!Number.isFinite(precioUSD) || precioUSD < 1 || precioUSD > 10000) {
+        throw new HttpError(400, `Precio inválido en la ${nombre}`, 'precio');
+      }
+      let cupo = null;
+      if (r.cupo !== null && r.cupo !== '' && r.cupo !== undefined) {
+        cupo = Number(r.cupo);
+        if (!Number.isInteger(cupo) || cupo < 1 || cupo > 100000) throw new HttpError(400, `Cupo inválido en la ${nombre}`, 'cupo');
+        if (cupo < (v[prevTanda.id] || 0)) {
+          throw new HttpError(400, `En la ${nombre} ya se vendieron ${v[prevTanda.id]}: el cupo no puede ser menor`, 'cupo');
+        }
+      }
+      out.push({ id: prevTanda.id, nombre, hasta, precioUSD: Math.round(precioUSD * 100) / 100, cupo });
+    }
+    if (!config.usdUyuRate) throw new HttpError(500, 'Falta el tipo de cambio (USD_UYU_RATE)', 'config');
+    await Ajuste.updateOne({ key: 'tandas' }, { $set: { tandas: out, updatedBy: String(by).slice(0, 80) } }, { upsert: true });
+    tandasCache = null;
+    return tandasAdmin();
   }
 
   async function resend(publicId) {
@@ -791,7 +916,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
   async function exportCsv() {
     const rows = await Entrada.find({}).sort({ nombre: 1, seq: 1 }).lean();
     const medios = new Map(
-      (await Orden.find({}, { medioPago: 1, tipo: 1 }).lean()).map((o) => [String(o._id), o.tipo === 'cortesia' ? 'cortesía' : o.medioPago || 'mercadopago'])
+      (await Orden.find({}, { medioPago: 1, tipo: 1, talonarioNum: 1, local: 1 }).lean()).map((o) => [String(o._id), o.tipo === 'cortesia' ? 'cortesía' : o.medioPago === 'talonario' ? `talonario Nº ${o.talonarioNum}${o.local ? ` (${o.local})` : ''}` : o.medioPago || 'mercadopago'])
     );
     const q = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
     const head = ['codigo', 'nombre', 'email', 'telefono', 'tanda', 'tipo', 'cobro', 'estado', 'asistencia', 'ingreso', 'orden'];
@@ -872,6 +997,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     voidTicket,
     createCortesia,
     createVentaManual,
+    tandasAdmin,
+    saveTandas,
     resend,
     ordenes,
     exportCsv,

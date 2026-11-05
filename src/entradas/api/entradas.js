@@ -43,6 +43,8 @@ export function createEntradasApi({ base = API_BASE, getHeaders = () => ({}) } =
       deshacer: (code) => request('/admin/ingreso/deshacer', { method: 'POST', body: { code }, auth: true }),
       anular: (code) => request('/admin/anular', { method: 'POST', body: { code }, auth: true }),
       cortesia: (payload) => request('/admin/cortesia', { method: 'POST', body: payload, auth: true }),
+      tandas: () => request('/admin/tandas', { auth: true }),
+      guardarTandas: (tandas) => request('/admin/tandas', { method: 'PUT', body: { tandas }, auth: true }),
       ventaManual: (payload) => request('/admin/venta-manual', { method: 'POST', body: payload, auth: true }),
       reenviar: (orden) => request(`/admin/ordenes/${orden}/reenviar`, { method: 'POST', auth: true }),
       async exportCsv() {

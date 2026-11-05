@@ -29,7 +29,10 @@ export function createModels(mongoose) {
       totalUYU: { type: Number, required: true },
       currency: { type: String, default: 'UYU' },
       // cómo se cobró: online por Mercado Pago, o venta directa cargada desde el panel
-      medioPago: { type: String, enum: ['mercadopago', 'efectivo', 'transferencia'], default: 'mercadopago' },
+      medioPago: { type: String, enum: ['mercadopago', 'efectivo', 'transferencia', 'talonario'], default: 'mercadopago' },
+      // talonario en papel vendido en un local: número impreso en la entrada y nombre del local
+      talonarioNum: { type: Number, default: null, index: true },
+      local: { type: String, default: '' },
       mpPreferenceId: { type: String, default: '' },
       mpPaymentId: { type: String, default: '' },
       mpStatus: { type: String, default: '' },
@@ -69,7 +72,18 @@ export function createModels(mongoose) {
   );
   entradaSchema.index({ orderId: 1, seq: 1 }, { unique: true });
 
+  // Ajustes editables desde el panel (por ahora: las tandas). Un documento por clave.
+  const ajusteSchema = new Schema(
+    {
+      key: { type: String, required: true, unique: true },
+      tandas: { type: Schema.Types.Mixed, default: null },
+      updatedBy: { type: String, default: '' },
+    },
+    { timestamps: true }
+  );
+
   const Orden = mongoose.models.EntradaOrden || mongoose.model('EntradaOrden', ordenSchema);
   const Entrada = mongoose.models.Entrada || mongoose.model('Entrada', entradaSchema);
-  return { Orden, Entrada };
+  const Ajuste = mongoose.models.EntradaAjuste || mongoose.model('EntradaAjuste', ajusteSchema);
+  return { Orden, Entrada, Ajuste };
 }

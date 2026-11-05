@@ -52,7 +52,7 @@ before(async () => {
       MAIL_PROVIDER: 'dev',
       PUBLIC_URL: 'http://localhost:5173',
     },
-    { disableRateLimit: true, mail: { provider: 'dev', from: 'x@x.com', outboxDir: '/tmp/ico-outbox-test', smtp: {} } }
+    { disableRateLimit: true, tandasCacheMs: 0, mail: { provider: 'dev', from: 'x@x.com', outboxDir: '/tmp/ico-outbox-test', smtp: {} } }
   );
   const built = createApp(config, { deps: { now: () => clock } });
   app = built.app;
@@ -445,4 +445,68 @@ test('venta manual: cuenta como venta, descuenta cupo, manda la entrada y separa
   // la entrada sirve para ingresar como cualquier otra
   const ok = await (await post('/admin/ingreso', { code: j.entradas[0].code }, H)).json();
   assert.equal(ok.ok, true);
+});
+
+test('talonario: registra el número y el local, no deja cargar dos veces la misma entrada', async () => {
+  const body = { nombre: 'Laura Díaz', email: 'laura@example.com', medio: 'talonario', talonarioNum: '027', local: 'Tienda Centro' };
+  const sinNum = await post('/admin/venta-manual', { ...body, talonarioNum: '' }, H);
+  assert.equal(sinNum.status, 400);
+  const r = await post('/admin/venta-manual', body, H);
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(j.entradas.length, 1);
+  assert.equal(j.enviado, true);
+  const dup = await post('/admin/venta-manual', { ...body, nombre: 'Otra Persona', email: 'otra@example.com' }, H);
+  assert.equal(dup.status, 409);
+  assert.match((await dup.json()).error, /Nº 27.*Laura Díaz/);
+  const res = await (await get('/admin/resumen', H)).json();
+  assert.deepEqual(res.porMedio.talonario, { entradas: 1, totalUYU: 2600 });
+  const csv = await (await get('/admin/export.csv', H)).text();
+  assert.match(csv, /talonario Nº 27 \(Tienda Centro\)/);
+});
+
+/* ------------------------- tandas editables desde el panel ------------------------- */
+test('tandas: Ico extiende la primera tanda y cambia precio y cupo desde el panel', async () => {
+  const H2 = H;
+  const before = await (await get('/admin/tandas', H2)).json();
+  assert.equal(before.origen, 'archivo');
+  assert.equal(before.tandas[0].estado, 'vigente');
+  // venta en la primera tanda
+  const b = await buy({ cantidad: 2 });
+  const pay = ent.mp.addPayment({ prefId: prefIdOf(b.url) });
+  await webhook(pay.id);
+
+  const rows = before.tandas.map((t) => ({ id: t.id, nombre: t.nombre, hastaFecha: t.hastaFecha, precioUSD: t.precioUSD, cupo: t.cupo }));
+  // validaciones
+  let r = await fetch(base + '/admin/tandas', { method: 'PUT', headers: H2, body: JSON.stringify({ tandas: [{ ...rows[0], hastaFecha: '2026-11-30' }, rows[1]] }) });
+  assert.equal(r.status, 400); // termina después de la segunda / del evento
+  r = await fetch(base + '/admin/tandas', { method: 'PUT', headers: H2, body: JSON.stringify({ tandas: [{ ...rows[0], cupo: 1 }, rows[1]] }) });
+  assert.equal(r.status, 400); // cupo menor a lo vendido
+  r = await fetch(base + '/admin/tandas', { method: 'PUT', body: JSON.stringify({ tandas: rows }), headers: { 'Content-Type': 'application/json' } });
+  assert.equal(r.status, 401);
+
+  // la primera tanda termina el 5/11: el 6/11 ya sería la segunda
+  clock = new Date('2026-11-06T12:00:00-03:00');
+  assert.equal((await (await get('/config')).json()).venta.tandaId, 't2');
+
+  // Ico la extiende al 8/11, con precio 60 y cupo 100
+  r = await fetch(base + '/admin/tandas', {
+    method: 'PUT',
+    headers: H2,
+    body: JSON.stringify({ tandas: [{ ...rows[0], hastaFecha: '2026-11-08', precioUSD: 60, cupo: 100 }, rows[1]] }),
+  });
+  assert.equal(r.status, 200);
+  const saved = await r.json();
+  assert.equal(saved.origen, 'panel');
+  assert.equal(saved.tandas[0].hasta, '2026-11-08T23:59:59-03:00');
+  assert.equal(saved.tandas[0].vendidas, 2);
+  const cfg = await (await get('/config')).json();
+  assert.equal(cfg.venta.tandaId, 't1');
+  assert.equal(cfg.venta.precioUSD, 60);
+  assert.equal(cfg.venta.precioUYU, 2400);
+  assert.equal(cfg.venta.quedan, 98);
+  // pasado el 8/11 cierra a las 23:59 y sigue la segunda
+  clock = new Date('2026-11-09T00:00:30-03:00');
+  assert.equal((await (await get('/config')).json()).venta.tandaId, 't2');
+  await ent.models.Ajuste.deleteMany({});
 });

@@ -1,0 +1,17 @@
+.wrap { background: #fff; border: 1px solid var(--line); padding: 12px 16px; }
+.toggle { background: none; border: 0; cursor: pointer; font-size: 0.95rem; padding: 6px 0; }
+.form { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.help { margin: 0; font-size: 0.85rem; color: var(--ink-soft); }
+.warn { margin: 0; font-size: 0.85rem; color: var(--bad); }
+.tanda { border: 1px solid var(--line); margin: 0; padding: 10px 14px 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.tanda.vigente { border-color: var(--ink); }
+.tanda legend { display: flex; align-items: center; gap: 10px; padding: 0 6px; }
+.nombre { border: 0; border-bottom: 1px dashed var(--line); background: transparent; font-size: 0.95rem; font-weight: 600; padding: 2px 0; width: 150px; }
+.estado { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.vigente .estado { color: var(--accent); font-weight: 600; }
+.tanda label { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: var(--ink-soft); }
+.tanda input[type='date'], .tanda input[type='number'] { padding: 10px; border: 1px solid var(--line); background: var(--bg); border-radius: 0; font-size: 0.95rem; color: var(--ink); }
+.tanda small { font-size: 0.78rem; min-height: 1em; }
+.form > button { padding: 12px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
+.form > button:disabled { opacity: 0.5; cursor: default; }
+@media (max-width: 640px) { .tanda { grid-template-columns: 1fr; } }

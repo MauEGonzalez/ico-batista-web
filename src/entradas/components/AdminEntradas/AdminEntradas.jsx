@@ -4,6 +4,7 @@ import IngresoRapido from '../IngresoRapido/IngresoRapido.jsx';
 import ListaEntradas from '../ListaEntradas/ListaEntradas.jsx';
 import CortesiaForm from '../CortesiaForm/CortesiaForm.jsx';
 import VentaManualForm from '../VentaManualForm/VentaManualForm.jsx';
+import TandasEditor from '../TandasEditor/TandasEditor.jsx';
 import OrdenesRevisar from '../OrdenesRevisar/OrdenesRevisar.jsx';
 import styles from './AdminEntradas.module.css';
 
@@ -99,6 +100,7 @@ export default function AdminEntradas({ api, onAuthError }) {
       </div>
       {error && <p className={styles.error} role="alert">{error}</p>}
       <ResumenEntradas resumen={resumen} />
+      <TandasEditor api={api} onDone={refresh} />
       <OrdenesRevisar ordenes={ordenes} onReenviar={act((id) => api.admin.reenviar(id))} />
       <IngresoRapido api={api} onDone={refresh} />
       <ListaEntradas

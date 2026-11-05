@@ -72,6 +72,7 @@ export function loadConfig(env = process.env, overrides = {}) {
   // Pisa el precio de todas las tandas. Borrar la variable y redeployar para volver a los precios reales.
   const testPrice = Number(env.ENTRADAS_PRECIO_PRUEBA_UYU);
   if (testPrice > 0) {
+    cfg.testPrecioUYU = Math.round(testPrice); // también se aplica a las tandas editadas desde el panel
     cfg.tandas = cfg.tandas.map((t) => ({ ...t, precioUYU: Math.round(testPrice), precioUSD: null }));
   }
   Object.assign(cfg, overrides);

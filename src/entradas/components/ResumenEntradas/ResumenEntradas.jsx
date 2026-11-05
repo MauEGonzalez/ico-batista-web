@@ -36,12 +36,15 @@ export default function ResumenEntradas({ resumen }) {
         {resumen.pagosPendientes > 0 && <>Pagos en curso: {resumen.pagosPendientes} · </>}
         Anuladas: {resumen.anuladas}
       </p>
-      {resumen.porMedio && (resumen.porMedio.efectivo || resumen.porMedio.transferencia) && (
+      {resumen.porMedio && (resumen.porMedio.efectivo || resumen.porMedio.transferencia || resumen.porMedio.talonario) && (
         <p className={styles.sub}>
           Cobro: Mercado Pago {resumen.porMedio.mercadopago?.entradas || 0}
           {resumen.porMedio.efectivo && <> · Efectivo {resumen.porMedio.efectivo.entradas} ({fmtUYU(resumen.porMedio.efectivo.totalUYU)})</>}
           {resumen.porMedio.transferencia && (
             <> · Transferencia {resumen.porMedio.transferencia.entradas} ({fmtUYU(resumen.porMedio.transferencia.totalUYU)})</>
+          )}
+          {resumen.porMedio.talonario && (
+            <> · Talonario {resumen.porMedio.talonario.entradas} ({fmtUYU(resumen.porMedio.talonario.totalUYU)})</>
           )}
         </p>
       )}
