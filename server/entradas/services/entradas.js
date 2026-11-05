@@ -595,7 +595,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
   /* ------------------------------ panel ------------------------------ */
 
   async function resumen() {
-    const [porEstado, porTanda, ordenes, pendientes] = await Promise.all([
+    // Todas las consultas en paralelo: con la base en otra ciudad, cada ida y vuelta cuenta
+    const [porEstado, porTanda, ordenes, pendientes, medios, rsvpRows, emailsFallidos] = await Promise.all([
       Entrada.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
       Orden.aggregate([
         { $match: { status: 'paid' } },
@@ -603,14 +604,15 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       ]),
       Orden.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
       Orden.countDocuments({ status: 'pending', expiresAt: { $gt: now() } }),
-    ]);
-    const medios = await Orden.aggregate([
-      { $match: { status: 'paid', tipo: 'venta' } },
-      { $group: { _id: { $ifNull: ['$medioPago', 'mercadopago'] }, entradas: { $sum: '$cantidad' }, total: { $sum: '$totalUYU' } } },
-    ]);
-    const rsvpRows = await Entrada.aggregate([
-      { $match: { tipo: 'cortesia', status: { $ne: 'void' } } },
-      { $group: { _id: { $ifNull: ['$rsvp', 'pending'] }, n: { $sum: 1 } } },
+      Orden.aggregate([
+        { $match: { status: 'paid', tipo: 'venta' } },
+        { $group: { _id: { $ifNull: ['$medioPago', 'mercadopago'] }, entradas: { $sum: '$cantidad' }, total: { $sum: '$totalUYU' } } },
+      ]),
+      Entrada.aggregate([
+        { $match: { tipo: 'cortesia', status: { $ne: 'void' } } },
+        { $group: { _id: { $ifNull: ['$rsvp', 'pending'] }, n: { $sum: 1 } } },
+      ]),
+      Orden.countDocuments({ status: 'paid', emailStatus: 'failed' }),
     ]);
     const r = Object.fromEntries(rsvpRows.map((x) => [x._id, x.n]));
     const e = Object.fromEntries(porEstado.map((r) => [r._id, r.n]));
@@ -628,7 +630,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       porMedio: Object.fromEntries(medios.map((m) => [m._id, { entradas: m.entradas, totalUYU: m.total }])),
       pagosPendientes: pendientes,
       ordenesParaRevisar: o.review || 0,
-      emailsFallidos: await Orden.countDocuments({ status: 'paid', emailStatus: 'failed' }),
+      emailsFallidos,
       invitados: { confirmados: r.yes || 0, noAsisten: r.no || 0, sinRespuesta: r.pending || 0 },
     };
   }
