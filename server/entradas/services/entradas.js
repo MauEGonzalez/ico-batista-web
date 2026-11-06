@@ -116,6 +116,21 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
 
   /* ------------------------------ checkout ------------------------------ */
 
+  /**
+   * Nombres de los acompañantes cuando se compra más de una entrada (entradas 2..N).
+   * En la web son obligatorios; en el panel, si faltan, la entrada queda como "Invitado de …".
+   */
+  function parseInvitados(input, cantidad, { required }) {
+    const raw = Array.isArray(input?.invitados) ? input.invitados : [];
+    const out = [];
+    for (let i = 0; i < cantidad - 1; i++) {
+      const n = String(raw[i] ?? '').trim().replace(/\s+/g, ' ').slice(0, 80);
+      if (required && n.length < 3) throw new HttpError(400, `Ingresá el nombre y apellido del invitado ${i + 2}.`, 'invitados');
+      out.push(n);
+    }
+    return out;
+  }
+
   function validateBuyer(input) {
     const nombre = String(input?.nombre || '').trim().replace(/\s+/g, ' ');
     const email = String(input?.email || '').trim().toLowerCase();
@@ -126,7 +141,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > config.maxPorCompra) {
       throw new HttpError(400, `Podés comprar entre 1 y ${config.maxPorCompra} entradas.`, 'cantidad');
     }
-    return { nombre, email, telefono, cantidad };
+    const invitados = parseInvitados(input, cantidad, { required: true });
+    return { nombre, email, telefono, cantidad, invitados };
   }
 
   async function reserveOrder(input) {
@@ -151,6 +167,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       tipo: 'venta',
       comprador: { nombre: buyer.nombre, email: buyer.email, telefono: buyer.telefono },
       cantidad: buyer.cantidad,
+      invitados: buyer.invitados,
       tandaId: tanda.id,
       tandaNombre: tanda.nombre,
       precioUnitUYU: unit,
@@ -423,7 +440,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
                 orderPublicId: order.publicId,
                 seq,
                 code: newTicketCode(),
-                nombre: order.comprador.nombre,
+                nombre: seq === 1 ? order.comprador.nombre : order.invitados?.[seq - 2] || `Invitado de ${order.comprador.nombre}`,
                 email: order.comprador.email,
                 telefono: order.comprador.telefono,
                 tandaId: order.tandaId,
@@ -727,12 +744,15 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     if (nombre.length < 2) throw new HttpError(400, 'Falta el nombre', 'nombre');
     if (email && !EMAIL_RE.test(email)) throw new HttpError(400, 'Email inválido', 'email');
     if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > 50) throw new HttpError(400, 'Cantidad inválida', 'cantidad');
+    // enviar: false → solo queda registrada en la lista (Ico ya mandó la invitación por su cuenta)
+    const enviar = input?.enviar !== false && Boolean(email);
     const order = await Orden.create({
       publicId: newPublicId(),
       tipo: 'cortesia',
       status: 'paid',
       comprador: { nombre, email, telefono: String(input?.telefono || '').slice(0, 30) },
       cantidad,
+      invitados: parseInvitados(input, cantidad, { required: false }),
       tandaId: 'cortesia',
       tandaNombre: 'Cortesía',
       precioUnitUYU: 0,
@@ -742,8 +762,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       notas: String(input?.notas || '').slice(0, 200),
     });
     const tickets = await ensureTickets(order);
-    if (email) await sendTicketsEmail(order);
-    return { orden: order.publicId, entradas: tickets.map((t) => ({ code: t.code, seq: t.seq })) };
+    if (enviar) await sendTicketsEmail(order);
+    return { orden: order.publicId, enviado: enviar, entradas: tickets.map((t) => ({ code: t.code, seq: t.seq })) };
   }
 
   /**
@@ -793,6 +813,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       local,
       comprador: { nombre, email, telefono },
       cantidad,
+      invitados: parseInvitados(input, cantidad, { required: false }),
       tandaId: tanda ? tanda.id : 'directa',
       tandaNombre: tanda ? tanda.nombre : 'Venta directa',
       precioUnitUYU: cantidad ? Math.round(total / cantidad) : 0,

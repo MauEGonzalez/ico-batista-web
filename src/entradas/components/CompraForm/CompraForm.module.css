@@ -29,3 +29,5 @@
 .totalValue { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
 .totalValue strong { font-family: var(--serif); font-size: 1.7rem; font-weight: 400; }
 .totalValue small { font-size: 0.78rem; color: var(--ink-soft); }
+.invitados { display: flex; flex-direction: column; gap: 14px; padding: 14px 0 0; border-top: 1px solid var(--line); }
+.invHelp { margin: 0; font-size: 0.82rem; color: var(--ink-soft); }

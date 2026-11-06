@@ -23,6 +23,8 @@ export function createModels(mongoose) {
         telefono: { type: String, default: '' },
       },
       cantidad: { type: Number, required: true },
+      // nombres de los acompañantes (entradas 2..N); la entrada 1 va a nombre del comprador
+      invitados: { type: [String], default: [] },
       tandaId: { type: String, required: true },
       tandaNombre: { type: String, default: '' },
       precioUnitUYU: { type: Number, required: true },

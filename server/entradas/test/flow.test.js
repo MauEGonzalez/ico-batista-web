@@ -23,8 +23,10 @@ const post = (p, body, headers = { 'Content-Type': 'application/json' }) =>
   fetch(base + p, { method: 'POST', headers, body: JSON.stringify(body ?? {}) });
 const get = (p, headers) => fetch(base + p, { headers });
 
+const invitadosPara = (n) => Array.from({ length: Math.max(0, n - 1) }, (_, i) => `Invitado Número ${i + 2}`);
 async function buy(extra = {}) {
-  const r = await post('/checkout', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 2, ...extra });
+  const cantidad = extra.cantidad ?? 2;
+  const r = await post('/checkout', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad, invitados: invitadosPara(cantidad), ...extra });
   const j = await r.json();
   return { status: r.status, ...j };
 }
@@ -264,7 +266,7 @@ test('panel: requiere token; lista, búsqueda, ingreso, doble escaneo, deshacer,
   assert.equal((await get('/admin/lista')).status, 401);
   assert.equal((await get('/admin/lista', { Authorization: 'Bearer mal' })).status, 401);
 
-  const c = await buy({ nombre: 'Lucía Gómez' });
+  const c = await buy({ nombre: 'Lucía Gómez', invitados: ['Lucía Rivero'] });
   await webhook(ent.mp.addPayment({ prefId: prefIdOf(c.url) }).id);
 
   const lista = await (await get('/admin/lista?q=luc', H)).json();
@@ -368,6 +370,7 @@ test('tarjeta: pago aprobado emite las entradas en el acto y manda datos complet
     email: 'ana@example.com',
     telefono: '+598 99 123 456',
     cantidad: 2,
+    invitados: ['Bruno Pérez'],
     tarjeta: tarjeta(),
   });
   assert.equal(r.status, 200);
@@ -391,7 +394,7 @@ test('tarjeta: pago aprobado emite las entradas en el acto y manda datos complet
 });
 
 test('tarjeta: rechazo devuelve un mensaje claro y libera el cupo', async () => {
-  const r = await post('/pagar-tarjeta', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 3, tarjeta: tarjeta('mock-rechazar') });
+  const r = await post('/pagar-tarjeta', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 3, invitados: invitadosPara(3), tarjeta: tarjeta('mock-rechazar') });
   const j = await r.json();
   assert.equal(j.status, 'rejected');
   assert.match(j.mensaje, /seguridad/);
@@ -509,4 +512,33 @@ test('tandas: Ico extiende la primera tanda y cambia precio y cupo desde el pane
   clock = new Date('2026-11-09T00:00:30-03:00');
   assert.equal((await (await get('/config')).json()).venta.tandaId, 't2');
   await ent.models.Ajuste.deleteMany({});
+});
+
+/* ------------------------- nombres de invitados y cortesías sin email ------------------------- */
+test('compra de varias entradas: cada entrada queda a nombre de su invitado', async () => {
+  const falta = await post('/checkout', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 3, invitados: ['Bruno Pérez'] });
+  assert.equal(falta.status, 400);
+  assert.match((await falta.json()).error, /invitado 3/);
+  const b = await buy({ cantidad: 3, invitados: ['Bruno Pérez', 'Carla Gómez'] });
+  const pay = ent.mp.addPayment({ prefId: prefIdOf(b.url) });
+  await webhook(pay.id);
+  const t = await ent.models.Entrada.find({}).sort({ seq: 1 }).lean();
+  assert.deepEqual(t.map((x) => x.nombre), ['Ana Pérez', 'Bruno Pérez', 'Carla Gómez']);
+  assert.match(ent.mailer.sent[0].html, /Carla Gómez/);
+});
+
+test('cortesía sin enviar: queda en la lista pero no sale ningún email', async () => {
+  const r = await (await post('/admin/cortesia', { nombre: 'Prensa Diario', email: 'prensa@example.com', cantidad: 2, invitados: ['Fotógrafo'], enviar: false }, H)).json();
+  assert.equal(r.enviado, false);
+  assert.equal(r.entradas.length, 2);
+  assert.equal(ent.mailer.sent.length, 0);
+  const t = await ent.models.Entrada.find({ tipo: 'cortesia' }).sort({ seq: 1 }).lean();
+  assert.deepEqual(t.map((x) => x.nombre), ['Prensa Diario', 'Fotógrafo']);
+  const r2 = await (await post('/admin/cortesia', { nombre: 'Sin Mail', cantidad: 2 }, H)).json();
+  assert.equal(r2.enviado, false);
+  const t2 = await ent.models.Entrada.find({ orderPublicId: r2.orden }).sort({ seq: 1 }).lean();
+  assert.equal(t2[1].nombre, 'Invitado de Sin Mail');
+  const r3 = await (await post('/admin/cortesia', { nombre: 'Con Mail', email: 'con@example.com', cantidad: 1 }, H)).json();
+  assert.equal(r3.enviado, true);
+  assert.equal(ent.mailer.sent.length, 1);
 });

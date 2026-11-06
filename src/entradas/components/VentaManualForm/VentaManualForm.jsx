@@ -17,6 +17,7 @@ export default function VentaManualForm({ api, onDone }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState(EMPTY);
   const [precio, setPrecio] = useState(null); // precio en pesos de la tanda vigente
+  const [invitados, setInvitados] = useState([]);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -45,6 +46,7 @@ export default function VentaManualForm({ api, onDone }) {
       const r = await api.admin.ventaManual({
         ...f,
         cantidad,
+        invitados: invitados.slice(0, cantidad - 1),
         totalUYU: f.totalUYU === '' ? undefined : Number(f.totalUYU),
       });
       setMsg(
@@ -52,7 +54,8 @@ export default function VentaManualForm({ api, onDone }) {
           ? `Listo: ${r.entradas.length} entrada(s) creada(s) y enviadas a ${f.email}.`
           : `Entradas creadas, pero el email no salió. Reenvialo desde "Compras para revisar".`
       );
-      setF((x) => ({ ...EMPTY, medio: x.medio, local: x.local })); // deja listo para cargar la siguiente del mismo local
+      setF((x) => ({ ...EMPTY, medio: x.medio, local: x.local }));
+      setInvitados([]); // deja listo para cargar la siguiente del mismo local
       onDone?.();
     } catch (err) {
       setMsg(err.message);
@@ -102,6 +105,21 @@ export default function VentaManualForm({ api, onDone }) {
               <input type="number" min="1" max="50" value={f.cantidad} onChange={set('cantidad')} />
             </label>
           )}
+          {!esTalonario &&
+            Array.from({ length: Math.max(0, cantidad - 1) }, (_, i) => (
+              <input
+                key={i}
+                placeholder={`Invitado ${i + 2} · nombre y apellido`}
+                value={invitados[i] || ''}
+                onChange={(e) =>
+                  setInvitados((arr) => {
+                    const next = [...arr];
+                    next[i] = e.target.value;
+                    return next;
+                  })
+                }
+              />
+            ))}
           <label className={styles.row}>
             <span>Monto cobrado (pesos)</span>
             <input

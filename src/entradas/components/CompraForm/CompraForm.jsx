@@ -9,6 +9,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export default function CompraForm({ config }) {
   const { venta, maxPorCompra, puerta } = config;
   const [form, setForm] = useState({ nombre: '', email: '', telefono: '', cantidad: 1, web: '' });
+  const [invitados, setInvitados] = useState([]); // nombres de las entradas 2..N
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [paso, setPaso] = useState('datos'); // datos | tarjeta
@@ -21,6 +22,9 @@ export default function CompraForm({ config }) {
   function checkDatos() {
     if (form.nombre.trim().length < 3) return 'Ingresá tu nombre y apellido.';
     if (!EMAIL_RE.test(form.email.trim())) return 'El email no es válido.';
+    for (let i = 0; i < form.cantidad - 1; i++) {
+      if ((invitados[i] || '').trim().length < 3) return `Ingresá el nombre y apellido del invitado ${i + 2}.`;
+    }
     return '';
   }
 
@@ -34,7 +38,7 @@ export default function CompraForm({ config }) {
   async function pagarConTarjeta(tarjeta) {
     setError('');
     try {
-      const r = await api.pagarTarjeta({ ...form, cantidad: Number(form.cantidad), tarjeta });
+      const r = await api.pagarTarjeta({ ...form, cantidad: Number(form.cantidad), invitados: invitados.slice(0, form.cantidad - 1), tarjeta });
       if (r.status === 'rejected') {
         setError(r.mensaje);
         throw new Error('rechazado');
@@ -52,7 +56,7 @@ export default function CompraForm({ config }) {
     setError('');
     setLoading(true);
     try {
-      const r = await api.checkout({ ...form, cantidad: Number(form.cantidad) });
+      const r = await api.checkout({ ...form, cantidad: Number(form.cantidad), invitados: invitados.slice(0, form.cantidad - 1) });
       window.location.assign(r.url); // → Mercado Pago
     } catch (err) {
       setError(err.message);
@@ -131,6 +135,33 @@ export default function CompraForm({ config }) {
           </button>
         </div>
       </div>
+
+      {form.cantidad > 1 && (
+        <div className={styles.invitados}>
+          <p className={styles.invHelp}>
+            Cada entrada es nominal: la primera va a tu nombre. Completá el nombre de quienes te acompañan.
+          </p>
+          {Array.from({ length: form.cantidad - 1 }, (_, i) => (
+            <label key={i} className={styles.field}>
+              <span>Invitado {i + 2} · nombre y apellido</span>
+              <input
+                value={invitados[i] || ''}
+                onChange={(e) =>
+                  setInvitados((arr) => {
+                    const next = [...arr];
+                    next[i] = e.target.value;
+                    return next;
+                  })
+                }
+                autoComplete="off"
+                required
+                minLength={3}
+                maxLength={80}
+              />
+            </label>
+          ))}
+        </div>
+      )}
 
       </fieldset>
 
