@@ -15,3 +15,5 @@
 .form > button { padding: 12px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
 .form > button:disabled { opacity: 0.5; cursor: default; }
 @media (max-width: 640px) { .tanda { grid-template-columns: 1fr; } }
+.agregar { align-self: flex-start; padding: 10px 14px; border: 1px dashed var(--ink); background: transparent; color: var(--ink); cursor: pointer; font-size: 0.9rem; }
+.quitar { margin-left: auto; background: none; border: 0; color: var(--bad); cursor: pointer; font-size: 0.78rem; text-decoration: underline; }

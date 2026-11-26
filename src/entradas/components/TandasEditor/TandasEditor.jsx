@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { fmtUYU } from '../../api/entradas.js';
 import styles from './TandasEditor.module.css';
 
-const ESTADOS = { vigente: 'A la venta ahora', terminada: 'Terminada', proxima: 'Próxima' };
+const ESTADOS = { vigente: 'A la venta ahora', terminada: 'Terminada', proxima: 'Próxima', nueva: 'Nueva (sin guardar)' };
 const fmtFecha = (iso) =>
   new Date(iso + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -26,10 +26,19 @@ export default function TandasEditor({ api, onDone }) {
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (i, k) => (e) => setRows((r) => r.map((x, j) => (j === i ? { ...x, [k]: e.target.value } : x)));
-  const cambios = data && rows.some((r, i) => {
+  const cambios = data && (rows.length !== data.tandas.length || rows.some((r, i) => {
     const t = data.tandas[i];
     return r.hastaFecha !== t.hastaFecha || String(r.precioUSD) !== String(t.precioUSD ?? '') || String(r.cupo) !== String(t.cupo ?? '') || r.nombre !== t.nombre;
-  });
+  }));
+
+  function agregar() {
+    const ult = rows[rows.length - 1];
+    setRows((r) => [
+      ...r,
+      { id: `nueva-${Date.now()}`, nombre: `Tanda ${r.length + 1}`, hastaFecha: data.fechaEvento || ult?.hastaFecha || '', precioUSD: '', cupo: '', nueva: true },
+    ]);
+  }
+  const quitar = (i) => () => setRows((r) => r.filter((_, j) => j !== i));
 
   async function save(e) {
     e.preventDefault();
@@ -41,7 +50,7 @@ export default function TandasEditor({ api, onDone }) {
     setMsg('');
     try {
       const d = await api.admin.guardarTandas(
-        rows.map((r) => ({ ...r, precioUSD: Number(r.precioUSD), cupo: r.cupo === '' ? null : Number(r.cupo) }))
+        rows.map(({ nueva, ...r }) => ({ ...r, precioUSD: Number(r.precioUSD), cupo: r.cupo === '' ? null : Number(r.cupo) }))
       );
       setData(d);
       setMsg('Guardado. La página de entradas ya muestra los cambios.');
@@ -67,12 +76,17 @@ export default function TandasEditor({ api, onDone }) {
           </p>
           {data.precioPrueba && <p className={styles.warn}>Ojo: está activo el precio de prueba ($ {data.precioPrueba}).</p>}
           {rows.map((r, i) => {
-            const t = data.tandas[i];
+            const t = r.nueva ? { estado: 'nueva', vendidas: 0 } : data.tandas[i];
             return (
               <fieldset key={r.id} className={`${styles.tanda} ${t.estado === 'vigente' ? styles.vigente : ''}`}>
                 <legend>
                   <input className={styles.nombre} value={r.nombre} onChange={set(i, 'nombre')} aria-label="Nombre de la tanda" maxLength={40} />
                   <span className={styles.estado}>{ESTADOS[t.estado]}</span>
+                  {r.nueva && (
+                    <button type="button" className={styles.quitar} onClick={quitar(i)}>
+                      Quitar
+                    </button>
+                  )}
                 </legend>
                 <label>
                   <span>Hasta el día</span>
@@ -92,6 +106,11 @@ export default function TandasEditor({ api, onDone }) {
               </fieldset>
             );
           })}
+          {rows.length < 8 && (
+            <button type="button" className={styles.agregar} onClick={agregar}>
+              + Agregar tanda
+            </button>
+          )}
           <button disabled={busy || !cambios}>{busy ? 'Guardando…' : 'Guardar cambios'}</button>
           {msg && <p role="status" className={styles.help}>{msg}</p>}
         </form>

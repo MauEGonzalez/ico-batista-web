@@ -840,6 +840,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     return {
       origen: fromPanel ? 'panel' : 'archivo',
       usdUyuRate: config.usdUyuRate,
+      fechaEvento: config.event.fecha,
       precioPrueba: config.testPrecioUYU || null,
       tandas: list.map((x) => ({
         id: x.id,
@@ -862,7 +863,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
   async function saveTandas(input, by = '') {
     const base = (await loadTandas()).list;
     const rows = Array.isArray(input?.tandas) ? input.tandas : null;
-    if (!rows || rows.length !== base.length) throw new HttpError(400, 'Faltan tandas', 'tandas');
+    if (!rows || rows.length < base.length) throw new HttpError(400, 'Faltan tandas', 'tandas');
     const v = Object.fromEntries(
       (
         await Orden.aggregate([
@@ -871,22 +872,32 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
         ])
       ).map((x) => [x._id, x.n])
     );
+    for (const t of base) {
+      if (!rows.some((x) => x?.id === t.id)) throw new HttpError(400, `Falta la ${t.nombre}`, 'tandas');
+    }
+    const nuevas = rows.filter((x) => !base.some((t) => t.id === x?.id));
+    if (base.length + nuevas.length > 8) throw new HttpError(400, 'Máximo 8 tandas', 'tandas');
+    const usados = new Set(base.map((t) => t.id));
+    const entradas = [
+      ...base.map((t) => ({ prevTanda: t, r: rows.find((x) => x?.id === t.id) })),
+      ...nuevas.map((r) => {
+        let n = usados.size + 1;
+        while (usados.has(`tanda-${n}`)) n += 1;
+        usados.add(`tanda-${n}`);
+        return { prevTanda: { id: `tanda-${n}`, nombre: `Tanda ${n}` }, r };
+      }),
+    ];
     const out = [];
-    let prev = 0;
-    for (const prevTanda of base) {
-      const r = rows.find((x) => x?.id === prevTanda.id);
-      if (!r) throw new HttpError(400, `Falta la ${prevTanda.nombre}`, 'tandas');
+    for (const { prevTanda, r } of entradas) {
       const nombre = String(r.nombre ?? prevTanda.nombre).trim().slice(0, 40) || prevTanda.nombre;
       const fecha = String(r.hastaFecha || '');
       if (!DATE_RE.test(fecha)) throw new HttpError(400, `Fecha inválida en la ${nombre}`, 'fecha');
       const hasta = `${fecha}T23:59:59-03:00`;
       const ms = Date.parse(hasta);
       if (Number.isNaN(ms)) throw new HttpError(400, `Fecha inválida en la ${nombre}`, 'fecha');
-      if (ms <= prev) throw new HttpError(400, `La ${nombre} tiene que terminar después de la anterior`, 'orden');
       if (Date.parse(config.event.fecha + 'T23:59:59-03:00') < ms) {
         throw new HttpError(400, `La ${nombre} no puede terminar después del evento`, 'fecha');
       }
-      prev = ms;
       const precioUSD = Number(r.precioUSD);
       if (!Number.isFinite(precioUSD) || precioUSD < 1 || precioUSD > 10000) {
         throw new HttpError(400, `Precio inválido en la ${nombre}`, 'precio');
@@ -900,6 +911,12 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
         }
       }
       out.push({ id: prevTanda.id, nombre, hasta, precioUSD: Math.round(precioUSD * 100) / 100, cupo });
+    }
+    out.sort((a, b) => Date.parse(a.hasta) - Date.parse(b.hasta));
+    for (let i = 1; i < out.length; i += 1) {
+      if (Date.parse(out[i].hasta) <= Date.parse(out[i - 1].hasta)) {
+        throw new HttpError(400, `La ${out[i].nombre} tiene que terminar después de la ${out[i - 1].nombre}`, 'orden');
+      }
     }
     if (!config.usdUyuRate) throw new HttpError(500, 'Falta el tipo de cambio (USD_UYU_RATE)', 'config');
     await Ajuste.updateOne({ key: 'tandas' }, { $set: { tandas: out, updatedBy: String(by).slice(0, 80) } }, { upsert: true });

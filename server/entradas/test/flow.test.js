@@ -514,6 +514,40 @@ test('tandas: Ico extiende la primera tanda y cambia precio y cupo desde el pane
   await ent.models.Ajuste.deleteMany({});
 });
 
+test('tandas: se agrega una tanda nueva desde el panel y la venta sigue hasta el evento', async () => {
+  const before = await (await get('/admin/tandas', H)).json();
+  assert.equal(before.fechaEvento, '2026-11-29');
+  const rows = before.tandas.map((t) => ({ id: t.id, nombre: t.nombre, hastaFecha: t.hastaFecha, precioUSD: t.precioUSD, cupo: t.cupo }));
+  const last = rows[rows.length - 1];
+  // pasada la última tanda la venta online cierra
+  clock = new Date(Date.parse(last.hastaFecha + 'T23:59:59-03:00') + 60 * 60 * 1000);
+  assert.equal((await (await get('/config')).json()).venta.abierta, false);
+  // no se puede pasar del evento ni quitar tandas existentes
+  let r = await fetch(base + '/admin/tandas', { method: 'PUT', headers: H, body: JSON.stringify({ tandas: [...rows, { id: 'nueva-1', nombre: 'Tanda 3', hastaFecha: '2026-11-30', precioUSD: 75 }] }) });
+  assert.equal(r.status, 400);
+  r = await fetch(base + '/admin/tandas', { method: 'PUT', headers: H, body: JSON.stringify({ tandas: [rows[0], { id: 'nueva-1', nombre: 'Tanda 3', hastaFecha: '2026-11-29', precioUSD: 75 }] }) });
+  assert.equal(r.status, 400);
+  r = await fetch(base + '/admin/tandas', { method: 'PUT', headers: H, body: JSON.stringify({ tandas: [...rows, { id: 'nueva-1', nombre: 'Tanda 3', hastaFecha: '2026-11-29', precioUSD: 75, cupo: null }] }) });
+  assert.equal(r.status, 200);
+  const saved = await r.json();
+  assert.equal(saved.tandas.length, rows.length + 1);
+  const nueva = saved.tandas[saved.tandas.length - 1];
+  assert.equal(nueva.id, `tanda-${rows.length + 1}`);
+  assert.equal(nueva.estado, 'vigente');
+  const cfg = await (await get('/config')).json();
+  assert.equal(cfg.venta.abierta, true);
+  assert.equal(cfg.venta.tandaId, nueva.id);
+  assert.equal(cfg.venta.precioUSD, 75);
+  assert.equal(cfg.puerta.precioUSD, 80);
+  // se puede comprar en la tanda nueva
+  const b = await buy({ cantidad: 1 });
+  assert.ok(b.url);
+  // y al volver a guardar, la tanda nueva ya es una más (no se duplica)
+  r = await fetch(base + '/admin/tandas', { method: 'PUT', headers: H, body: JSON.stringify({ tandas: saved.tandas.map((t) => ({ id: t.id, nombre: t.nombre, hastaFecha: t.hastaFecha, precioUSD: t.precioUSD, cupo: t.cupo })) }) });
+  assert.equal((await r.json()).tandas.length, rows.length + 1);
+  await ent.models.Ajuste.deleteMany({});
+});
+
 /* ------------------------- nombres de invitados y cortesías sin email ------------------------- */
 test('compra de varias entradas: cada entrada queda a nombre de su invitado', async () => {
   const falta = await post('/checkout', { nombre: 'Ana Pérez', email: 'ana@example.com', cantidad: 3, invitados: ['Bruno Pérez'] });
