@@ -13,8 +13,10 @@ const AdminLayout = () => {
   const [unread, setUnread] = useState(0); // Mensajes de contacto sin leer (numerito en la pestaña)
 
   // Se actualiza al cambiar de pantalla y cuando la pestaña "Mensajes" marca/borra alguno
+  const esPuerta = user?.role === 'puerta';
+
   useEffect(() => {
-    if (!user) return undefined;
+    if (!user || user.role === 'puerta') return undefined;
     let cancelled = false;
     const refresh = () => adminApi.unreadMessages()
       .then(({ count }) => { if (!cancelled) setUnread(count); })
@@ -34,6 +36,28 @@ const AdminLayout = () => {
   }
   if (!user) {
     return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
+  }
+
+  // Personal de puerta: solo la pantalla de puerta, sin las pestañas del panel
+  if (esPuerta) {
+    if (location.pathname !== '/admin/puerta') return <Navigate to="/admin/puerta" replace />;
+    return (
+      <div className={styles.layout}>
+        <header className={styles.topbar}>
+          <span className={styles.brand}>
+            <Logo />
+            <span className={styles.badge}>Puerta</span>
+          </span>
+          <nav className={styles.actions}>
+            <span className={styles.user}>{user.name}</span>
+            <button type="button" onClick={logout} className={styles.logout}>Salir</button>
+          </nav>
+        </header>
+        <main className={styles.content}>
+          <Outlet />
+        </main>
+      </div>
+    );
   }
 
   return (

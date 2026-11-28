@@ -1,13 +1,14 @@
 // /server/entradas/mount.js
 // Monta el módulo de entradas del desfile en la API de la web.
 // - El panel usa la misma sesión de Ico (requireAuth), no una clave aparte.
+// - La pantalla de puerta (/api/entradas/puerta) acepta también al personal de puerta (requireStaff).
 // - Si falta configuración (por ejemplo MP_MODE=live sin credenciales), la API de entradas
 //   responde 503 pero el resto del sitio sigue funcionando.
 import express from 'express';
 import mongoose from 'mongoose';
 import { loadConfig } from './config.js';
 import { createEntradas } from './index.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireStaff } from '../middleware/auth.js';
 
 const siteUrl = (env) => {
   if (env.PUBLIC_URL) return env.PUBLIC_URL;
@@ -30,7 +31,7 @@ export const getEntradas = () => {
       // Conviene fijarla en Vercel (USD_UYU_RATE) o poner precioUYU en cada tanda.
       USD_UYU_RATE: process.env.USD_UYU_RATE || '40',
     });
-    cached = { config, entradas: createEntradas({ config, mongoose, requireAdmin: requireAuth }) };
+    cached = { config, entradas: createEntradas({ config, mongoose, requireAdmin: requireAuth, requireStaff }) };
   } catch (error) {
     console.error('[entradas] configuración inválida:', error.message);
     cached = { error };

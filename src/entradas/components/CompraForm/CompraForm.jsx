@@ -84,8 +84,15 @@ export default function CompraForm({ config }) {
         <h2 className={styles.title}>Venta online cerrada</h2>
         <p className={styles.note}>
           Las entradas online ya no están disponibles. Podés conseguirlas en la puerta el día del evento: USD{' '}
-          {puerta.precioUSD} o su equivalente en pesos uruguayos.
+          {puerta.precioUSD}
+          {puerta.precioUYU ? ` (${fmtUYU(puerta.precioUYU)})` : ' o su equivalente en pesos uruguayos'} por persona.
         </p>
+        {puerta.grupo?.length > 2 && (
+          <p className={styles.note}>
+            Si vienen en grupo, cada uno paga menos: {puerta.grupo[1].cantidad} personas {fmtUYU(puerta.grupo[1].unitUYU)} c/u,{' '}
+            {puerta.grupo[2].cantidad} personas {fmtUYU(puerta.grupo[2].unitUYU)} c/u, y así.
+          </p>
+        )}
       </div>
     );
   }

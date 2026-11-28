@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import styles from './IngresoRapido.module.css';
 
 /** Control en puerta por código: tipear, pegar el link del QR o usar un lector. */
-export default function IngresoRapido({ api, onDone }) {
+export default function IngresoRapido({ api, onDone, ingresar }) {
   const [code, setCode] = useState('');
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -13,7 +13,7 @@ export default function IngresoRapido({ api, onDone }) {
     if (!code.trim() || busy) return;
     setBusy(true);
     try {
-      const r = await api.admin.ingreso(code.trim());
+      const r = await (ingresar || api.admin.ingreso)(code.trim());
       setResult({ ok: true, title: 'Puede pasar', detail: r.entrada.nombre, extra: r.entrada.code });
       onDone?.();
     } catch (err) {

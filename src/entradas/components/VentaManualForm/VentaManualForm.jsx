@@ -17,6 +17,7 @@ export default function VentaManualForm({ api, onDone }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState(EMPTY);
   const [precio, setPrecio] = useState(null); // precio en pesos de la tanda vigente
+  const [tablaPuerta, setTablaPuerta] = useState(null); // sin tandas: precio de puerta según cuántos vienen juntos
   const [invitados, setInvitados] = useState([]);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
@@ -25,20 +26,24 @@ export default function VentaManualForm({ api, onDone }) {
     if (!open || precio !== null) return;
     api
       .config()
-      .then((c) => setPrecio(c.venta?.abierta ? c.venta.precioUYU : 0))
+      .then((c) => {
+        setPrecio(c.venta?.abierta ? c.venta.precioUYU : c.puerta?.precioUYU || 0);
+        setTablaPuerta(c.venta?.abierta ? null : c.puerta?.grupo || null);
+      })
       .catch(() => setPrecio(0));
   }, [open, precio, api]);
 
   const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.value }));
   const esTalonario = f.medio === 'talonario';
   const cantidad = esTalonario ? 1 : Number(f.cantidad || 0);
-  const sugerido = (precio || 0) * cantidad;
+  const filaPuerta = tablaPuerta && (tablaPuerta.find((x) => x.cantidad === cantidad) || tablaPuerta[tablaPuerta.length - 1]);
+  const sugerido = filaPuerta ? filaPuerta.unitUYU * cantidad : (precio || 0) * cantidad;
   const total = f.totalUYU === '' ? sugerido : Number(f.totalUYU);
 
   async function submit(e) {
     e.preventDefault();
     const origen = esTalonario ? `entrada Nº ${f.talonarioNum} del talonario${f.local ? ` (${f.local})` : ''}` : `${cantidad} entrada(s) cobradas en ${f.medio}`;
-    const resumen = `${f.nombre}: ${origen}, ${fmtUYU(total)}. Se envía a ${f.email}.`;
+    const resumen = `${f.nombre}: ${origen}, ${fmtUYU(total)}. ${f.email ? `Se envía a ${f.email}.` : 'Sin email: queda solo en la lista.'}`;
     if (!window.confirm(`¿Confirmás la venta?\n\n${resumen}`)) return;
     setBusy(true);
     setMsg('');
@@ -50,9 +55,11 @@ export default function VentaManualForm({ api, onDone }) {
         totalUYU: f.totalUYU === '' ? undefined : Number(f.totalUYU),
       });
       setMsg(
-        r.enviado
-          ? `Listo: ${r.entradas.length} entrada(s) creada(s) y enviadas a ${f.email}.`
-          : `Entradas creadas, pero el email no salió. Reenvialo desde "Compras para revisar".`
+        !r.conEmail
+          ? `Listo: ${r.entradas.length} entrada(s) registrada(s) en la lista a nombre de ${f.nombre}.`
+          : r.enviado
+            ? `Listo: ${r.entradas.length} entrada(s) creada(s) y enviadas a ${f.email}.`
+            : `Entradas creadas, pero el email no salió. Reenvialo desde "Compras para revisar".`
       );
       setF((x) => ({ ...EMPTY, medio: x.medio, local: x.local }));
       setInvitados([]); // deja listo para cargar la siguiente del mismo local
@@ -72,8 +79,8 @@ export default function VentaManualForm({ api, onDone }) {
       {open && (
         <form onSubmit={submit} className={styles.form}>
           <p className={styles.help}>
-            Para entradas vendidas fuera de la web. Cuenta como venta y a la persona le llega por email la misma entrada con QR que
-            si hubiera comprado online.
+            Para entradas vendidas fuera de la web. Cuenta como venta y queda en la lista de ingreso. Si ponés el email, a la persona
+            le llega la misma entrada con QR que si hubiera comprado online; si no, entra con su talón o por su nombre.
           </p>
           <fieldset className={styles.medios}>
             <legend>Cómo se vendió</legend>
@@ -97,7 +104,7 @@ export default function VentaManualForm({ api, onDone }) {
             </div>
           )}
           <input placeholder="Nombre y apellido" value={f.nombre} onChange={set('nombre')} required minLength={3} />
-          <input type="email" placeholder="Email (acá le llega la entrada)" value={f.email} onChange={set('email')} required />
+          <input type="email" placeholder="Email (opcional: si lo ponés, le llega la entrada con QR)" value={f.email} onChange={set('email')} />
           <input type="tel" placeholder="Celular (opcional)" value={f.telefono} onChange={set('telefono')} />
           {!esTalonario && (
             <label className={styles.row}>
@@ -132,10 +139,12 @@ export default function VentaManualForm({ api, onDone }) {
             />
           </label>
           {precio > 0 && f.totalUYU === '' && (
-            <p className={styles.help}>Si lo dejás vacío se registra el precio de la tanda: {fmtUYU(sugerido)}.</p>
+            <p className={styles.help}>
+              Si lo dejás vacío se registra el precio {tablaPuerta ? 'de puerta' : 'de la tanda'}: {fmtUYU(sugerido)}.
+            </p>
           )}
           <input placeholder="Nota (opcional, ej.: pagó USD 65)" value={f.notas} onChange={set('notas')} maxLength={200} />
-          <button disabled={busy}>{busy ? 'Enviando…' : 'Crear y enviar entrada'}</button>
+          <button disabled={busy}>{busy ? 'Guardando…' : f.email ? 'Crear y enviar entrada' : 'Registrar en la lista'}</button>
           {msg && <p role="status">{msg}</p>}
         </form>
       )}

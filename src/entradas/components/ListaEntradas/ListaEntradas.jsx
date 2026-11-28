@@ -41,7 +41,8 @@ export default function ListaEntradas({ data, q, estado, onQ, onEstado, onIngres
             <div className={styles.info}>
               <strong>{t.nombre}</strong>
               <span className={styles.meta}>
-                <code>{t.code}</code> · {t.tipo === 'cortesia' ? 'Cortesía' : t.tandaId.toUpperCase()}
+                <code>{t.code}</code> · {t.tipo === 'cortesia' ? 'Cortesía' : t.tandaId === 'puerta' ? 'Puerta' : t.tandaId.toUpperCase()}
+                {t.telefono ? ` · ${t.telefono}` : ''}
                 {t.email ? ` · ${t.email}` : ''}
               </span>
               {t.tipo === 'cortesia' && t.status !== 'void' && (
@@ -59,9 +60,11 @@ export default function ListaEntradas({ data, q, estado, onQ, onEstado, onIngres
                   <button className={styles.primary} onClick={() => onIngreso(t.code)}>
                     Marcar ingreso
                   </button>
-                  <button className={styles.ghost} onClick={() => onAnular(t.code)} title="Anular entrada">
-                    Anular
-                  </button>
+                  {onAnular && (
+                    <button className={styles.ghost} onClick={() => onAnular(t.code)} title="Anular entrada">
+                      Anular
+                    </button>
+                  )}
                 </>
               )}
               {t.status === 'used' && (

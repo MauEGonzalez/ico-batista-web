@@ -9,5 +9,11 @@
   "ciudad": "Rocha, Uruguay",
   "dressCode": "Casual elegante",
   "ventaHasta": "2026-11-25T23:59:59-03:00",
-  "precioPuertaUSD": 80
+  "precioPuertaUSD": 90,
+  "puerta": {
+    "precioUYU": 3600,
+    "descuentoPorPersonaUYU": 100,
+    "minimoPorPersonaUYU": 3000,
+    "maxPorVenta": 10
+  }
 }

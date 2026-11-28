@@ -4,7 +4,7 @@ import { createMp, createMockMp } from './services/mp.js';
 import { createMailer } from './services/mailer.js';
 import { createNotifier } from './services/notifier.js';
 import { createService } from './services/entradas.js';
-import { createRouter, defaultRequireAdmin } from './routes/index.js';
+import { createRouter, defaultRequireAdmin, defaultRequireStaff } from './routes/index.js';
 
 /**
  * Uso en el backend existente de Ico:
@@ -12,7 +12,7 @@ import { createRouter, defaultRequireAdmin } from './routes/index.js';
  *   app.use('/api/entradas', entradas.router);
  *   entradas.startJobs();
  */
-export function createEntradas({ config, mongoose, requireAdmin, deps = {}, log = console }) {
+export function createEntradas({ config, mongoose, requireAdmin, requireStaff, deps = {}, log = console }) {
   const models = createModels(mongoose);
   const mp = deps.mp || (config.isMock ? createMockMp(config) : createMp(config));
   const mailer = deps.mailer || createMailer(config);
@@ -23,6 +23,7 @@ export function createEntradas({ config, mongoose, requireAdmin, deps = {}, log 
     service,
     mp,
     requireAdmin: requireAdmin || defaultRequireAdmin(config),
+    requireStaff: requireStaff || (requireAdmin ? null : defaultRequireStaff(config)),
   });
 
   let timer = null;

@@ -48,6 +48,41 @@ export default function ResumenEntradas({ resumen }) {
           )}
         </p>
       )}
+      {resumen.puerta?.entradas > 0 && (
+        <div className={styles.puerta}>
+          <p className={styles.sub}>
+            <strong>Cobrado en puerta:</strong> {resumen.puerta.entradas} entrada{resumen.puerta.entradas === 1 ? '' : 's'} ·{' '}
+            {fmtUYU(resumen.puerta.totalUYU)} (efectivo {fmtUYU(resumen.puerta.efectivo.totalUYU)} · transferencia{' '}
+            {fmtUYU(resumen.puerta.transferencia.totalUYU)})
+          </p>
+          {resumen.puerta.porPersona.length > 0 && (
+            <ul className={styles.porPersona}>
+              {resumen.puerta.porPersona.map((p) => (
+                <li key={p.nombre}>
+                  {p.nombre}: {p.entradas} entrada{p.entradas === 1 ? '' : 's'} · efectivo {fmtUYU(p.efectivoUYU)} · transferencia{' '}
+                  {fmtUYU(p.transferenciaUYU)}
+                </li>
+              ))}
+            </ul>
+          )}
+          {resumen.puerta.otroPrecio?.length > 0 && (
+            <>
+              <p className={styles.sub}>
+                <strong>Cobrados con otro precio:</strong>
+              </p>
+              <ul className={styles.porPersona}>
+                {resumen.puerta.otroPrecio.map((o, i) => (
+                  <li key={i}>
+                    {o.nombre} ({o.cantidad}): {fmtUYU(o.totalUYU)}
+                    {o.sugeridoUYU ? ` en vez de ${fmtUYU(o.sugeridoUYU)}` : ''} · {o.medio} · cobró {o.por || '—'}
+                    {o.notas ? ` · “${o.notas}”` : ''}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
       {alerts.length > 0 && <p className={styles.alert}>⚠ {alerts.join(' · ')} — mirá “Compras para revisar” abajo.</p>}
     </section>
   );

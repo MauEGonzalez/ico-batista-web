@@ -17,7 +17,24 @@ export function defaultRequireAdmin(config) {
   };
 }
 
-export function createRouter({ config, service, requireAdmin, mp }) {
+// Puerta (para pruebas y para usar el módulo solo): ADMIN_TOKEN = administrador, PUERTA_TOKEN = personal de puerta
+export function defaultRequireStaff(config) {
+  const eq = (given, token) => {
+    const a = Buffer.from(given);
+    const b = Buffer.from(token || '');
+    return Boolean(token) && a.length === b.length && crypto.timingSafeEqual(a, b);
+  };
+  return (req, _res, next) => {
+    const header = req.headers.authorization || '';
+    const given = header.startsWith('Bearer ') ? header.slice(7) : '';
+    if (eq(given, config.adminToken)) req.user = { role: 'admin', name: 'Panel' };
+    else if (eq(given, config.puertaToken)) req.user = { role: 'puerta', name: config.puertaNombre || 'Puerta' };
+    else return next(new HttpError(401, 'No autorizado', 'no_autorizado'));
+    next();
+  };
+}
+
+export function createRouter({ config, service, requireAdmin, requireStaff, mp }) {
   const r = express.Router();
   r.use(express.json({ limit: '20kb' }));
 
@@ -102,7 +119,28 @@ export function createRouter({ config, service, requireAdmin, mp }) {
     res.set('Content-Disposition', 'attachment; filename="entradas.csv"');
     res.send(await service.exportCsv());
   });
+  // notas para el personal de puerta
+  admin.get('/notas-puerta', async (_req, res) => res.json(await service.notasPuertaAdmin()));
+  admin.post('/notas-puerta', async (req, res) => res.json(await service.addNotaPuerta(req.body?.texto, req.user?.name || req.user?.email || '')));
+  admin.delete('/notas-puerta/:id', async (req, res) => res.json(await service.deleteNotaPuerta(req.params.id)));
   r.use('/admin', admin);
+
+  /* ---------------- puerta (personal de puerta o Ico): sin montos recaudados ---------------- */
+  const puerta = express.Router();
+  puerta.use(requireStaff || requireAdmin);
+  const quien = (req) => req.user?.name || req.user?.email || 'puerta';
+  puerta.get('/info', async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({ ...(await service.puertaInfo()), usuario: { nombre: quien(req), rol: req.user?.role || 'admin' } });
+  });
+  puerta.get('/lista', async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json(await service.lista({ q: req.query.q, estado: req.query.estado, limit: Math.min(Number(req.query.limit) || 100, 200) }));
+  });
+  puerta.post('/ingreso', async (req, res) => res.json(await service.checkIn(req.body?.code, `puerta: ${quien(req)}`.slice(0, 80))));
+  puerta.post('/ingreso/deshacer', async (req, res) => res.json(await service.undoCheckIn(req.body?.code)));
+  puerta.post('/cobrar', async (req, res) => res.json(await service.cobrarPuerta(req.body, quien(req))));
+  r.use('/puerta', puerta);
 
   /* ---------------- simulador de Mercado Pago ---------------- */
   if (config.isMock) {

@@ -50,6 +50,7 @@ before(async () => {
       USD_UYU_RATE: '40',
       MP_WEBHOOK_SECRET: SECRET,
       ADMIN_TOKEN: 'admin-test',
+      PUERTA_TOKEN: 'puerta-test',
       ICO_NOTIFY_EMAIL: 'ico@example.com',
       MAIL_PROVIDER: 'dev',
       PUBLIC_URL: 'http://localhost:5173',
@@ -420,8 +421,8 @@ test('venta manual: cuenta como venta, descuenta cupo, manda la entrada y separa
   assert.equal(sinToken.status, 401);
   const bad = await post('/admin/venta-manual', { nombre: 'Juan Pérez', email: 'juan@example.com', cantidad: 2, medio: 'cheque' }, H);
   assert.equal(bad.status, 400);
-  const sinEmail = await post('/admin/venta-manual', { nombre: 'Juan Pérez', cantidad: 1, medio: 'efectivo' }, H);
-  assert.equal(sinEmail.status, 400);
+  const emailMalo = await post('/admin/venta-manual', { nombre: 'Juan Pérez', email: 'juan@', cantidad: 1, medio: 'efectivo' }, H);
+  assert.equal(emailMalo.status, 400);
 
   const r = await post('/admin/venta-manual', { nombre: 'Juan Pérez', email: 'juan@example.com', cantidad: 2, medio: 'efectivo' }, H);
   assert.equal(r.status, 200);
@@ -538,7 +539,7 @@ test('tandas: se agrega una tanda nueva desde el panel y la venta sigue hasta el
   assert.equal(cfg.venta.abierta, true);
   assert.equal(cfg.venta.tandaId, nueva.id);
   assert.equal(cfg.venta.precioUSD, 75);
-  assert.equal(cfg.puerta.precioUSD, 80);
+  assert.equal(cfg.puerta.precioUSD, 90);
   // se puede comprar en la tanda nueva
   const b = await buy({ cantidad: 1 });
   assert.ok(b.url);
@@ -546,6 +547,22 @@ test('tandas: se agrega una tanda nueva desde el panel y la venta sigue hasta el
   r = await fetch(base + '/admin/tandas', { method: 'PUT', headers: H, body: JSON.stringify({ tandas: saved.tandas.map((t) => ({ id: t.id, nombre: t.nombre, hastaFecha: t.hastaFecha, precioUSD: t.precioUSD, cupo: t.cupo })) }) });
   assert.equal((await r.json()).tandas.length, rows.length + 1);
   await ent.models.Ajuste.deleteMany({});
+});
+
+test('terminadas las tandas, la venta cargada en el panel se cobra al precio de puerta', async () => {
+  clock = new Date('2026-11-29T17:30:00-03:00');
+  const cfg = await (await get('/config')).json();
+  assert.equal(cfg.venta.abierta, false);
+  assert.equal(cfg.puerta.precioUSD, 90);
+  const r = await fetch(base + '/admin/venta-manual', {
+    method: 'POST',
+    headers: H,
+    body: JSON.stringify({ nombre: 'Lucía Puerta', email: 'lucia@example.com', cantidad: 2, medio: 'efectivo' }),
+  });
+  assert.equal(r.status, 200);
+  const o = await ent.models.Orden.findOne({ 'comprador.email': 'lucia@example.com' }).lean();
+  assert.equal(cfg.puerta.precioUYU, 3600);
+  assert.equal(o.totalUYU, 7000); // 2 personas: 3.500 c/u
 });
 
 /* ------------------------- nombres de invitados y cortesías sin email ------------------------- */
@@ -575,4 +592,114 @@ test('cortesía sin enviar: queda en la lista pero no sale ningún email', async
   const r3 = await (await post('/admin/cortesia', { nombre: 'Con Mail', email: 'con@example.com', cantidad: 1 }, H)).json();
   assert.equal(r3.enviado, true);
   assert.equal(ent.mailer.sent.length, 1);
+});
+
+/* ------------------------- puerta: personal de puerta, promo por grupo y notas ------------------------- */
+const HP = { Authorization: 'Bearer puerta-test', 'Content-Type': 'application/json' };
+
+test('puerta: precio por persona baja 100 por cada persona del grupo, sin bajar del mínimo', () => {
+  const p = (n) => ent.service.precioPuerta(n);
+  assert.deepEqual(p(1), { unitUYU: 3600, totalUYU: 3600 });
+  assert.deepEqual(p(2), { unitUYU: 3500, totalUYU: 7000 });
+  assert.deepEqual(p(3), { unitUYU: 3400, totalUYU: 10200 });
+  assert.equal(p(7).unitUYU, 3000);
+  assert.equal(p(10).unitUYU, 3000);
+});
+
+test('puerta: el personal de puerta no entra al panel ni ve lo recaudado', async () => {
+  for (const path of ['/admin/resumen', '/admin/tandas', '/admin/export.csv', '/admin/notas-puerta', '/admin/ordenes']) {
+    assert.equal((await get(path, HP)).status, 401, path);
+  }
+  assert.equal((await post('/admin/venta-manual', { nombre: 'X Y Z', email: 'x@example.com', cantidad: 1, medio: 'efectivo' }, HP)).status, 401);
+  assert.equal((await post('/admin/anular', { code: 'AAAA-BBBB-CCCC' }, HP)).status, 401);
+  assert.equal((await get('/puerta/info')).status, 401);
+  const info = await (await get('/puerta/info', HP)).json();
+  assert.equal(info.usuario.rol, 'puerta');
+  assert.equal(info.precios[1].unitUYU, 3500);
+  const json = JSON.stringify(info);
+  assert.doesNotMatch(json, /recaudado|porMedio|porTanda/);
+});
+
+test('puerta: cobra en efectivo un grupo, entran en el momento y queda registrado quién cobró', async () => {
+  clock = new Date('2026-11-29T17:00:00-03:00');
+  let r = await post('/puerta/cobrar', { nombre: 'Marta Díaz', telefono: '099 123 456', cantidad: 2, invitados: ['Pablo Díaz'] }, HP);
+  assert.equal(r.status, 400); // falta efectivo/transferencia
+  const body = { nombre: 'Marta Díaz', telefono: '099 123 456', cantidad: 2, invitados: ['Pablo Díaz'], medio: 'efectivo', idem: 'abc-1', precioUnitUYU: 1 };
+  r = await post('/puerta/cobrar', body, HP);
+  assert.equal(r.status, 200);
+  const out = await r.json();
+  assert.equal(out.totalUYU, 7000); // el precio lo pone el servidor, no el que cobra
+  assert.equal(out.enviado, false); // sin email
+  assert.deepEqual(out.entradas.map((e) => [e.nombre, e.status]), [['Marta Díaz', 'used'], ['Pablo Díaz', 'used']]);
+  // tocar dos veces "Cobrar" no duplica la venta
+  const again = await (await post('/puerta/cobrar', body, HP)).json();
+  assert.equal(again.orden, out.orden);
+  assert.equal(await ent.models.Orden.countDocuments({ canal: 'puerta' }), 1);
+  const o = await ent.models.Orden.findOne({ publicId: out.orden }).lean();
+  assert.equal(o.registradoPor, 'Puerta');
+  assert.equal(o.medioPago, 'efectivo');
+  // transferencia con email: le llega la entrada; "no entran todavía"
+  const t = await (await post('/puerta/cobrar', { nombre: 'Juan Sosa', email: 'juan@example.com', cantidad: 1, medio: 'transferencia', ingresan: false }, HP)).json();
+  assert.equal(t.totalUYU, 3600);
+  assert.equal(t.enviado, true);
+  assert.equal(t.entradas[0].status, 'valid');
+  // la busca por celular y la marca
+  const l = await (await get('/puerta/lista?q=' + encodeURIComponent('099 123'), HP)).json();
+  assert.equal(l.total, 2);
+  const ing = await post('/puerta/ingreso', { code: t.entradas[0].code }, HP);
+  assert.equal(ing.status, 200);
+  const e = await ent.models.Entrada.findOne({ code: t.entradas[0].code }).lean();
+  assert.equal(e.checkedInBy, 'puerta: Puerta');
+  // Ico ve lo cobrado en puerta, separado por medio y por quién cobró
+  const res = await (await get('/admin/resumen', H)).json();
+  assert.equal(res.puerta.entradas, 3);
+  assert.equal(res.puerta.efectivo.totalUYU, 7000);
+  assert.equal(res.puerta.transferencia.totalUYU, 3600);
+  assert.deepEqual(res.puerta.porPersona, [{ nombre: 'Puerta', entradas: 3, efectivoUYU: 7000, transferenciaUYU: 3600 }]);
+  const csv = await (await get('/admin/export.csv', H)).text();
+  assert.match(csv, /puerta, efectivo \(Puerta\)/);
+});
+
+test('puerta: Ico le deja notas a quien está en la puerta', async () => {
+  let r = await post('/admin/notas-puerta', { texto: 'Los de la lista de Agro entran sin cargo' }, H);
+  assert.equal(r.status, 200);
+  const { notas } = await r.json();
+  assert.equal(notas.length, 1);
+  const info = await (await get('/puerta/info', HP)).json();
+  assert.equal(info.notas[0].texto, 'Los de la lista de Agro entran sin cargo');
+  assert.equal((await post('/admin/notas-puerta', { texto: 'x' }, HP)).status, 401);
+  r = await fetch(base + '/admin/notas-puerta/' + notas[0].id, { method: 'DELETE', headers: H });
+  assert.equal((await r.json()).notas.length, 0);
+  assert.equal((await (await get('/puerta/info', HP)).json()).notas.length, 0);
+});
+
+test('talonario sin email: queda en la lista y no se manda nada', async () => {
+  const r = await post('/admin/venta-manual', { nombre: 'Rosa Ferreira', cantidad: 1, medio: 'talonario', talonarioNum: 41, local: 'La Faustina' }, H);
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(j.conEmail, false);
+  assert.equal(j.enviado, false);
+  assert.equal(ent.mailer.sent.filter((m) => m.to === '').length, 0);
+  const l = await (await get('/admin/lista?q=Rosa', H)).json();
+  assert.equal(l.total, 1);
+  assert.equal(l.items[0].status, 'valid');
+  const o = await ent.models.Orden.findOne({ talonarioNum: 41 }).lean();
+  assert.equal(o.emailStatus, 'none');
+});
+
+test('puerta: quien cobra puede poner otro monto y queda marcado para Ico', async () => {
+  clock = new Date('2026-11-29T18:00:00-03:00');
+  const r = await post('/puerta/cobrar', { nombre: 'Clara Núñez', cantidad: 2, medio: 'efectivo', totalUYU: 5000, notas: 'amiga de Ico' }, HP);
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(j.totalUYU, 5000);
+  assert.equal(j.precioUnitUYU, 2500);
+  // sin monto: el de la tabla, sin marca
+  const n = await (await post('/puerta/cobrar', { nombre: 'Luis Núñez', cantidad: 1, medio: 'efectivo' }, HP)).json();
+  assert.equal(n.totalUYU, 3600);
+  assert.equal((await post('/puerta/cobrar', { nombre: 'Luis Núñez', cantidad: 1, medio: 'efectivo', totalUYU: -5 }, HP)).status, 400);
+  const res = await (await get('/admin/resumen', H)).json();
+  assert.equal(res.puerta.otroPrecio.length, 1);
+  assert.deepEqual(res.puerta.otroPrecio[0], { nombre: 'Clara Núñez', cantidad: 2, totalUYU: 5000, sugeridoUYU: 7000, medio: 'efectivo', por: 'Puerta', notas: 'amiga de Ico' });
+  assert.equal(res.puerta.efectivo.totalUYU, 8600);
 });

@@ -46,4 +46,9 @@ export const adminApi = {
   unreadMessages: () => request('/admin/messages/unread-count'),
   setMessageRead: (id, read) => request(`/admin/messages/${id}`, { method: 'PATCH', body: { read } }),
   deleteMessage: (id) => request(`/admin/messages/${id}`, { method: 'DELETE' }),
+
+  // Personal de puerta (solo ve la pantalla de puerta de Entradas)
+  listPuerta: () => request('/auth/puerta'),
+  savePuerta: (name, password) => request('/auth/puerta', { method: 'POST', body: { name, password } }),
+  setPuertaActive: (id, active) => request(`/auth/puerta/${id}`, { method: 'PATCH', body: { active } }),
 };

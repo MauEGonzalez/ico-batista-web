@@ -47,11 +47,22 @@ export function createEntradasApi({ base = API_BASE, getHeaders = () => ({}) } =
       guardarTandas: (tandas) => request('/admin/tandas', { method: 'PUT', body: { tandas }, auth: true }),
       ventaManual: (payload) => request('/admin/venta-manual', { method: 'POST', body: payload, auth: true }),
       reenviar: (orden) => request(`/admin/ordenes/${orden}/reenviar`, { method: 'POST', auth: true }),
+      notasPuerta: () => request('/admin/notas-puerta', { auth: true }),
+      agregarNotaPuerta: (texto) => request('/admin/notas-puerta', { method: 'POST', body: { texto }, auth: true }),
+      borrarNotaPuerta: (id) => request(`/admin/notas-puerta/${id}`, { method: 'DELETE', auth: true }),
       async exportCsv() {
         const res = await fetch(base + '/admin/export.csv', { headers: getHeaders() });
         if (!res.ok) throw new Error('No se pudo exportar');
         return res.blob();
       },
+    },
+    // pantalla de puerta: la usa el personal de puerta (y Ico); no muestra lo recaudado
+    puerta: {
+      info: () => request('/puerta/info', { auth: true }),
+      lista: (params = {}) => request('/puerta/lista?' + new URLSearchParams(params), { auth: true }),
+      ingreso: (code) => request('/puerta/ingreso', { method: 'POST', body: { code }, auth: true }),
+      deshacer: (code) => request('/puerta/ingreso/deshacer', { method: 'POST', body: { code }, auth: true }),
+      cobrar: (payload) => request('/puerta/cobrar', { method: 'POST', body: payload, auth: true }),
     },
     mock: {
       pref: (id) => request(`/_mock/pref/${id}`),

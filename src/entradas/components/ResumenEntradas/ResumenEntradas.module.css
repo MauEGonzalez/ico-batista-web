@@ -6,3 +6,5 @@
 .sub { margin: 0; font-size: 0.82rem; color: var(--ink-soft); }
 .alert { margin: 0; padding: 10px 12px; background: #fdf0d5; border: 1px solid #e6c377; color: #6b4a0c; font-size: 0.88rem; }
 @media (min-width: 720px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+.puerta { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px; }
+.porPersona { margin: 4px 0 0; padding-left: 18px; font-size: 0.85rem; color: var(--ink-soft); }

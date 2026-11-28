@@ -39,10 +39,12 @@ const AdminLogin = () => {
         <p className={styles.subtitle}>Panel de administración</p>
 
         <label className={styles.field}>
-          <span>Email</span>
+          <span>Email o usuario</span>
           <input
-            type="email"
+            type="text"
             autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required

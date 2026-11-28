@@ -63,6 +63,7 @@ export function loadConfig(env = process.env, overrides = {}) {
       telegramChatId: env.TELEGRAM_CHAT_ID || '',
     },
     adminToken: env.ADMIN_TOKEN || '',
+    puertaToken: env.PUERTA_TOKEN || '',
     maxPorCompra: num(env.MAX_POR_COMPRA, 10),
     holdMinutes: num(env.HOLD_MINUTES, 30),
     event: readJson(env.EVENT_FILE, defaultEvent),

@@ -29,6 +29,32 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     return config.testPrecioUYU ? list.map((t) => ({ ...t, precioUYU: config.testPrecioUYU, precioUSD: null })) : list;
   }
 
+  /* ------------------------------ precio en puerta ------------------------------ */
+  // Precio por persona en la puerta: baja un poco por cada persona que viene en el mismo grupo
+  // (2 personas: 3.500 c/u, 3: 3.400 c/u…), sin bajar del mínimo.
+  function puertaCfg() {
+    const ev = config.event;
+    const p = ev.puerta || {};
+    const base = Math.round(p.precioUYU || (ev.precioPuertaUSD || 0) * (config.usdUyuRate || 0));
+    return {
+      base,
+      descuento: Math.max(0, Math.round(p.descuentoPorPersonaUYU || 0)),
+      minimo: Math.round(p.minimoPorPersonaUYU || base),
+      max: Math.max(1, Math.round(p.maxPorVenta || config.maxPorCompra || 10)),
+    };
+  }
+
+  function precioPuerta(cantidad) {
+    const { base, descuento, minimo } = puertaCfg();
+    const unit = Math.max(Math.min(minimo, base), base - descuento * (Math.max(1, cantidad) - 1));
+    return { unitUYU: unit, totalUYU: unit * cantidad };
+  }
+
+  function puertaTabla() {
+    const { max } = puertaCfg();
+    return Array.from({ length: max }, (_, i) => ({ cantidad: i + 1, ...precioPuerta(i + 1) }));
+  }
+
   async function loadTandas() {
     if (tandasCache && Date.now() - tandasCacheAt < TANDAS_TTL) return tandasCache;
     let list = config.tandas;
@@ -110,7 +136,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
             hasta: tanda.hasta,
           }
         : { abierta: false, motivo: config.isOff ? 'pronto' : 'cerrada' },
-      puerta: { precioUSD: ev.precioPuertaUSD },
+      puerta: { precioUSD: ev.precioPuertaUSD, precioUYU: puertaCfg().base || null, grupo: puertaTabla() },
     };
   }
 
@@ -613,7 +639,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
 
   async function resumen() {
     // Todas las consultas en paralelo: con la base en otra ciudad, cada ida y vuelta cuenta
-    const [porEstado, porTanda, ordenes, pendientes, medios, rsvpRows, emailsFallidos] = await Promise.all([
+    const [porEstado, porTanda, ordenes, pendientes, medios, rsvpRows, emailsFallidos, modificados, puertaRows] = await Promise.all([
       Entrada.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
       Orden.aggregate([
         { $match: { status: 'paid' } },
@@ -630,7 +656,46 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
         { $group: { _id: { $ifNull: ['$rsvp', 'pending'] }, n: { $sum: 1 } } },
       ]),
       Orden.countDocuments({ status: 'paid', emailStatus: 'failed' }),
+      Orden.find(
+        { status: 'paid', canal: 'puerta', flags: { $regex: '^precio_modificado' } },
+        { comprador: 1, cantidad: 1, totalUYU: 1, flags: 1, registradoPor: 1, notas: 1, medioPago: 1 }
+      )
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean(),
+      Orden.aggregate([
+        { $match: { status: 'paid', canal: 'puerta' } },
+        { $group: { _id: { por: '$registradoPor', medio: '$medioPago' }, entradas: { $sum: '$cantidad' }, total: { $sum: '$totalUYU' } } },
+      ]),
     ]);
+    const puerta = {
+      entradas: 0,
+      totalUYU: 0,
+      efectivo: { entradas: 0, totalUYU: 0 },
+      transferencia: { entradas: 0, totalUYU: 0 },
+      porPersona: [],
+      // cobros en los que quien cobraba puso otro monto
+      otroPrecio: modificados.map((o) => ({
+        nombre: o.comprador.nombre,
+        cantidad: o.cantidad,
+        totalUYU: o.totalUYU,
+        sugeridoUYU: Number(String(o.flags.find((f) => f.startsWith('precio_modificado')) || '').split(':')[1]) || null,
+        medio: o.medioPago,
+        por: o.registradoPor,
+        notas: o.notas,
+      })),
+    };
+    for (const row of puertaRows) {
+      const medio = row._id.medio === 'transferencia' ? 'transferencia' : 'efectivo';
+      puerta.entradas += row.entradas;
+      puerta.totalUYU += row.total;
+      puerta[medio].entradas += row.entradas;
+      puerta[medio].totalUYU += row.total;
+      let p = puerta.porPersona.find((x) => x.nombre === (row._id.por || '—'));
+      if (!p) puerta.porPersona.push((p = { nombre: row._id.por || '—', entradas: 0, efectivoUYU: 0, transferenciaUYU: 0 }));
+      p.entradas += row.entradas;
+      p[`${medio}UYU`] += row.total;
+    }
     const r = Object.fromEntries(rsvpRows.map((x) => [x._id, x.n]));
     const e = Object.fromEntries(porEstado.map((r) => [r._id, r.n]));
     const o = Object.fromEntries(ordenes.map((r) => [r._id, r.n]));
@@ -649,6 +714,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       ordenesParaRevisar: o.review || 0,
       emailsFallidos,
       invitados: { confirmados: r.yes || 0, noAsisten: r.no || 0, sinRespuesta: r.pending || 0 },
+      puerta,
     };
   }
 
@@ -778,7 +844,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     const cantidad = Number(input?.cantidad || 1);
     const medio = String(input?.medio || '');
     if (nombre.length < 3) throw new HttpError(400, 'Falta el nombre y apellido', 'nombre');
-    if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Falta un email válido para enviarle la entrada', 'email');
+    // El email es opcional: con talonario la persona ya tiene su talón; igual queda en la lista
+    if (email && (!EMAIL_RE.test(email) || email.length > 120)) throw new HttpError(400, 'El email no es válido (o dejalo vacío)', 'email');
     if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > 50) throw new HttpError(400, 'Cantidad inválida', 'cantidad');
     if (!['efectivo', 'transferencia', 'talonario'].includes(medio)) throw new HttpError(400, 'Elegí efectivo, transferencia o talonario', 'medio');
     let talonarioNum = null;
@@ -797,7 +864,8 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     if (tanda && cantidad > tanda.remaining) {
       throw new HttpError(409, `En la ${tanda.nombre} quedan ${tanda.remaining} entradas.`, 'sin_stock');
     }
-    const unit = tanda ? uyuPrice(tanda, config) : 0;
+    // Terminadas las tandas, lo que se carga a mano se vende al precio de puerta
+    const unit = tanda ? uyuPrice(tanda, config) : precioPuerta(cantidad).unitUYU;
     let total = unit * cantidad;
     if (input?.totalUYU !== undefined && input?.totalUYU !== '' && input?.totalUYU !== null) {
       total = Math.round(Number(input.totalUYU));
@@ -823,8 +891,139 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
       notas: String(input?.notas || '').slice(0, 200),
     });
     const tickets = await ensureTickets(order);
-    const enviado = await sendTicketsEmail(order);
-    return { orden: order.publicId, enviado, entradas: tickets.map((x) => ({ code: x.code, seq: x.seq })) };
+    const enviado = email ? await sendTicketsEmail(order) : false;
+    return { orden: order.publicId, enviado, conEmail: Boolean(email), entradas: tickets.map((x) => ({ code: x.code, seq: x.seq })) };
+  }
+
+  /* ------------------------------ puerta (día del evento) ------------------------------ */
+
+  /**
+   * Venta en la puerta, cargada por el personal de puerta o por Ico. El precio lo calcula el servidor
+   * (precio de puerta con la promo por grupo): quien cobra no lo puede cambiar.
+   */
+  async function cobrarPuerta(input, by = '') {
+    const nombre = String(input?.nombre || '').trim().replace(/\s+/g, ' ');
+    const email = String(input?.email || '').trim().toLowerCase();
+    const telefono = String(input?.telefono || '').trim().slice(0, 30);
+    const cantidad = Number(input?.cantidad || 1);
+    const medio = String(input?.medio || '');
+    const { max } = puertaCfg();
+    if (nombre.length < 3 || nombre.length > 80) throw new HttpError(400, 'Falta el nombre y apellido', 'nombre');
+    if (email && (!EMAIL_RE.test(email) || email.length > 120)) throw new HttpError(400, 'El email no es válido (o dejalo vacío)', 'email');
+    if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > max) throw new HttpError(400, `Se pueden cobrar de 1 a ${max} entradas por vez`, 'cantidad');
+    if (!['efectivo', 'transferencia'].includes(medio)) throw new HttpError(400, 'Elegí si pagó en efectivo o por transferencia', 'medio');
+    const idem = String(input?.idem || '').trim().slice(0, 64) || undefined;
+    if (idem) {
+      const prev = await Orden.findOne({ idem });
+      if (prev) return puertaResult(prev, await Entrada.find({ orderId: prev._id }).sort({ seq: 1 }), false);
+    }
+    // Por defecto, el precio de puerta con la promo; quien cobra puede poner otro monto
+    // (por ejemplo, alguien a quien Ico le dejó un precio especial en las notas). Queda marcado.
+    const sugerido = precioPuerta(cantidad);
+    let totalUYU = sugerido.totalUYU;
+    let modificado = false;
+    if (input?.totalUYU !== undefined && input?.totalUYU !== null && input?.totalUYU !== '') {
+      const monto = Math.round(Number(input.totalUYU));
+      if (!Number.isFinite(monto) || monto < 0 || monto > 10_000_000) throw new HttpError(400, 'Monto inválido', 'monto');
+      modificado = monto !== sugerido.totalUYU;
+      totalUYU = monto;
+    }
+    const unitUYU = Math.round(totalUYU / cantidad);
+    const t = now();
+    let order;
+    try {
+      order = await Orden.create({
+        publicId: newPublicId(),
+        tipo: 'venta',
+        status: 'paid',
+        medioPago: medio,
+        canal: 'puerta',
+        registradoPor: String(by || '').slice(0, 80),
+        idem,
+        comprador: { nombre, email, telefono },
+        cantidad,
+        invitados: parseInvitados(input, cantidad, { required: false }),
+        tandaId: 'puerta',
+        tandaNombre: 'Puerta',
+        precioUnitUYU: unitUYU,
+        totalUYU,
+        paidAt: t,
+        notifiedAt: t,
+        notas: String(input?.notas || '').slice(0, 200),
+        flags: modificado ? [`precio_modificado:${sugerido.totalUYU}`] : [],
+      });
+    } catch (e) {
+      if (e.code === 11000 && idem) {
+        const prev = await Orden.findOne({ idem });
+        if (prev) return puertaResult(prev, await Entrada.find({ orderId: prev._id }).sort({ seq: 1 }), false);
+      }
+      throw e;
+    }
+    let tickets = await ensureTickets(order);
+    if (input?.ingresan !== false) {
+      await Entrada.updateMany(
+        { orderId: order._id, status: 'valid' },
+        { $set: { status: 'used', checkedInAt: now(), checkedInBy: `puerta: ${by}`.slice(0, 80) } }
+      );
+      tickets = await Entrada.find({ orderId: order._id }).sort({ seq: 1 });
+    }
+    const enviado = email ? await sendTicketsEmail(order) : false;
+    return puertaResult(order, tickets, enviado);
+  }
+
+  function puertaResult(order, tickets, enviado) {
+    return {
+      orden: order.publicId,
+      medio: order.medioPago,
+      cantidad: order.cantidad,
+      precioUnitUYU: order.precioUnitUYU,
+      totalUYU: order.totalUYU,
+      enviado,
+      entradas: tickets.map((x) => ({ code: x.code, nombre: x.nombre, status: x.status })),
+    };
+  }
+
+  async function loadNotasPuerta() {
+    const doc = await Ajuste.findOne({ key: 'notasPuerta' }).lean();
+    return Array.isArray(doc?.notas) ? doc.notas : [];
+  }
+
+  /** Lo que ve el personal de puerta al entrar: notas, precios y cómo viene el ingreso (sin plata). */
+  async function puertaInfo() {
+    const [notas, ingresaron, faltan] = await Promise.all([
+      loadNotasPuerta(),
+      Entrada.countDocuments({ status: 'used' }),
+      Entrada.countDocuments({ status: 'valid' }),
+    ]);
+    return {
+      evento: { nombre: config.event.nombre, fechaTexto: config.event.fechaTexto, horario: config.event.horario },
+      notas: [...notas].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).map(({ id, texto, at }) => ({ id, texto, at })),
+      precios: puertaTabla(),
+      precioUSD: config.event.precioPuertaUSD,
+      ingresaron,
+      faltanIngresar: faltan,
+    };
+  }
+
+  async function notasPuertaAdmin() {
+    const notas = await loadNotasPuerta();
+    return { notas: [...notas].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)) };
+  }
+
+  async function addNotaPuerta(texto, by = '') {
+    const clean = String(texto || '').trim().slice(0, 600);
+    if (clean.length < 2) throw new HttpError(400, 'Escribí la nota', 'texto');
+    const notas = await loadNotasPuerta();
+    if (notas.length >= 30) throw new HttpError(400, 'Hay demasiadas notas: borrá alguna vieja', 'max');
+    const nota = { id: newPublicId(), texto: clean, at: now().toISOString(), por: String(by || '').slice(0, 80) };
+    await Ajuste.updateOne({ key: 'notasPuerta' }, { $set: { notas: [...notas, nota], updatedBy: nota.por } }, { upsert: true });
+    return notasPuertaAdmin();
+  }
+
+  async function deleteNotaPuerta(id) {
+    const notas = await loadNotasPuerta();
+    await Ajuste.updateOne({ key: 'notasPuerta' }, { $set: { notas: notas.filter((n) => n.id !== String(id)) } });
+    return notasPuertaAdmin();
   }
 
   /** Tandas para el panel: fecha de cierre, precio, cupo y cuántas se vendieron en cada una. */
@@ -956,7 +1155,7 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
   async function exportCsv() {
     const rows = await Entrada.find({}).sort({ nombre: 1, seq: 1 }).lean();
     const medios = new Map(
-      (await Orden.find({}, { medioPago: 1, tipo: 1, talonarioNum: 1, local: 1 }).lean()).map((o) => [String(o._id), o.tipo === 'cortesia' ? 'cortesía' : o.medioPago === 'talonario' ? `talonario Nº ${o.talonarioNum}${o.local ? ` (${o.local})` : ''}` : o.medioPago || 'mercadopago'])
+      (await Orden.find({}, { medioPago: 1, tipo: 1, talonarioNum: 1, local: 1, canal: 1, registradoPor: 1 }).lean()).map((o) => [String(o._id), o.tipo === 'cortesia' ? 'cortesía' : o.canal === 'puerta' ? `puerta, ${o.medioPago}${o.registradoPor ? ` (${o.registradoPor})` : ''}` : o.medioPago === 'talonario' ? `talonario Nº ${o.talonarioNum}${o.local ? ` (${o.local})` : ''}` : o.medioPago || 'mercadopago'])
     );
     const q = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
     const head = ['codigo', 'nombre', 'email', 'telefono', 'tanda', 'tipo', 'cobro', 'estado', 'asistencia', 'ingreso', 'orden'];
@@ -1037,6 +1236,12 @@ export function createService({ config, models, mp, mailer, notifier, log = cons
     voidTicket,
     createCortesia,
     createVentaManual,
+    cobrarPuerta,
+    puertaInfo,
+    precioPuerta,
+    notasPuertaAdmin,
+    addNotaPuerta,
+    deleteNotaPuerta,
     tandasAdmin,
     saveTandas,
     resend,

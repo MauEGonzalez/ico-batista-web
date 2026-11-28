@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { createEntradasApi } from '../../../entradas/api/entradas.js';
 import EntradasPanel from '../../../entradas/components/AdminEntradas/AdminEntradas.jsx';
 import EntradasShell from '../../../entradas/components/EntradasShell/EntradasShell.jsx';
+import AccesoPuerta from '../../components/AccesoPuerta/AccesoPuerta.jsx';
 import styles from './AdminEntradas.module.css';
 
 const AdminEntradas = () => {
@@ -14,7 +15,11 @@ const AdminEntradas = () => {
   return (
     <div className={styles.page}>
       <EntradasShell embedded>
-        <EntradasPanel api={api} onAuthError={() => navigate('/admin/login', { state: { from: '/admin/entradas' } })} />
+        <EntradasPanel
+          api={api}
+          onAuthError={() => navigate('/admin/login', { state: { from: '/admin/entradas' } })}
+          extra={<AccesoPuerta />}
+        />
       </EntradasShell>
     </div>
   );

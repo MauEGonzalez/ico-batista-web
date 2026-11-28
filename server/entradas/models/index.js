@@ -48,6 +48,11 @@ export function createModels(mongoose) {
       notifiedAt: { type: Date, default: null },
       flags: { type: [String], default: [] },
       notas: { type: String, default: '' },
+      // canal 'puerta': cobrada el día del evento por el personal de puerta (registradoPor = quién cobró)
+      canal: { type: String, default: '' },
+      registradoPor: { type: String, default: '' },
+      // evita cargar dos veces la misma venta si se toca dos veces "Cobrar"
+      idem: { type: String, default: undefined, index: { unique: true, sparse: true } },
     },
     { timestamps: true }
   );
@@ -79,6 +84,8 @@ export function createModels(mongoose) {
     {
       key: { type: String, required: true, unique: true },
       tandas: { type: Schema.Types.Mixed, default: null },
+      // notas que Mauro/Ico le dejan al personal de puerta (key: 'notasPuerta')
+      notas: { type: Schema.Types.Mixed, default: null },
       updatedBy: { type: String, default: '' },
     },
     { timestamps: true }

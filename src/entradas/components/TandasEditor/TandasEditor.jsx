@@ -50,7 +50,7 @@ export default function TandasEditor({ api, onDone }) {
     setMsg('');
     try {
       const d = await api.admin.guardarTandas(
-        rows.map(({ nueva, ...r }) => ({ ...r, precioUSD: Number(r.precioUSD), cupo: r.cupo === '' ? null : Number(r.cupo) }))
+        rows.map((r) => ({ id: r.id, nombre: r.nombre, hastaFecha: r.hastaFecha, precioUSD: Number(r.precioUSD), cupo: r.cupo === '' ? null : Number(r.cupo) }))
       );
       setData(d);
       setMsg('Guardado. La página de entradas ya muestra los cambios.');

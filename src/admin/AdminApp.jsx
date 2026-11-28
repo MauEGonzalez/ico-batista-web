@@ -13,6 +13,7 @@ import AdminRunwayForm from './pages/AdminRunwayForm/AdminRunwayForm.jsx';
 import AdminMessages from './pages/AdminMessages/AdminMessages.jsx';
 import AdminSubscribers from './pages/AdminSubscribers/AdminSubscribers.jsx';
 import AdminEntradas from './pages/AdminEntradas/AdminEntradas.jsx';
+import AdminPuerta from './pages/AdminPuerta/AdminPuerta.jsx';
 
 const AdminApp = () => (
   <AdminAuthProvider>
@@ -31,6 +32,7 @@ const AdminApp = () => (
         <Route path="mensajes" element={<AdminMessages />} />
         <Route path="suscriptores" element={<AdminSubscribers />} />
         <Route path="entradas" element={<AdminEntradas />} />
+        <Route path="puerta" element={<AdminPuerta />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>

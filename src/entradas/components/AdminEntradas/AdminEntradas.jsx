@@ -6,13 +6,14 @@ import CortesiaForm from '../CortesiaForm/CortesiaForm.jsx';
 import VentaManualForm from '../VentaManualForm/VentaManualForm.jsx';
 import TandasEditor from '../TandasEditor/TandasEditor.jsx';
 import OrdenesRevisar from '../OrdenesRevisar/OrdenesRevisar.jsx';
+import NotasPuertaEditor from '../NotasPuertaEditor/NotasPuertaEditor.jsx';
 import styles from './AdminEntradas.module.css';
 
 /**
  * Panel de entradas. Es independiente de cómo se autentique Ico:
  * recibe `api` (createEntradasApi con sus headers) y se puede montar dentro del panel existente.
  */
-export default function AdminEntradas({ api, onAuthError }) {
+export default function AdminEntradas({ api, onAuthError, extra = null }) {
   const [resumen, setResumen] = useState(null);
   const [lista, setLista] = useState(null);
   const [ordenes, setOrdenes] = useState([]);
@@ -100,6 +101,8 @@ export default function AdminEntradas({ api, onAuthError }) {
       </div>
       {error && <p className={styles.error} role="alert">{error}</p>}
       <ResumenEntradas resumen={resumen} />
+      {extra}
+      <NotasPuertaEditor api={api} />
       <TandasEditor api={api} onDone={refresh} />
       <OrdenesRevisar ordenes={ordenes} onReenviar={act((id) => api.admin.reenviar(id))} />
       <IngresoRapido api={api} onDone={refresh} />

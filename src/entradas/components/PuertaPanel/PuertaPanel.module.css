@@ -1,0 +1,21 @@
+.wrap { display: flex; flex-direction: column; gap: 14px; max-width: 760px; margin: 0 auto; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.title { font-size: 2rem; }
+.sub { margin: 2px 0 0; color: var(--ink-soft); font-size: 0.9rem; }
+.count { display: flex; align-items: baseline; gap: 8px; }
+.count strong { font-family: var(--serif); font-weight: 400; font-size: 2rem; }
+.count span { color: var(--ink-soft); font-size: 0.88rem; }
+.error { margin: 0; color: var(--bad); }
+.notas { background: #fff8e6; border: 1px solid var(--warn); border-left-width: 4px; padding: 12px 16px; }
+.notas h2 { font-size: 1rem; font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.08em; color: var(--warn); margin-bottom: 6px; }
+.notas ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.notas p { margin: 0; white-space: pre-line; font-size: 1rem; }
+.notas small { color: var(--ink-soft); font-size: 0.78rem; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--ink); position: sticky; top: 64px; z-index: 2; background: var(--bg); }
+.tabs button { padding: 14px 8px; border: 0; background: transparent; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+.tabs button.on { background: var(--ink); color: var(--bg); }
+.precios { background: #fff; border: 1px solid var(--line); padding: 14px 16px; }
+.precios h2 { font-size: 1.1rem; }
+.precios table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.92rem; }
+.precios td { padding: 6px 4px; border-top: 1px solid var(--line); }
+.precios td:last-child { text-align: right; }
